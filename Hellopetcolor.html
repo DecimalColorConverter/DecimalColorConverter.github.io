@@ -3,49 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>색상 변환기</title>
+    <title>색상 코드 변환기</title>
     <style>
-        /* 기본 스타일 추가 */
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
+
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #007BFF;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
         textarea {
             width: 100%;
-            height: 100px;
-            margin-top: 10px;
+            height: 120px;
+            padding: 12px;
+            margin-top: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        .preview {
+            margin-top: 1rem;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 24px;
+        }
+
+        .error {
+            color: #dc3545;
+            margin-top: 0.5rem;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <h1>색상 변환기</h1>
-    <input type="text" id="colorInput" placeholder="예: FFFFFF FF5733">
-    <button onclick="convertColors()">변환</button>
-    <textarea id="output" readonly></textarea>
+    <div class="container">
+        <h1>색상 코드 변환기</h1>
+        <div class="input-group">
+            <input type="text" id="colorInput" placeholder="16진수 색상코드 입력 (예: FFFFFF FF5733)" autocomplete="off">
+        </div>
+        <button onclick="convertColors()">변환</button>
+        <textarea id="output" readonly placeholder="변환된 코드가 여기에 표시됩니다."></textarea>
+        <div id="preview" class="preview"></div>
+        <div id="error" class="error"></div>
+    </div>
 
     <script>
         function convertColors() {
-            const input = document.getElementById('colorInput').value;
-            const colors = input.split(' ');
+            const input = document.getElementById('colorInput').value.trim();
+            const colors = input.split(/\s+/);
             let htmlOutput = '';
+            let previewOutput = '';
+            let errors = [];
 
             colors.forEach(color => {
-                // #이 없거나 있는 경우 모두 처리
-                if (/^[0-9A-F]{6}$/i.test(color)) {
-                    const decimalColor = parseInt(color, 16);
-                    htmlOutput += `<font color=${decimalColor}>■</font>`;
-                } else if (/^#[0-9A-F]{6}$/i.test(color)) {
-                    const decimalColor = parseInt(color.slice(1), 16);
-                    htmlOutput += `<font color=${decimalColor}>■</font>`;
+                // 색상 코드에서 #제거
+                const cleanColor = color.replace('#', '');
+                
+                // 16진수 색상 코드 검증
+                if (/^[0-9A-Fa-f]{6}$/i.test(cleanColor)) {
+                    const decimalColor = parseInt(cleanColor, 16);
+                    // 변환된 출력용 HTML
+                    htmlOutput += `<font color=${decimalColor}>█</font>`;
+                    // 미리보기용 HTML (16진수 사용)
+                    previewOutput += `<span style="color: #${cleanColor}">█</span>`;
                 } else {
-                    htmlOutput += `<span style="color:red;">잘못된 색상 코드: ${color}</span>`;
+                    errors.push(`잘못된 색상 코드: ${color}`);
                 }
             });
 
-            // 변환된 HTML 코드를 textarea에 추가
-            document.getElementById('output').value = htmlOutput; 
-            // 색깔 있는 네모를 제거하고 결과를 표시하지 않음
+            // 결과 출력
+            const outputElement = document.getElementById('output');
+            const previewElement = document.getElementById('preview');
+            const errorElement = document.getElementById('error');
+
+            outputElement.value = htmlOutput;
+            previewElement.innerHTML = previewOutput;
+            errorElement.textContent = errors.join('\n');
         }
+
+        // Enter 키 입력 시 변환 실행
+        document.getElementById('colorInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertColors();
+            }
+        });
     </script>
 </body>
 </html>
