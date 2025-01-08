@@ -6,8 +6,8 @@
     <title>색상 코드 변환기</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background-color: #f8f9fa;
             margin: 0;
             padding: 20px;
             display: flex;
@@ -19,8 +19,8 @@
         .container {
             background-color: white;
             padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             width: 90%;
             max-width: 600px;
         }
@@ -29,6 +29,7 @@
             color: #333;
             text-align: center;
             margin-bottom: 1.5rem;
+            font-weight: 600;
         }
 
         .input-group {
@@ -37,43 +38,41 @@
 
         input[type="text"] {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             font-size: 16px;
             box-sizing: border-box;
-            transition: border-color 0.3s;
         }
 
         input[type="text"]:focus {
             outline: none;
-            border-color: #007BFF;
+            border-color: #666;
         }
 
         button {
             width: 100%;
-            padding: 12px;
-            background-color: #007BFF;
+            padding: 10px;
+            background-color: #333;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: #444;
         }
 
         textarea {
             width: 100%;
-            height: 120px;
-            padding: 12px;
+            height: 100px;
+            padding: 10px;
             margin-top: 1rem;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-family: 'Courier New', Courier, monospace;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
             font-size: 14px;
             resize: vertical;
             box-sizing: border-box;
@@ -82,15 +81,31 @@
         .preview {
             margin-top: 1rem;
             padding: 1rem;
-            border: 2px solid #ddd;
-            border-radius: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             font-size: 24px;
+            text-align: center;
+            background-color: white;
+            min-height: 50px;
         }
 
         .error {
             color: #dc3545;
             margin-top: 0.5rem;
             font-size: 14px;
+        }
+
+        .signature {
+            text-align: right;
+            margin-top: 1rem;
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -104,6 +119,7 @@
         <textarea id="output" readonly placeholder="변환된 코드가 여기에 표시됩니다."></textarea>
         <div id="preview" class="preview"></div>
         <div id="error" class="error"></div>
+        <div class="signature">made by 여뉴</div>
     </div>
 
     <script>
@@ -115,22 +131,17 @@
             let errors = [];
 
             colors.forEach(color => {
-                // 색상 코드에서 #제거
                 const cleanColor = color.replace('#', '');
                 
-                // 16진수 색상 코드 검증
                 if (/^[0-9A-Fa-f]{6}$/i.test(cleanColor)) {
                     const decimalColor = parseInt(cleanColor, 16);
-                    // 변환된 출력용 HTML
                     htmlOutput += `<font color=${decimalColor}>█</font>`;
-                    // 미리보기용 HTML (16진수 사용)
                     previewOutput += `<span style="color: #${cleanColor}">█</span>`;
                 } else {
                     errors.push(`잘못된 색상 코드: ${color}`);
                 }
             });
 
-            // 결과 출력
             const outputElement = document.getElementById('output');
             const previewElement = document.getElementById('preview');
             const errorElement = document.getElementById('error');
@@ -140,7 +151,6 @@
             errorElement.textContent = errors.join('\n');
         }
 
-        // Enter 키 입력 시 변환 실행
         document.getElementById('colorInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 convertColors();
