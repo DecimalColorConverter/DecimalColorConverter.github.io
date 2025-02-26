@@ -53,7 +53,6 @@
             box-shadow: var(--shadow);
         }
         
-        /* 모바일 대응을 위한 그리드 수정 */
         .color-area {
             display: flex;
             flex-direction: column;
@@ -65,6 +64,7 @@
             background: var(--bg-color);
             border-radius: var(--radius);
             padding: 16px;
+            position: relative;
         }
         
         .color-label {
@@ -73,6 +73,9 @@
             margin-bottom: 8px;
             color: #555;
             text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .color-input-group { 
@@ -90,7 +93,7 @@
             font-size: 15px; 
             outline: none;
             transition: border-color 0.2s;
-            min-width: 0; /* 모바일에서 너비 오버플로우 방지 */
+            min-width: 0;
         }
         
         .color-input-group input[type="text"]:focus {
@@ -105,7 +108,7 @@
             background: none;
             cursor: pointer;
             padding: 2px;
-            flex-shrink: 0; /* 크기 고정 */
+            flex-shrink: 0;
         }
         
         .steps-area {
@@ -193,6 +196,92 @@
             border-color: var(--border-color);
         }
         
+        .decimal-view {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: var(--bg-color);
+            border-radius: var(--radius);
+            display: none;
+        }
+        
+        .decimal-colors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .decimal-color {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        
+        .decimal-color:hover {
+            transform: scale(1.05);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        
+        .secondary-button {
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            background: white;
+            color: var(--primary);
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            flex: 1;
+        }
+        
+        .secondary-button:hover {
+            background: #f0f4ff;
+        }
+        
+        .secondary-button:active {
+            transform: translateY(1px);
+        }
+        
+        .add-color-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .add-color-btn:hover {
+            text-decoration: underline;
+        }
+        
+        .remove-color-btn {
+            background: none;
+            border: none;
+            color: #f44336;
+            cursor: pointer;
+            font-size: 16px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .remove-color-btn:hover {
+            opacity: 1;
+        }
+        
         .copy-btn { 
             padding: 10px 16px; 
             font-size: 14px;
@@ -228,7 +317,6 @@
             z-index: 1000;
         }
         
-        /* 태블릿 이상 화면에서 그리드 레이아웃 복원 */
         @media (min-width: 600px) {
             .color-area {
                 display: grid;
@@ -254,35 +342,50 @@
     <div class="container">
         <h2>컬러 보간기</h2>
 
-        <div class="color-area">
-            <div class="color-block">
-                <div class="color-label">시작 색상</div>
+        <div class="color-area" id="colorInputArea">
+            <div class="color-block" data-index="0">
+                <div class="color-label">
+                    <span>색상 1</span>
+                    <button class="add-color-btn" onclick="addColorInput()">+ 색상 추가</button>
+                </div>
                 <div class="color-input-group">
-                    <input type="text" id="startHex" value="#292f56" oninput="updateColor('start')">
-                    <input type="color" id="startColor" value="#292f56" onchange="syncHex('start')">
+                    <input type="text" class="hex-input" value="#292f56" oninput="updateColor(this)">
+                    <input type="color" class="color-picker" value="#292f56" onchange="syncHex(this)">
                 </div>
             </div>
             
-            <div class="color-block">
-                <div class="color-label">끝 색상</div>
+            <div class="color-block" data-index="1">
+                <div class="color-label">
+                    <span>색상 2</span>
+                    <button class="remove-color-btn" onclick="removeColorInput(this)">×</button>
+                </div>
                 <div class="color-input-group">
-                    <input type="text" id="endHex" value="#acfa70" oninput="updateColor('end')">
-                    <input type="color" id="endColor" value="#acfa70" onchange="syncHex('end')">
+                    <input type="text" class="hex-input" value="#acfa70" oninput="updateColor(this)">
+                    <input type="color" class="color-picker" value="#acfa70" onchange="syncHex(this)">
                 </div>
             </div>
         </div>
 
         <div class="steps-area">
-            <div class="color-label">중간 색상 개수 (3-20)</div>
-            <input type="number" id="steps" class="steps-input" value="5" min="3" max="20">
+            <div class="color-label">중간 색상 개수 (3-50)</div>
+            <input type="number" id="steps" class="steps-input" value="5" min="3" max="50">
         </div>
 
-        <button class="button" id="generateBtn" onclick="generateColors()">색상 생성하기</button>
+        <div class="button-group">
+            <button class="button" id="generateBtn" onclick="generateColors()">색상 생성하기</button>
+            <button class="secondary-button" id="toDecimalBtn" onclick="showDecimalColors()" style="display: none;">10진수로 변환</button>
+        </div>
 
         <div class="result-area">
             <div class="gradient-bar" id="colorBox"></div>
             <div class="code-box" id="codeBox"></div>
             <button class="copy-btn" id="copyBtn" onclick="copyColors()" style="display: none;">모든 코드 복사</button>
+        </div>
+        
+        <div class="decimal-view" id="decimalView">
+            <div class="color-label">10진수 변환 결과</div>
+            <div class="decimal-colors" id="decimalColors"></div>
+            <button class="copy-btn" onclick="copyDecimalColors()" style="margin-top: 16px;">10진수 코드 복사</button>
         </div>
     </div>
 
@@ -297,14 +400,18 @@
         function rgbToHex(r, g, b) {
             return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
         }
+        
+        function hexToDecimal(hex) {
+            return parseInt(hex.slice(1), 16);
+        }
 
-        function interpolateColors(start, end, steps) {
-            let startRGB = hexToRgb(start);
-            let endRGB = hexToRgb(end);
+        function interpolateColorPair(startColor, endColor, steps) {
+            let startRGB = hexToRgb(startColor);
+            let endRGB = hexToRgb(endColor);
             let colors = [];
 
-            for (let i = 1; i <= steps; i++) {
-                let t = i / (steps + 1);
+            for (let i = 0; i <= steps; i++) {
+                let t = i / steps;
                 let r = Math.round(startRGB[0] + t * (endRGB[0] - startRGB[0]));
                 let g = Math.round(startRGB[1] + t * (endRGB[1] - startRGB[1]));
                 let b = Math.round(startRGB[2] + t * (endRGB[2] - startRGB[2]));
@@ -312,29 +419,60 @@
             }
             return colors;
         }
+        
+        function interpolateMultipleColors(colorList, totalSteps) {
+            if (colorList.length < 2) return [];
+            
+            let segmentSteps = Math.ceil(totalSteps / (colorList.length - 1));
+            let allColors = [];
+            
+            for (let i = 0; i < colorList.length - 1; i++) {
+                let colors = interpolateColorPair(colorList[i], colorList[i+1], segmentSteps);
+                
+                // 첫 번째 세그먼트가 아니라면 첫 색상(중복)을 제거
+                if (i > 0) {
+                    colors.shift();
+                }
+                
+                allColors = allColors.concat(colors);
+            }
+            
+            // 필요한 만큼만 색상 반환
+            return allColors.slice(0, totalSteps);
+        }
 
         function generateColors() {
-            let startColor = document.getElementById("startHex").value;
-            let endColor = document.getElementById("endHex").value;
+            let hexInputs = document.querySelectorAll('.hex-input');
+            let colorList = Array.from(hexInputs).map(input => input.value);
             let steps = parseInt(document.getElementById("steps").value);
             let copyBtn = document.getElementById("copyBtn");
+            let toDecimalBtn = document.getElementById("toDecimalBtn");
+            let decimalView = document.getElementById("decimalView");
 
-            if (!/^#([0-9A-Fa-f]{6})$/.test(startColor) || !/^#([0-9A-Fa-f]{6})$/.test(endColor)) {
-                alert("올바른 HEX 코드를 입력하세요.");
-                return;
+            // 입력 유효성 검사
+            for (let color of colorList) {
+                if (!/^#([0-9A-Fa-f]{6})$/.test(color)) {
+                    alert("올바른 HEX 코드를 입력하세요.");
+                    return;
+                }
             }
 
-            if (steps < 3 || steps > 20) {
-                alert("중간 색상 개수는 3~20 사이여야 합니다.");
+            if (steps < 3 || steps > 50) {
+                alert("중간 색상 개수는 3~50 사이여야 합니다.");
                 return;
             }
-
-            let colors = interpolateColors(startColor, endColor, steps);
+            
+            // 색상 보간 수행
+            let colors = colorList;
+            
             let colorBox = document.getElementById("colorBox");
             let codeBox = document.getElementById("codeBox");
 
             colorBox.innerHTML = ""; 
             codeBox.innerHTML = "";
+            
+            // 10진수 뷰 초기화
+            decimalView.style.display = "none";
 
             colors.forEach(color => {
                 let div = document.createElement("div");
@@ -354,6 +492,44 @@
             });
 
             copyBtn.style.display = "block";
+            toDecimalBtn.style.display = "block";
+        }
+        
+        function showDecimalColors() {
+            let codeBox = document.getElementById("codeBox");
+            let decimalView = document.getElementById("decimalView");
+            let decimalColors = document.getElementById("decimalColors");
+            let hexColors = [...codeBox.getElementsByClassName("code")].map(div => div.textContent);
+            
+            decimalColors.innerHTML = "";
+            
+            hexColors.forEach(hexColor => {
+                let decimal = hexToDecimal(hexColor);
+                let colorSpan = document.createElement("span");
+                colorSpan.className = "decimal-color";
+                colorSpan.innerHTML = `<font color="${hexColor}">■</font> ${decimal}`;
+                colorSpan.setAttribute("data-decimal", decimal);
+                colorSpan.addEventListener("click", function() {
+                    navigator.clipboard.writeText(this.getAttribute("data-decimal"));
+                    showTooltip(this, "복사됨!");
+                });
+                decimalColors.appendChild(colorSpan);
+            });
+            
+            decimalView.style.display = "block";
+        }
+        
+        function copyDecimalColors() {
+            let decimalColors = document.getElementById("decimalColors");
+            let text = [...decimalColors.getElementsByClassName("decimal-color")]
+                .map(span => span.getAttribute("data-decimal"))
+                .join("\n");
+
+            navigator.clipboard.writeText(text).then(() => {
+                showTooltip(document.querySelector("#decimalView .copy-btn"), "모든 10진수 코드가 복사되었습니다!");
+            }).catch(err => {
+                console.error("복사 실패: ", err);
+            });
         }
 
         function copyColors() {
@@ -367,25 +543,77 @@
             });
         }
 
-        function updateColor(type) {
-            let hexInput = document.getElementById(type + "Hex");
-            let colorInput = document.getElementById(type + "Color");
+        function updateColor(input) {
+            let colorBlock = input.closest('.color-block');
+            let colorPicker = colorBlock.querySelector('.color-picker');
 
-            // Automatically add # if missing
-            if (hexInput.value.charAt(0) !== '#' && hexInput.value.length > 0) {
-                hexInput.value = '#' + hexInput.value;
+            // 자동으로 # 추가
+            if (input.value.charAt(0) !== '#' && input.value.length > 0) {
+                input.value = '#' + input.value;
             }
 
-            if (/^#([0-9A-Fa-f]{6})$/.test(hexInput.value)) {
-                colorInput.value = hexInput.value;
+            if (/^#([0-9A-Fa-f]{6})$/.test(input.value)) {
+                colorPicker.value = input.value;
             }
         }
 
-        function syncHex(type) {
-            let hexInput = document.getElementById(type + "Hex");
-            let colorInput = document.getElementById(type + "Color");
+        function syncHex(colorPicker) {
+            let colorBlock = colorPicker.closest('.color-block');
+            let hexInput = colorBlock.querySelector('.hex-input');
 
-            hexInput.value = colorInput.value;
+            hexInput.value = colorPicker.value;
+        }
+        
+        function addColorInput() {
+            let colorArea = document.getElementById("colorInputArea");
+            let colorBlocks = colorArea.querySelectorAll('.color-block');
+            let newIndex = colorBlocks.length;
+            
+            if (newIndex >= 10) {
+                alert("최대 10개까지 색상을 추가할 수 있습니다.");
+                return;
+            }
+            
+            let newColorBlock = document.createElement('div');
+            newColorBlock.className = 'color-block';
+            newColorBlock.setAttribute('data-index', newIndex);
+            
+            let randomColor = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+            
+            newColorBlock.innerHTML = `
+                <div class="color-label">
+                    <span>색상 ${newIndex + 1}</span>
+                    <button class="remove-color-btn" onclick="removeColorInput(this)">×</button>
+                </div>
+                <div class="color-input-group">
+                    <input type="text" class="hex-input" value="${randomColor}" oninput="updateColor(this)">
+                    <input type="color" class="color-picker" value="${randomColor}" onchange="syncHex(this)">
+                </div>
+            `;
+            
+            colorArea.appendChild(newColorBlock);
+        }
+        
+        function removeColorInput(button) {
+            let colorBlock = button.closest('.color-block');
+            let colorArea = document.getElementById("colorInputArea");
+            let colorBlocks = colorArea.querySelectorAll('.color-block');
+            
+            // 최소 2개의 색상은 유지
+            if (colorBlocks.length <= 2) {
+                alert("최소 2개의 색상이 필요합니다.");
+                return;
+            }
+            
+            colorArea.removeChild(colorBlock);
+            
+            // 색상 인덱스 및 레이블 업데이트
+            colorBlocks = colorArea.querySelectorAll('.color-block');
+            colorBlocks.forEach((block, index) => {
+                block.setAttribute('data-index', index);
+                let label = block.querySelector('.color-label span');
+                label.textContent = `색상 ${index + 1}`;
+            });
         }
 
         function showTooltip(element, message) {
@@ -411,7 +639,7 @@
             }
         });
 
-        // Initialize colors on page load
+        // 페이지 로드 시 색상 초기화
         window.onload = function() {
             generateColors();
         };
