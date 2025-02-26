@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>컬러 보간기</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        .color-box { display: flex; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+        .color { width: 100px; height: 50px; margin: 5px; border-radius: 5px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); }
+        .code-box { margin-top: 20px; text-align: left; display: inline-block; }
+        .code { font-family: monospace; background: #f4f4f4; padding: 5px; border-radius: 5px; display: block; margin: 2px 0; }
+        .copy-btn { margin-top: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h2>컬러 보간기</h2>
+    <label>시작 색상: <input type="color" id="startColor" value="#292f56"></label>
+    <label>끝 색상: <input type="color" id="endColor" value="#acfa70"></label>
+    <label>중간 색상 개수: <input type="number" id="steps" value="5" min="3" max="20"></label>
+    <button onclick="generateColors()">생성</button>
+
+    <div class="color-box" id="colorBox"></div>
+    <div class="code-box" id="codeBox"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyColors()" style="display: none;">모든 코드 복사</button>
+
+    <script>
+        function hexToRgb(hex) {
+            let bigint = parseInt(hex.slice(1), 16);
+            return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+        }
+
+        function rgbToHex(r, g, b) {
+            return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
+        }
+
+        function interpolateColors(start, end, steps) {
+            let startRGB = hexToRgb(start);
+            let endRGB = hexToRgb(end);
+            let colors = [];
+
+            for (let i = 1; i <= steps; i++) {
+                let t = i / (steps + 1);
+                let r = Math.round(startRGB[0] + t * (endRGB[0] - startRGB[0]));
+                let g = Math.round(startRGB[1] + t * (endRGB[1] - startRGB[1]));
+                let b = Math.round(startRGB[2] + t * (endRGB[2] - startRGB[2]));
+                colors.push(rgbToHex(r, g, b));
+            }
+            return colors;
+        }
+
+        function generateColors() {
+            let startColor = document.getElementById("startColor").value;
+            let endColor = document.getElementById("endColor").value;
+            let steps = parseInt(document.getElementById("steps").value);
+            let copyBtn = document.getElementById("copyBtn");
+
+            if (steps < 3 || steps > 20) {
+                alert("중간 색상 개수는 3~20 사이여야 합니다.");
+                return;
+            }
+
+            let colors = interpolateColors(startColor, endColor, steps);
+            let colorBox = document.getElementById("colorBox");
+            let codeBox = document.getElementById("codeBox");
+
+            colorBox.innerHTML = ""; 
+            codeBox.innerHTML = "<h3>생성된 색상 코드</h3>";
+
+            colors.forEach(color => {
+                let div = document.createElement("div");
+                div.className = "color";
+                div.style.backgroundColor = color;
+                colorBox.appendChild(div);
+
+                let codeDiv = document.createElement("div");
+                codeDiv.className = "code";
+                codeDiv.textContent = color;
+                codeBox.appendChild(codeDiv);
+            });
+
+            copyBtn.style.display = "block"; // 복사 버튼 표시
+        }
+
+        function copyColors() {
+            let codeBox = document.getElementById("codeBox");
+            let text = [...codeBox.getElementsByClassName("code")].map(div => div.textContent).join("\n");
+
+            navigator.clipboard.writeText(text).then(() => {
+                alert("색상 코드가 복사되었습니다!");
+            }).catch(err => {
+                console.error("복사 실패: ", err);
+            });
+        }
+    </script>
+
+</body>
+</html>
