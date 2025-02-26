@@ -6,8 +6,9 @@
     <title>컬러 보간기</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-        .color-box { display: flex; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
-        .color { width: 100px; height: 50px; margin: 5px; border-radius: 5px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); }
+        .color-container { display: flex; justify-content: center; margin-top: 20px; }
+        .gradient-bar { display: flex; width: 80%; height: 50px; border-radius: 5px; overflow: hidden; box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); }
+        .color { flex: 1; }
         .code-box { margin-top: 20px; text-align: left; display: inline-block; }
         .code { font-family: monospace; background: #f4f4f4; padding: 5px; border-radius: 5px; display: block; margin: 2px 0; }
         .copy-btn { margin-top: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer; }
@@ -21,7 +22,9 @@
     <label>중간 색상 개수: <input type="number" id="steps" value="5" min="3" max="20"></label>
     <button onclick="generateColors()">생성</button>
 
-    <div class="color-box" id="colorBox"></div>
+    <div class="color-container">
+        <div class="gradient-bar" id="colorBox"></div>
+    </div>
     <div class="code-box" id="codeBox"></div>
     <button class="copy-btn" id="copyBtn" onclick="copyColors()" style="display: none;">모든 코드 복사</button>
 
@@ -78,6 +81,12 @@
                 codeDiv.className = "code";
                 codeDiv.textContent = color;
                 codeBox.appendChild(codeDiv);
+            });
+
+            // 색상 칸을 flex 비율로 나눠서 한 줄로 보이게 설정
+            let colorElements = document.querySelectorAll(".color");
+            colorElements.forEach(el => {
+                el.style.flex = `1 1 ${100 / colors.length}%`; // 동일한 너비 설정
             });
 
             copyBtn.style.display = "block"; // 복사 버튼 표시
