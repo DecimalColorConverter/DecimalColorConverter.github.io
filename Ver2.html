@@ -3,30 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>컬러 보간기</title>
+    <title>헬로펫 그라데이션 생성기 2</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-        .color-container { display: flex; justify-content: center; margin-top: 20px; }
-        .gradient-bar { display: flex; width: 80%; height: 50px; border-radius: 5px; overflow: hidden; box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial', sans-serif; }
+        body { background: #f8f9fa; color: #333; text-align: center; padding: 40px; }
+        h2 { font-size: 24px; margin-bottom: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+        .input-group { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+        .input-group input { width: 48%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
+        .color-input { display: flex; align-items: center; gap: 10px; }
+        .color-box { width: 40px; height: 40px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; }
+        .button { width: 100%; padding: 10px; font-size: 16px; border: none; border-radius: 5px; background: #007bff; color: white; cursor: pointer; margin-top: 10px; }
+        .button:hover { background: #0056b3; }
+        .gradient-bar { display: flex; width: 100%; height: 50px; border-radius: 5px; overflow: hidden; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); margin-top: 20px; }
         .color { flex: 1; }
-        .code-box { margin-top: 20px; text-align: left; display: inline-block; }
-        .code { font-family: monospace; background: #f4f4f4; padding: 5px; border-radius: 5px; display: block; margin: 2px 0; }
-        .copy-btn { margin-top: 10px; padding: 5px 10px; font-size: 14px; cursor: pointer; }
+        .code-box { margin-top: 20px; text-align: center; }
+        .code { font-family: monospace; background: #eee; padding: 8px 12px; border-radius: 5px; display: inline-block; margin: 5px; }
+        .copy-btn { padding: 8px 15px; font-size: 14px; border: none; border-radius: 5px; background: #28a745; color: white; cursor: pointer; margin-top: 10px; }
+        .copy-btn:hover { background: #218838; }
     </style>
 </head>
 <body>
 
-    <h2>컬러 보간기</h2>
-    <label>시작 색상: <input type="color" id="startColor" value="#292f56"></label>
-    <label>끝 색상: <input type="color" id="endColor" value="#acfa70"></label>
-    <label>중간 색상 개수: <input type="number" id="steps" value="5" min="3" max="20"></label>
-    <button onclick="generateColors()">생성</button>
+    <div class="container">
+        <h2>헬로펫 그라데이션 생성기 2</h2>
 
-    <div class="color-container">
+        <div class="input-group">
+            <div class="color-input">
+                <input type="text" id="startHex" value="#292f56" oninput="updateColor('start')">
+                <input type="color" id="startColor" value="#292f56" onchange="syncHex('start')">
+            </div>
+            <div class="color-input">
+                <input type="text" id="endHex" value="#acfa70" oninput="updateColor('end')">
+                <input type="color" id="endColor" value="#acfa70" onchange="syncHex('end')">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <input type="number" id="steps" value="5" min="3" max="20" placeholder="중간 색상 개수">
+        </div>
+
+        <button class="button" onclick="generateColors()">생성</button>
+
         <div class="gradient-bar" id="colorBox"></div>
+        <div class="code-box" id="codeBox"></div>
+        <button class="copy-btn" id="copyBtn" onclick="copyColors()" style="display: none;">모든 코드 복사</button>
     </div>
-    <div class="code-box" id="codeBox"></div>
-    <button class="copy-btn" id="copyBtn" onclick="copyColors()" style="display: none;">모든 코드 복사</button>
 
     <script>
         function hexToRgb(hex) {
@@ -54,10 +76,15 @@
         }
 
         function generateColors() {
-            let startColor = document.getElementById("startColor").value;
-            let endColor = document.getElementById("endColor").value;
+            let startColor = document.getElementById("startHex").value;
+            let endColor = document.getElementById("endHex").value;
             let steps = parseInt(document.getElementById("steps").value);
             let copyBtn = document.getElementById("copyBtn");
+
+            if (!/^#([0-9A-Fa-f]{6})$/.test(startColor) || !/^#([0-9A-Fa-f]{6})$/.test(endColor)) {
+                alert("올바른 HEX 코드를 입력하세요.");
+                return;
+            }
 
             if (steps < 3 || steps > 20) {
                 alert("중간 색상 개수는 3~20 사이여야 합니다.");
@@ -69,7 +96,7 @@
             let codeBox = document.getElementById("codeBox");
 
             colorBox.innerHTML = ""; 
-            codeBox.innerHTML = "<h3>생성된 색상 코드</h3>";
+            codeBox.innerHTML = "";
 
             colors.forEach(color => {
                 let div = document.createElement("div");
@@ -77,19 +104,18 @@
                 div.style.backgroundColor = color;
                 colorBox.appendChild(div);
 
-                let codeDiv = document.createElement("div");
+                let codeDiv = document.createElement("span");
                 codeDiv.className = "code";
                 codeDiv.textContent = color;
                 codeBox.appendChild(codeDiv);
             });
 
-            // 색상 칸을 flex 비율로 나눠서 한 줄로 보이게 설정
             let colorElements = document.querySelectorAll(".color");
             colorElements.forEach(el => {
-                el.style.flex = `1 1 ${100 / colors.length}%`; // 동일한 너비 설정
+                el.style.flex = `1 1 ${100 / colors.length}%`; 
             });
 
-            copyBtn.style.display = "block"; // 복사 버튼 표시
+            copyBtn.style.display = "block";
         }
 
         function copyColors() {
@@ -101,6 +127,22 @@
             }).catch(err => {
                 console.error("복사 실패: ", err);
             });
+        }
+
+        function updateColor(type) {
+            let hexInput = document.getElementById(type + "Hex");
+            let colorInput = document.getElementById(type + "Color");
+
+            if (/^#([0-9A-Fa-f]{6})$/.test(hexInput.value)) {
+                colorInput.value = hexInput.value;
+            }
+        }
+
+        function syncHex(type) {
+            let hexInput = document.getElementById(type + "Hex");
+            let colorInput = document.getElementById(type + "Color");
+
+            hexInput.value = colorInput.value;
         }
     </script>
 
