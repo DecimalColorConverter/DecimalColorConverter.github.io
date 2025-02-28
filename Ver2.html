@@ -130,9 +130,15 @@
             border-color: var(--primary);
         }
         
-        .button { 
-            padding: 10px 16px; 
-            font-size: 14px; 
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        
+        .primary-button { 
+            padding: 14px; 
+            font-size: 16px; 
             font-weight: 600;
             border: none; 
             border-radius: 8px; 
@@ -140,14 +146,35 @@
             color: white; 
             cursor: pointer; 
             transition: background-color 0.2s, transform 0.1s;
-            margin-bottom: 24px;
+            flex: 3;
         }
         
-        .button:hover { 
+        .primary-button:hover { 
             background: var(--primary-dark); 
         }
         
-        .button:active {
+        .primary-button:active {
+            transform: translateY(1px);
+        }
+        
+        .secondary-button {
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            background: white;
+            color: var(--primary);
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            flex: 2;
+        }
+        
+        .secondary-button:hover {
+            background: #f0f4ff;
+        }
+        
+        .secondary-button:active {
             transform: translateY(1px);
         }
         
@@ -209,48 +236,16 @@
             flex-wrap: wrap;
             gap: 8px;
             margin-top: 12px;
-            margin-bottom: 16px;
         }
         
         .decimal-color {
             font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-            padding: 8px 12px;
-            background: #ffffff;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: transform 0.1s;
         }
         
         .decimal-color:hover {
-            background: #e9edf5;
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 24px;
-            justify-content: center;
-        }
-        
-        .secondary-button {
-            padding: 10px 16px;
-            font-size: 14px;
-            font-weight: 600;
-            border: 1px solid var(--primary);
-            border-radius: 8px;
-            background: white;
-            color: var(--primary);
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-        }
-        
-        .secondary-button:hover {
-            background: #f0f4ff;
-        }
-        
-        .secondary-button:active {
-            transform: translateY(1px);
+            transform: scale(1.05);
         }
         
         .add-color-btn {
@@ -287,7 +282,7 @@
         }
         
         .copy-btn { 
-            padding: 8px 14px; 
+            padding: 10px 16px; 
             font-size: 14px;
             font-weight: 500; 
             border: none; 
@@ -376,7 +371,7 @@
         </div>
 
         <div class="button-group">
-            <button class="button" id="generateBtn" onclick="generateColors()">색상 생성하기</button>
+            <button class="primary-button" id="generateBtn" onclick="generateColors()">색상 생성하기</button>
             <button class="secondary-button" id="toDecimalBtn" onclick="showDecimalColors()" style="display: none;">10진수로 변환</button>
         </div>
 
@@ -389,7 +384,7 @@
         <div class="decimal-view" id="decimalView">
             <div class="color-label">10진수 변환 결과</div>
             <div class="decimal-colors" id="decimalColors"></div>
-            <button class="copy-btn" id="copyDecimalBtn" onclick="copyDecimalColors()">모든 10진수 코드 복사</button>
+            <button class="copy-btn" onclick="copyDecimalColors()" style="margin-top: 16px;">10진수 코드 복사</button>
         </div>
     </div>
 
@@ -427,33 +422,34 @@
         function interpolateMultipleColors(colorList, totalSteps) {
             if (colorList.length < 2) return colorList;
             
-            let result = [];
+            // 단일 색상일 경우 반환
+            if (colorList.length === 1) return [colorList[0]];
             
-            if (colorList.length === 2) {
-                // 색상이 두 개일 때는 단순히 두 색상 사이를 보간
-                result = interpolateColorPair(colorList[0], colorList[1], totalSteps);
-            } else {
-                // 색상이 세 개 이상일 때는 각 세그먼트별 보간 수행
-                let segmentCount = colorList.length - 1;
-                let stepsPerSegment = Math.floor(totalSteps / segmentCount);
-                let extraSteps = totalSteps % segmentCount;
+            // 두 색상 사이의 보간 수 계산
+            let segments = colorList.length - 1;
+            let stepsPerSegment = Math.floor(totalSteps / segments);
+            let remainder = totalSteps % segments;
+            
+            let result = [colorList[0]]; // 시작 색상으로 시작
+            
+            // 각 색상 쌍 사이의 보간 수행
+            for (let i = 0; i < segments; i++) {
+                // 이 세그먼트에 대한 보간 단계 수 계산 (나머지 분배)
+                let segSteps = stepsPerSegment + (i < remainder ? 1 : 0);
                 
-                // 첫 번째 색상 추가
-                result.push(colorList[0]);
+                // 시작 색상과 끝 색상
+                let segStart = colorList[i];
+                let segEnd = colorList[i + 1];
                 
-                for (let i = 0; i < segmentCount; i++) {
-                    let segmentSteps = stepsPerSegment + (i < extraSteps ? 1 : 0);
-                    let segmentColors = interpolateColorPair(
-                        colorList[i], 
-                        colorList[i + 1], 
-                        segmentSteps + 1
-                    );
-                    
-                    // 첫 번째 색상은 이미 추가했으므로 제외
-                    segmentColors.shift();
-                    
-                    result = result.concat(segmentColors);
-                }
+                // 이 세그먼트의 보간 색상 생성 (끝 색상 포함)
+                let segColors = interpolateColorPair(segStart, segEnd, segSteps);
+                
+                // 첫 번째 색상은 이미 결과에 추가되었거나 이전 세그먼트의 끝에 추가됨
+                // 따라서 맨 처음 색상은 건너뜀
+                segColors.shift();
+                
+                // 결과 배열에 색상 추가
+                result = result.concat(segColors);
             }
             
             return result;
@@ -510,7 +506,7 @@
             });
 
             copyBtn.style.display = "block";
-            toDecimalBtn.style.display = "inline-block";
+            toDecimalBtn.style.display = "block";
         }
         
         function showDecimalColors() {
@@ -523,12 +519,13 @@
             
             hexColors.forEach(hexColor => {
                 let decimal = hexToDecimal(hexColor);
-                let colorSpan = document.createElement("div");
+                let colorSpan = document.createElement("span");
                 colorSpan.className = "decimal-color";
                 colorSpan.innerHTML = `<font color="${hexColor}">■</font> ${decimal}`;
-                colorSpan.setAttribute("data-decimal", `<font color="${hexColor}">■</font> ${decimal}`);
+                colorSpan.setAttribute("data-decimal", decimal);
+                colorSpan.setAttribute("data-html", `<font color="${hexColor}">■</font> ${decimal}`);
                 colorSpan.addEventListener("click", function() {
-                    navigator.clipboard.writeText(this.getAttribute("data-decimal"));
+                    navigator.clipboard.writeText(this.getAttribute("data-html"));
                     showTooltip(this, "복사됨!");
                 });
                 decimalColors.appendChild(colorSpan);
@@ -540,11 +537,11 @@
         function copyDecimalColors() {
             let decimalColors = document.getElementById("decimalColors");
             let text = [...decimalColors.getElementsByClassName("decimal-color")]
-                .map(span => span.getAttribute("data-decimal"))
+                .map(span => span.getAttribute("data-html"))
                 .join("\n");
 
             navigator.clipboard.writeText(text).then(() => {
-                showTooltip(document.getElementById("copyDecimalBtn"), "모든 10진수 코드가 복사되었습니다!");
+                showTooltip(document.querySelector("#decimalView .copy-btn"), "모든 10진수 코드가 복사되었습니다!");
             }).catch(err => {
                 console.error("복사 실패: ", err);
             });
@@ -596,6 +593,7 @@
             newColorBlock.className = 'color-block';
             newColorBlock.setAttribute('data-index', newIndex);
             
+            // 랜덤 색상 생성 시 패딩 추가하여 6자리 HEX 값 보장
             let randomColor = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
             
             newColorBlock.innerHTML = `
