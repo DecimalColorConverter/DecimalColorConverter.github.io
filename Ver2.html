@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>컬러 보간기</title>
+    <title>헬로펫 그라데이션 생성기</title>
     <style>
         :root {
             --primary: #4361ee;
@@ -136,7 +136,7 @@
             margin-bottom: 24px;
         }
         
-        .primary-button { 
+        .primary-button {
             padding: 14px; 
             font-size: 16px; 
             font-weight: 600;
@@ -146,7 +146,7 @@
             color: white; 
             cursor: pointer; 
             transition: background-color 0.2s, transform 0.1s;
-            flex: 3;
+            flex: 2;
         }
         
         .primary-button:hover { 
@@ -167,7 +167,7 @@
             color: var(--primary);
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
-            flex: 2;
+            flex: 1;
         }
         
         .secondary-button:hover {
@@ -339,7 +339,7 @@
 <body>
 
     <div class="container">
-        <h2>컬러 보간기</h2>
+        <h2>헬로펫 그라데이션 생성기</h2>
 
         <div class="color-area" id="colorInputArea">
             <div class="color-block" data-index="0">
@@ -420,36 +420,44 @@
         }
         
         function interpolateMultipleColors(colorList, totalSteps) {
-            if (colorList.length < 2) return colorList;
+            if (colorList.length < 2) return [];
+            if (colorList.length === 2) {
+                return interpolateColorPair(colorList[0], colorList[1], totalSteps);
+            }
             
-            // 단일 색상일 경우 반환
-            if (colorList.length === 1) return [colorList[0]];
+            // 다중 색상 보간
+            let segmentCount = colorList.length - 1;
+            let stepsPerSegment = Math.floor(totalSteps / segmentCount);
+            let extraSteps = totalSteps % segmentCount;
+            let result = [];
             
-            // 두 색상 사이의 보간 수 계산
-            let segments = colorList.length - 1;
-            let stepsPerSegment = Math.floor(totalSteps / segments);
-            let remainder = totalSteps % segments;
+            // 첫 번째 색상 추가
+            result.push(colorList[0]);
             
-            let result = [colorList[0]]; // 시작 색상으로 시작
-            
-            // 각 색상 쌍 사이의 보간 수행
-            for (let i = 0; i < segments; i++) {
-                // 이 세그먼트에 대한 보간 단계 수 계산 (나머지 분배)
-                let segSteps = stepsPerSegment + (i < remainder ? 1 : 0);
+            for (let i = 0; i < segmentCount; i++) {
+                let startColor = colorList[i];
+                let endColor = colorList[i + 1];
+                let segmentSteps = stepsPerSegment + (i < extraSteps ? 1 : 0);
                 
-                // 시작 색상과 끝 색상
-                let segStart = colorList[i];
-                let segEnd = colorList[i + 1];
+                if (segmentSteps > 0) {
+                    // 중간 색상들 계산
+                    for (let j = 1; j <= segmentSteps; j++) {
+                        let t = j / (segmentSteps + 1);
+                        let startRGB = hexToRgb(startColor);
+                        let endRGB = hexToRgb(endColor);
+                        
+                        let r = Math.round(startRGB[0] + t * (endRGB[0] - startRGB[0]));
+                        let g = Math.round(startRGB[1] + t * (endRGB[1] - startRGB[1]));
+                        let b = Math.round(startRGB[2] + t * (endRGB[2] - startRGB[2]));
+                        
+                        result.push(rgbToHex(r, g, b));
+                    }
+                }
                 
-                // 이 세그먼트의 보간 색상 생성 (끝 색상 포함)
-                let segColors = interpolateColorPair(segStart, segEnd, segSteps);
-                
-                // 첫 번째 색상은 이미 결과에 추가되었거나 이전 세그먼트의 끝에 추가됨
-                // 따라서 맨 처음 색상은 건너뜀
-                segColors.shift();
-                
-                // 결과 배열에 색상 추가
-                result = result.concat(segColors);
+                // 마지막 세그먼트가 아니면 끝 색상 추가
+                if (i === segmentCount - 1) {
+                    result.push(endColor);
+                }
             }
             
             return result;
@@ -523,9 +531,11 @@
                 colorSpan.className = "decimal-color";
                 colorSpan.innerHTML = `<font color="${hexColor}">■</font> ${decimal}`;
                 colorSpan.setAttribute("data-decimal", decimal);
-                colorSpan.setAttribute("data-html", `<font color="${hexColor}">■</font> ${decimal}`);
+                colorSpan.setAttribute("data-hex", hexColor);
                 colorSpan.addEventListener("click", function() {
-                    navigator.clipboard.writeText(this.getAttribute("data-html"));
+                    let hexCode = this.getAttribute("data-hex");
+                    let decimalCode = this.getAttribute("data-decimal");
+                    navigator.clipboard.writeText(`<font color=${decimalCode}>■</font>`);
                     showTooltip(this, "복사됨!");
                 });
                 decimalColors.appendChild(colorSpan);
@@ -536,9 +546,12 @@
         
         function copyDecimalColors() {
             let decimalColors = document.getElementById("decimalColors");
-            let text = [...decimalColors.getElementsByClassName("decimal-color")]
-                .map(span => span.getAttribute("data-html"))
-                .join("\n");
+            let decimalElements = [...decimalColors.getElementsByClassName("decimal-color")];
+            
+            let text = decimalElements.map(span => {
+                let decimal = span.getAttribute("data-decimal");
+                return `<font color=${decimal}>■</font>`;
+            }).join("\n");
 
             navigator.clipboard.writeText(text).then(() => {
                 showTooltip(document.querySelector("#decimalView .copy-btn"), "모든 10진수 코드가 복사되었습니다!");
@@ -593,7 +606,7 @@
             newColorBlock.className = 'color-block';
             newColorBlock.setAttribute('data-index', newIndex);
             
-            // 랜덤 색상 생성 시 패딩 추가하여 6자리 HEX 값 보장
+            // 랜덤 색상 생성 (유효한 6자리 HEX 코드 보장)
             let randomColor = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
             
             newColorBlock.innerHTML = `
