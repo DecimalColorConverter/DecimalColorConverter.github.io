@@ -508,7 +508,7 @@
                 codeDiv.setAttribute("data-color", color);
                 codeDiv.addEventListener("click", function() {
                     navigator.clipboard.writeText(this.textContent);
-                    showTooltip(this, "복사됨!");
+                    showTooltip(this, "복사되었습니다!");
                 });
                 codeBox.appendChild(codeDiv);
             });
@@ -536,7 +536,7 @@
                     let hexCode = this.getAttribute("data-hex");
                     let decimalCode = this.getAttribute("data-decimal");
                     navigator.clipboard.writeText(`<font color=${decimalCode}>■</font>`);
-                    showTooltip(this, "복사됨!");
+                    showTooltip(this, "복사되었습니다!");
                 });
                 decimalColors.appendChild(colorSpan);
             });
