@@ -19,8 +19,8 @@
         .container {
             background-color: white;
             padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             width: 90%;
             max-width: 600px;
         }
@@ -35,26 +35,41 @@
         .input-group {
             margin-bottom: 1rem;
             display: flex;
+            flex-wrap: wrap;
             gap: 10px;
         }
 
-        .symbol-input {
-            width: 80px !important;
-            text-align: center;
+        .input-group-main {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .symbol-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .symbol-label {
+            white-space: nowrap;
+            font-size: 14px;
+            color: #555;
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 16px;
             box-sizing: border-box;
+            transition: all 0.2s ease;
         }
 
         input[type="text"]:focus {
             outline: none;
-            border-color: #666;
+            border-color: #4a6fdc;
+            box-shadow: 0 0 0 2px rgba(74, 111, 220, 0.2);
         }
 
         .button-group {
@@ -65,26 +80,31 @@
 
         button {
             flex: 1;
-            padding: 10px;
-            background-color: #333;
-            color: white;
+            padding: 12px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.2s;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
 
-        button:hover {
-            background-color: #444;
+        .btn-primary {
+            background-color: #4a6fdc;
+            color: white;
         }
 
-        button.copy-btn {
-            background-color: #0069d9;
+        .btn-primary:hover {
+            background-color: #3a5fcc;
         }
 
-        button.copy-btn:hover {
-            background-color: #0056b3;
+        .btn-secondary {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .btn-secondary:hover {
+            background-color: #dee2e6;
         }
 
         .output-container {
@@ -94,21 +114,46 @@
         textarea {
             width: 100%;
             height: 100px;
-            padding: 10px;
-            margin-top: 0.5rem;
+            padding: 12px;
+            margin-top: 1rem;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 6px;
             font-family: monospace;
             font-size: 14px;
             resize: vertical;
             box-sizing: border-box;
         }
 
+        textarea:focus {
+            outline: none;
+            border-color: #4a6fdc;
+            box-shadow: 0 0 0 2px rgba(74, 111, 220, 0.2);
+        }
+
+        .copy-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .copy-message.show {
+            opacity: 1;
+        }
+
         .preview {
             margin-top: 1rem;
             padding: 1rem;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 24px;
             text-align: center;
             background-color: white;
@@ -121,14 +166,19 @@
             height: 40px;
             margin: 5px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 6px;
+            transition: transform 0.2s ease;
+        }
+
+        .color-box:hover {
+            transform: scale(1.1);
         }
 
         .color-info {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
             margin-top: 1rem;
         }
 
@@ -137,34 +187,26 @@
             flex-direction: column;
             align-items: center;
             margin-bottom: 10px;
-            border: 1px solid #eee;
+            background-color: #f8f9fa;
             padding: 10px;
-            border-radius: 4px;
-            background-color: #fafafa;
-            transition: transform 0.2s;
+            border-radius: 6px;
+            transition: all 0.2s ease;
         }
 
         .color-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .color-code {
             font-family: monospace;
             font-size: 12px;
             margin-top: 5px;
+            user-select: all;
+            cursor: pointer;
         }
 
-        .copy-indicator {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            display: none;
+        .color-code:hover {
+            color: #4a6fdc;
         }
 
         .error {
@@ -175,34 +217,36 @@
 
         .signature {
             text-align: right;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
             color: #666;
             font-size: 14px;
         }
 
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-size: 14px;
-            font-weight: 500;
+        .symbol-selector {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            background-color: white;
         }
 
-        .input-wrapper {
-            flex: 1;
+        .hidden {
+            display: none;
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 600px) {
             .container {
                 padding: 1.5rem;
             }
             
-            .input-group {
+            .button-group {
                 flex-direction: column;
             }
             
-            .symbol-input {
-                width: 100% !important;
+            .input-group {
+                flex-direction: column;
             }
         }
     </style>
@@ -210,29 +254,34 @@
 <body>
     <div class="container">
         <h1>색상 코드 변환기</h1>
-        
         <div class="input-group">
-            <div class="input-wrapper">
-                <label for="colorInput">16진수 색상코드</label>
-                <input type="text" id="colorInput" placeholder="색상코드 입력 (예: FFFFFF FF5733)" autocomplete="off">
+            <div class="input-group-main">
+                <input type="text" id="colorInput" placeholder="16진수 색상코드 입력 (예: FFFFFF FF5733)" autocomplete="off">
             </div>
-            <div>
-                <label for="symbolInput">사용할 기호</label>
-                <input type="text" id="symbolInput" class="symbol-input" value="■" maxlength="1" autocomplete="off">
+            <div class="symbol-group">
+                <span class="symbol-label">기호:</span>
+                <select id="symbolSelector" class="symbol-selector">
+                    <option value="■">■ (기본값)</option>
+                    <option value="♡">♡ (하트)</option>
+                    <option value="★">★ (별)</option>
+                    <option value="●">● (원)</option>
+                    <option value="◆">◆ (다이아몬드)</option>
+                    <option value="▲">▲ (삼각형)</option>
+                    <option value="♣">♣ (클로버)</option>
+                    <option value="✓">✓ (체크)</option>
+                    <option value="custom">사용자 지정</option>
+                </select>
+                <input type="text" id="customSymbol" class="hidden" placeholder="기호 입력" maxlength="2" style="width: 50px;">
             </div>
         </div>
-        
         <div class="button-group">
-            <button onclick="convertColors()">변환</button>
-            <button onclick="copyToClipboard()" class="copy-btn">복사</button>
+            <button class="btn-primary" onclick="convertColors()">변환</button>
+            <button class="btn-secondary" id="copyButton" onclick="copyToClipboard()">전체 복사</button>
         </div>
-        
         <div class="output-container">
-            <label for="output">변환된 HTML 코드</label>
             <textarea id="output" readonly placeholder="변환된 코드가 여기에 표시됩니다."></textarea>
-            <div id="copyIndicator" class="copy-indicator">복사 완료!</div>
+            <div id="copyMessage" class="copy-message">복사 완료!</div>
         </div>
-        
         <div id="preview" class="preview"></div>
         <div id="colorInfo" class="color-info"></div>
         <div id="error" class="error"></div>
@@ -240,10 +289,38 @@
     </div>
 
     <script>
+        // 사용자 지정 기호 입력 필드 토글
+        document.getElementById('symbolSelector').addEventListener('change', function() {
+            const customSymbolInput = document.getElementById('customSymbol');
+            if (this.value === 'custom') {
+                customSymbolInput.classList.remove('hidden');
+                customSymbolInput.focus();
+            } else {
+                customSymbolInput.classList.add('hidden');
+            }
+        });
+
+        // 사용자 지정 기호 설정
+        document.getElementById('customSymbol').addEventListener('input', function() {
+            if (this.value) {
+                convertColors();
+            }
+        });
+
+        // 색상 변환 함수
         function convertColors() {
             const input = document.getElementById('colorInput').value.trim();
-            const symbol = document.getElementById('symbolInput').value || '■';
             const colors = input.split(/\s+/);
+            
+            // 기호 선택
+            let symbol;
+            const symbolSelector = document.getElementById('symbolSelector');
+            if (symbolSelector.value === 'custom') {
+                symbol = document.getElementById('customSymbol').value || '■';
+            } else {
+                symbol = symbolSelector.value;
+            }
+            
             let htmlOutput = '';
             let previewOutput = '';
             let colorInfoOutput = '';
@@ -272,12 +349,12 @@
                     // Create color info with box and codes
                     colorInfoOutput += `
                         <div class="color-item">
-                            <div class="color-box" style="background-color: #${cleanColor};"></div>
-                            <div class="color-code">HEX: #${cleanColor}</div>
-                            <div class="color-code">RGB: ${r}, ${g}, ${b}</div>
+                            <div class="color-box" style="background-color: #${cleanColor};" title="#${cleanColor}"></div>
+                            <div class="color-code" onclick="copyText('#${cleanColor}')" title="클릭하여 복사">HEX: #${cleanColor}</div>
+                            <div class="color-code" onclick="copyText('rgb(${r}, ${g}, ${b})')" title="클릭하여 복사">RGB: ${r}, ${g}, ${b}</div>
                         </div>
                     `;
-                } else {
+                } else if (color !== "") {
                     errors.push(`잘못된 색상 코드: ${color}`);
                 }
             });
@@ -288,34 +365,55 @@
             const errorElement = document.getElementById('error');
 
             outputElement.value = htmlOutput;
-            previewElement.innerHTML = previewOutput;
+            previewElement.innerHTML = previewOutput || '<span style="color: #999; font-size: 16px;">미리보기가 여기에 표시됩니다</span>';
             colorInfoElement.innerHTML = colorInfoOutput;
             errorElement.textContent = errors.join('\n');
         }
 
-        function copyToClipboard() {
-            const outputElement = document.getElementById('output');
-            outputElement.select();
-            document.execCommand('copy');
-            
-            // Show copy indicator
-            const indicator = document.getElementById('copyIndicator');
-            indicator.style.display = 'block';
-            setTimeout(() => {
-                indicator.style.display = 'none';
-            }, 2000);
+        // 텍스트를 클립보드에 복사하는 함수
+        function copyText(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => showCopyMessage())
+                .catch(err => console.error('복사 실패:', err));
         }
 
+        // 전체 복사 버튼
+        function copyToClipboard() {
+            const outputText = document.getElementById('output');
+            outputText.select();
+            
+            try {
+                document.execCommand('copy');
+                showCopyMessage();
+            } catch (err) {
+                // 최신 브라우저를 위한 fallback
+                navigator.clipboard.writeText(outputText.value)
+                    .then(() => showCopyMessage())
+                    .catch(err => console.error('복사 실패:', err));
+            }
+        }
+
+        // 복사 메시지 표시
+        function showCopyMessage() {
+            const message = document.getElementById('copyMessage');
+            message.classList.add('show');
+            
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 1500);
+        }
+
+        // Enter키 누를 때 변환 실행
         document.getElementById('colorInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 convertColors();
             }
         });
-
-        document.getElementById('symbolInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                convertColors();
-            }
+        
+        // 페이지 로드 시 기본 초기화
+        window.addEventListener('load', function() {
+            // 입력 필드에 포커스
+            document.getElementById('colorInput').focus();
         });
     </script>
 </body>
