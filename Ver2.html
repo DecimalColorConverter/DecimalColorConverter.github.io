@@ -146,7 +146,7 @@
             color: white; 
             cursor: pointer; 
             transition: background-color 0.2s, transform 0.1s;
-            flex: 2;
+            flex: 1.5; /* 색상 생성하기 버튼의 가로 크기 약간 줄임 */
         }
         
         .primary-button:hover { 
@@ -167,7 +167,7 @@
             color: var(--primary);
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
-            flex: 1;
+            flex: 1.2; /* 10진수로 변환 버튼의 가로 크기 약간 늘림 */
         }
         
         .secondary-button:hover {
@@ -242,9 +242,12 @@
             font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
             cursor: pointer;
             transition: transform 0.1s;
+            padding: 4px 6px;
+            border-radius: 4px;
         }
         
         .decimal-color:hover {
+            background: rgba(0, 0, 0, 0.05);
             transform: scale(1.05);
         }
         
@@ -314,6 +317,13 @@
             opacity: 0;
             transition: opacity 0.2s;
             z-index: 1000;
+        }
+        
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #777;
         }
         
         @media (min-width: 600px) {
@@ -388,10 +398,24 @@
         </div>
     </div>
 
+    <div class="footer">Made by 여뉴</div>
     <div class="tooltip" id="tooltip"></div>
 
     <script>
+        // 색상 변환 함수
         function hexToRgb(hex) {
+            // 잘못된 입력 처리
+            if (!hex || typeof hex !== 'string') return [0, 0, 0];
+            
+            // # 기호가 없는 경우 추가
+            if (hex.charAt(0) !== '#') hex = '#' + hex;
+            
+            // 6자리 헥스 코드가 아닌 경우 처리
+            if (!/^#([0-9A-Fa-f]{6})$/.test(hex)) {
+                console.warn('잘못된 HEX 코드:', hex);
+                return [0, 0, 0];
+            }
+            
             let bigint = parseInt(hex.slice(1), 16);
             return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
         }
@@ -404,57 +428,57 @@
             return parseInt(hex.slice(1), 16);
         }
 
-        function interpolateColorPair(startColor, endColor, steps) {
-            let startRGB = hexToRgb(startColor);
-            let endRGB = hexToRgb(endColor);
-            let colors = [];
-
-            for (let i = 0; i <= steps; i++) {
-                let t = i / steps;
-                let r = Math.round(startRGB[0] + t * (endRGB[0] - startRGB[0]));
-                let g = Math.round(startRGB[1] + t * (endRGB[1] - startRGB[1]));
-                let b = Math.round(startRGB[2] + t * (endRGB[2] - startRGB[2]));
-                colors.push(rgbToHex(r, g, b));
-            }
-            return colors;
-        }
-        
+        // 색상 보간 함수
         function interpolateMultipleColors(colorList, totalSteps) {
             if (colorList.length < 2) return [];
             if (colorList.length === 2) {
-                return interpolateColorPair(colorList[0], colorList[1], totalSteps);
+                let startRGB = hexToRgb(colorList[0]);
+                let endRGB = hexToRgb(colorList[1]);
+                let result = [];
+                
+                // 첫 번째 색상 추가
+                result.push(colorList[0]);
+                
+                // 중간 색상 추가
+                for (let i = 1; i <= totalSteps; i++) {
+                    let t = i / (totalSteps + 1);
+                    let r = Math.round(startRGB[0] + t * (endRGB[0] - startRGB[0]));
+                    let g = Math.round(startRGB[1] + t * (endRGB[1] - startRGB[1]));
+                    let b = Math.round(startRGB[2] + t * (endRGB[2] - startRGB[2]));
+                    result.push(rgbToHex(r, g, b));
+                }
+                
+                // 마지막 색상 추가
+                result.push(colorList[1]);
+                
+                return result;
             }
             
-            // 다중 색상 보간
+            // 다중 색상 보간 (최적화)
             let segmentCount = colorList.length - 1;
             let stepsPerSegment = Math.floor(totalSteps / segmentCount);
             let extraSteps = totalSteps % segmentCount;
-            let result = [];
-            
-            // 첫 번째 색상 추가
-            result.push(colorList[0]);
+            let result = [colorList[0]]; // 첫 번째 색상으로 시작
             
             for (let i = 0; i < segmentCount; i++) {
                 let startColor = colorList[i];
                 let endColor = colorList[i + 1];
                 let segmentSteps = stepsPerSegment + (i < extraSteps ? 1 : 0);
                 
-                if (segmentSteps > 0) {
-                    // 중간 색상들 계산
-                    for (let j = 1; j <= segmentSteps; j++) {
-                        let t = j / (segmentSteps + 1);
-                        let startRGB = hexToRgb(startColor);
-                        let endRGB = hexToRgb(endColor);
-                        
-                        let r = Math.round(startRGB[0] + t * (endRGB[0] - startRGB[0]));
-                        let g = Math.round(startRGB[1] + t * (endRGB[1] - startRGB[1]));
-                        let b = Math.round(startRGB[2] + t * (endRGB[2] - startRGB[2]));
-                        
-                        result.push(rgbToHex(r, g, b));
-                    }
+                let startRGB = hexToRgb(startColor);
+                let endRGB = hexToRgb(endColor);
+                
+                // 중간 색상들 계산
+                for (let j = 1; j <= segmentSteps; j++) {
+                    let t = j / (segmentSteps + 1);
+                    let r = Math.round(startRGB[0] + t * (endRGB[0] - startRGB[0]));
+                    let g = Math.round(startRGB[1] + t * (endRGB[1] - startRGB[1]));
+                    let b = Math.round(startRGB[2] + t * (endRGB[2] - startRGB[2]));
+                    
+                    result.push(rgbToHex(r, g, b));
                 }
                 
-                // 마지막 세그먼트가 아니면 끝 색상 추가
+                // 마지막 세그먼트인 경우에만 끝 색상 추가
                 if (i === segmentCount - 1) {
                     result.push(endColor);
                 }
@@ -472,12 +496,16 @@
             let decimalView = document.getElementById("decimalView");
 
             // 입력 유효성 검사
+            let isValid = true;
             for (let color of colorList) {
                 if (!/^#([0-9A-Fa-f]{6})$/.test(color)) {
-                    alert("올바른 HEX 코드를 입력하세요.");
-                    return;
+                    alert("올바른 HEX 코드를 입력하세요. (예: #RRGGBB)");
+                    isValid = false;
+                    break;
                 }
             }
+            
+            if (!isValid) return;
 
             if (steps < 3 || steps > 50) {
                 alert("중간 색상 개수는 3~50 사이여야 합니다.");
@@ -496,11 +524,15 @@
             // 10진수 뷰 초기화
             decimalView.style.display = "none";
 
+            // DOM 조작 최적화를 위한 DocumentFragment 사용
+            let colorFragment = document.createDocumentFragment();
+            let codeFragment = document.createDocumentFragment();
+            
             colors.forEach(color => {
                 let div = document.createElement("div");
                 div.className = "color";
                 div.style.backgroundColor = color;
-                colorBox.appendChild(div);
+                colorFragment.appendChild(div);
 
                 let codeDiv = document.createElement("span");
                 codeDiv.className = "code";
@@ -510,8 +542,11 @@
                     navigator.clipboard.writeText(this.textContent);
                     showTooltip(this, "복사되었습니다!");
                 });
-                codeBox.appendChild(codeDiv);
+                codeFragment.appendChild(codeDiv);
             });
+            
+            colorBox.appendChild(colorFragment);
+            codeBox.appendChild(codeFragment);
 
             copyBtn.style.display = "block";
             toDecimalBtn.style.display = "block";
@@ -525,22 +560,25 @@
             
             decimalColors.innerHTML = "";
             
+            // DOM 조작 최적화
+            let fragment = document.createDocumentFragment();
+            
             hexColors.forEach(hexColor => {
                 let decimal = hexToDecimal(hexColor);
                 let colorSpan = document.createElement("span");
                 colorSpan.className = "decimal-color";
-                colorSpan.innerHTML = `<font color="${hexColor}">■</font> ${decimal}`;
+                colorSpan.innerHTML = `<font color="${hexColor}">█</font> ${decimal}`;
                 colorSpan.setAttribute("data-decimal", decimal);
                 colorSpan.setAttribute("data-hex", hexColor);
                 colorSpan.addEventListener("click", function() {
-                    let hexCode = this.getAttribute("data-hex");
                     let decimalCode = this.getAttribute("data-decimal");
-                    navigator.clipboard.writeText(`<font color=${decimalCode}>■</font>`);
+                    navigator.clipboard.writeText(`<font color=${decimalCode}>█</font>`);
                     showTooltip(this, "복사되었습니다!");
                 });
-                decimalColors.appendChild(colorSpan);
+                fragment.appendChild(colorSpan);
             });
             
+            decimalColors.appendChild(fragment);
             decimalView.style.display = "block";
         }
         
@@ -550,13 +588,14 @@
             
             let text = decimalElements.map(span => {
                 let decimal = span.getAttribute("data-decimal");
-                return `<font color=${decimal}>■</font>`;
+                return `<font color=${decimal}>█</font>`;
             }).join("\n");
 
             navigator.clipboard.writeText(text).then(() => {
                 showTooltip(document.querySelector("#decimalView .copy-btn"), "모든 10진수 코드가 복사되었습니다!");
             }).catch(err => {
                 console.error("복사 실패: ", err);
+                alert("복사 실패: " + err.message);
             });
         }
 
@@ -568,6 +607,7 @@
                 showTooltip(document.getElementById("copyBtn"), "모든 색상 코드가 복사되었습니다!");
             }).catch(err => {
                 console.error("복사 실패: ", err);
+                alert("복사 실패: " + err.message);
             });
         }
 
@@ -645,6 +685,15 @@
             });
         }
 
+        // 디바운스 함수 추가
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
         function showTooltip(element, message) {
             const tooltip = document.getElementById("tooltip");
             tooltip.textContent = message;
@@ -660,18 +709,18 @@
             }, 1500);
         }
 
-        // 화면 크기 변경 시 토스트 메시지 위치 재조정
-        window.addEventListener('resize', function() {
+        // 화면 크기 변경 시 토스트 메시지 위치 재조정 (디바운스 적용)
+        window.addEventListener('resize', debounce(function() {
             const tooltip = document.getElementById("tooltip");
             if (tooltip.style.opacity !== "0") {
                 tooltip.style.opacity = "0"; // 화면 크기 변경 시 표시된 툴팁은 숨김
             }
-        });
+        }, 200));
 
         // 페이지 로드 시 색상 초기화
-        window.onload = function() {
+        window.addEventListener('DOMContentLoaded', function() {
             generateColors();
-        };
+        });
     </script>
 
 </body>
