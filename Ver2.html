@@ -567,7 +567,7 @@
                 let decimal = hexToDecimal(hexColor);
                 let colorSpan = document.createElement("span");
                 colorSpan.className = "decimal-color";
-                colorSpan.innerHTML = `<font color="${hexColor}">█</font> ${decimal}`;
+                colorSpan.innerHTML = `<font color="${hexColor}">█</font>${decimal}`;
                 colorSpan.setAttribute("data-decimal", decimal);
                 colorSpan.setAttribute("data-hex", hexColor);
                 colorSpan.addEventListener("click", function() {
