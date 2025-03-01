@@ -567,7 +567,7 @@
                 let decimal = hexToDecimal(hexColor);
                 let colorSpan = document.createElement("span");
                 colorSpan.className = "decimal-color";
-                colorSpan.innerHTML = `<font color="${hexColor}">█</font>${decimal}`;
+                colorSpan.innerHTML = `<font color="${hexColor}">█</font> ${decimal}`;
                 colorSpan.setAttribute("data-decimal", decimal);
                 colorSpan.setAttribute("data-hex", hexColor);
                 colorSpan.addEventListener("click", function() {
@@ -589,7 +589,7 @@
             let text = decimalElements.map(span => {
                 let decimal = span.getAttribute("data-decimal");
                 return `<font color=${decimal}>█</font>`;
-            }).join("\n");
+            }).join("");
 
             navigator.clipboard.writeText(text).then(() => {
                 showTooltip(document.querySelector("#decimalView .copy-btn"), "모든 10진수 코드가 복사되었습니다!");
