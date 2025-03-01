@@ -329,14 +329,16 @@
             <div class="symbol-group">
                 <span class="symbol-label">기호:</span>
                 <select id="symbolSelector" class="symbol-selector">
-                    <option value="■">■ (기본값)</option>
-                    <option value="♡">♡ (하트)</option>
-                    <option value="★">★ (별)</option>
-                    <option value="●">● (원)</option>
-                    <option value="◆">◆ (다이아몬드)</option>
-                    <option value="▲">▲ (삼각형)</option>
-                    <option value="♣">♣ (클로버)</option>
-                    <option value="✓">✓ (체크)</option>
+                    <option value="█">█</option>
+                    <option value="♡">♡</option>
+                    <option value="♥">♥</option>
+                    <option value="★">★</option>
+                    <option value="☆">☆</option>
+                    <option value="―">―</option>
+                    <option value="⚝">⚝</option>
+                    <option value="◆">◆</option>
+                    <option value="𒊹">𒊹</option>
+                    <option value="╳">╳</option>
                     <option value="custom">사용자 지정</option>
                 </select>
                 <input type="text" id="customSymbol" class="hidden" placeholder="기호 입력" maxlength="2" style="width: 50px;">
@@ -348,7 +350,6 @@
                 <span class="loader"></span>
             </button>
             <button class="btn-secondary" id="copyButton" onclick="copyToClipboard()">
-                <span class="icon">📋</span>
                 <span>전체 복사</span>
             </button>
         </div>
@@ -359,7 +360,7 @@
         <div id="preview" class="preview"></div>
         <div id="colorInfo" class="color-info"></div>
         <div id="error" class="error" style="display: none;"></div>
-        <div class="signature">made by 여뉴</div>
+        <div class="signature">Made by 여뉴</div>
     </div>
 
     <script>
