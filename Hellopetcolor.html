@@ -6,56 +6,53 @@
     <title>색상 코드 변환기</title>
     <style>
         :root {
-            --primary: #3a86ff;
-            --primary-dark: #2970e6;
-            --background: #f8f9fa;
-            --foreground: #333;
+            --primary-color: #5b61f4;
+            --primary-hover: #4a50d8;
+            --bg-color: #f5f7fa;
             --card-bg: #ffffff;
-            --border: #e0e0e0;
-            --hover: #f0f0f0;
-            --error: #e63946;
-            --success: #2ecc71;
-            --radius: 12px;
-            --shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --input-focus: rgba(91, 97, 244, 0.2);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.05);
+            --radius: 10px;
+            --radius-sm: 6px;
+            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            background-color: var(--background);
-            color: var(--foreground);
+            font-family: var(--font-sans);
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
         .container {
             background-color: var(--card-bg);
-            padding: 2.5rem;
+            padding: 2rem;
             border-radius: var(--radius);
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-md);
             width: 90%;
             max-width: 600px;
-            transition: transform 0.3s ease;
-        }
-
-        .container:hover {
-            transform: translateY(-5px);
+            transition: transform 0.2s ease;
         }
 
         h1 {
-            color: var(--foreground);
+            color: var(--text-color);
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             font-weight: 700;
-            font-size: 2rem;
+            font-size: 1.75rem;
         }
 
         .input-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
@@ -69,69 +66,73 @@
         .symbol-group {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .symbol-label {
             white-space: nowrap;
             font-size: 14px;
-            color: #666;
+            color: #64748b;
             font-weight: 500;
         }
 
         input[type="text"], select {
             width: 100%;
-            padding: 14px;
-            border: 1px solid var(--border);
-            border-radius: calc(var(--radius) - 4px);
-            font-size: 16px;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
             box-sizing: border-box;
             transition: all 0.2s ease;
             background-color: var(--card-bg);
-            color: var(--foreground);
+            color: var(--text-color);
         }
 
         input[type="text"]:focus, select:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--input-focus);
         }
 
         .button-group {
             display: flex;
             gap: 12px;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
         }
 
         button {
             flex: 1;
-            padding: 14px;
+            padding: 12px 20px;
             border: none;
-            border-radius: calc(var(--radius) - 4px);
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-primary {
-            background-color: var(--primary);
+            background-color: var(--primary-color);
             color: white;
         }
 
         .btn-primary:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
         }
 
         .btn-secondary {
-            background-color: #f1f3f5;
-            color: #4a5568;
+            background-color: #e2e8f0;
+            color: #475569;
         }
 
         .btn-secondary:hover {
-            background-color: #e2e8f0;
-            transform: translateY(-2px);
+            background-color: #cbd5e1;
+            transform: translateY(-1px);
         }
 
         .output-container {
@@ -140,24 +141,23 @@
 
         textarea {
             width: 100%;
-            height: 120px;
-            padding: 14px;
+            height: 100px;
+            padding: 12px 16px;
             margin-top: 1rem;
-            border: 1px solid var(--border);
-            border-radius: calc(var(--radius) - 4px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
             font-family: monospace;
             font-size: 14px;
             resize: vertical;
             box-sizing: border-box;
+            background-color: #f8fafc;
             transition: all 0.2s ease;
-            background-color: var(--card-bg);
-            color: var(--foreground);
         }
 
         textarea:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--input-focus);
         }
 
         .copy-message {
@@ -167,149 +167,140 @@
             transform: translate(-50%, -50%);
             background-color: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 10px 18px;
-            border-radius: calc(var(--radius) - 4px);
+            padding: 8px 16px;
+            border-radius: 20px;
             font-size: 14px;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s, transform 0.3s;
             pointer-events: none;
-            font-weight: 500;
         }
 
         .copy-message.show {
             opacity: 1;
+            transform: translate(-50%, -50%) scale(1.05);
         }
 
         .preview {
-            margin-top: 1.5rem;
-            padding: 1.5rem;
-            border: 1px solid var(--border);
-            border-radius: calc(var(--radius) - 4px);
+            margin-top: 1.25rem;
+            padding: 1.25rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
             font-size: 24px;
             text-align: center;
-            background-color: var(--card-bg);
+            background-color: #f8fafc;
             min-height: 60px;
-            transition: all 0.2s ease;
-        }
-
-        .preview:hover {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.1);
-        }
-
-        .color-box {
-            display: inline-block;
-            width: 45px;
-            height: 45px;
-            margin: 5px;
-            border-radius: calc(var(--radius) - 6px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .color-box:hover {
-            transform: scale(1.1);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-sm);
         }
 
         .color-info {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 18px;
-            margin-top: 1.5rem;
+            gap: 16px;
+            margin-top: 1.25rem;
         }
 
         .color-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 15px;
-            border-radius: calc(var(--radius) - 4px);
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            background-color: #f8fafc;
             transition: all 0.2s ease;
-            background-color: #f8f9fa;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
         }
 
         .color-item:hover {
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
-            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .color-box {
+            display: inline-block;
+            width: 48px;
+            height: 48px;
+            margin-bottom: 8px;
+            border-radius: var(--radius-sm);
+            transition: transform 0.2s ease;
+            box-shadow: var(--shadow-sm);
         }
 
         .color-code {
             font-family: monospace;
             font-size: 13px;
-            margin-top: 8px;
+            margin-top: 6px;
             user-select: all;
             cursor: pointer;
             padding: 4px 8px;
             border-radius: 4px;
-            transition: all 0.2s ease;
+            background-color: #f1f5f9;
+            transition: all 0.15s ease;
         }
 
         .color-code:hover {
-            background-color: rgba(58, 134, 255, 0.1);
-            color: var(--primary);
+            background-color: #e2e8f0;
+            color: var(--primary-color);
         }
 
         .error {
-            color: var(--error);
+            color: #dc2626;
             margin-top: 0.75rem;
             font-size: 14px;
-            font-weight: 500;
+            padding: 8px 12px;
+            background-color: #fee2e2;
+            border-radius: var(--radius-sm);
+            border-left: 3px solid #ef4444;
         }
 
         .signature {
             text-align: right;
-            margin-top: 2rem;
-            color: #888;
+            margin-top: 1.5rem;
+            color: #64748b;
             font-size: 14px;
-            font-style: italic;
+            font-weight: 500;
         }
 
         .symbol-selector {
             display: flex;
             align-items: center;
-            padding: 12px 14px;
-            border: 1px solid var(--border);
-            border-radius: calc(var(--radius) - 4px);
-            font-size: 16px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
             background-color: var(--card-bg);
-            color: var(--foreground);
-            min-width: 120px;
+            width: 100%;
         }
 
         .hidden {
             display: none;
         }
 
-        .tooltip {
-            position: relative;
+        .icon {
+            font-size: 18px;
+            line-height: 1;
         }
 
-        .tooltip::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            top: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 5px 10px;
-            border-radius: 4px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            font-size: 12px;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.2s ease;
+        /* Loader animation */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        .tooltip:hover::after {
-            opacity: 1;
-            visibility: visible;
+        .loader {
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 2px solid white;
+            width: 16px;
+            height: 16px;
+            animation: spin 0.8s linear infinite;
+            display: none;
         }
 
-        @media (max-width: 600px) {
+        .loading .loader {
+            display: inline-block;
+        }
+
+        @media (max-width: 640px) {
             .container {
                 padding: 1.5rem;
             }
@@ -321,9 +312,9 @@
             .input-group {
                 flex-direction: column;
             }
-
+            
             h1 {
-                font-size: 1.7rem;
+                font-size: 1.5rem;
             }
         }
     </style>
@@ -348,12 +339,18 @@
                     <option value="✓">✓ (체크)</option>
                     <option value="custom">사용자 지정</option>
                 </select>
-                <input type="text" id="customSymbol" class="hidden" placeholder="기호 입력" maxlength="2" style="width: 60px;">
+                <input type="text" id="customSymbol" class="hidden" placeholder="기호 입력" maxlength="2" style="width: 50px;">
             </div>
         </div>
         <div class="button-group">
-            <button class="btn-primary" onclick="convertColors()">변환</button>
-            <button class="btn-secondary" id="copyButton" onclick="copyToClipboard()">전체 복사</button>
+            <button class="btn-primary" id="convertButton" onclick="convertColors()">
+                <span>변환</span>
+                <span class="loader"></span>
+            </button>
+            <button class="btn-secondary" id="copyButton" onclick="copyToClipboard()">
+                <span class="icon">📋</span>
+                <span>전체 복사</span>
+            </button>
         </div>
         <div class="output-container">
             <textarea id="output" readonly placeholder="변환된 코드가 여기에 표시됩니다."></textarea>
@@ -361,7 +358,7 @@
         </div>
         <div id="preview" class="preview"></div>
         <div id="colorInfo" class="color-info"></div>
-        <div id="error" class="error"></div>
+        <div id="error" class="error" style="display: none;"></div>
         <div class="signature">made by 여뉴</div>
     </div>
 
@@ -384,71 +381,89 @@
             }
         });
 
+        // 16진수를 10진수로 변환하는 함수
+        function hexToDecimal(hex) {
+            return parseInt(hex, 16);
+        }
+
         // 색상 변환 함수
         function convertColors() {
-            const input = document.getElementById('colorInput').value.trim();
-            const colors = input.split(/\s+/);
+            const convertButton = document.getElementById('convertButton');
+            convertButton.classList.add('loading');
             
-            // 기호 선택
-            let symbol;
-            const symbolSelector = document.getElementById('symbolSelector');
-            if (symbolSelector.value === 'custom') {
-                symbol = document.getElementById('customSymbol').value || '■';
-            } else {
-                symbol = symbolSelector.value;
-            }
-            
-            let htmlOutput = '';
-            let previewOutput = '';
-            let colorInfoOutput = '';
-            let errors = [];
-
-            colors.forEach(color => {
-                let cleanColor = color.replace('#', '');
+            setTimeout(() => {
+                const input = document.getElementById('colorInput').value.trim();
+                const colors = input.split(/\s+/);
                 
-                // Handle 3-digit hex codes (expand to 6 digits)
-                if (/^[0-9A-Fa-f]{3}$/i.test(cleanColor)) {
-                    cleanColor = cleanColor[0] + cleanColor[0] + cleanColor[1] + cleanColor[1] + cleanColor[2] + cleanColor[2];
+                // 기호 선택
+                let symbol;
+                const symbolSelector = document.getElementById('symbolSelector');
+                if (symbolSelector.value === 'custom') {
+                    symbol = document.getElementById('customSymbol').value || '■';
+                } else {
+                    symbol = symbolSelector.value;
                 }
                 
-                if (/^[0-9A-Fa-f]{6}$/i.test(cleanColor)) {
-                    // 16진수 색상코드를 10진수로 변환
-                    const decimalColor = parseInt(cleanColor, 16);
+                let htmlOutput = '';
+                let previewOutput = '';
+                let colorInfoOutput = '';
+                let errors = [];
+
+                colors.forEach(color => {
+                    let cleanColor = color.replace('#', '');
                     
-                    // Create font tag with decimal color
-                    htmlOutput += `<font color=${decimalColor}>${symbol}</font> `;
+                    // Handle 3-digit hex codes (expand to 6 digits)
+                    if (/^[0-9A-Fa-f]{3}$/i.test(cleanColor)) {
+                        cleanColor = cleanColor[0] + cleanColor[0] + cleanColor[1] + cleanColor[1] + cleanColor[2] + cleanColor[2];
+                    }
                     
-                    // Create preview with hex for display (since browsers use hex)
-                    previewOutput += `<span style="color: #${cleanColor}">${symbol}</span> `;
-                    
-                    // RGB 계산
-                    const r = parseInt(cleanColor.substr(0, 2), 16);
-                    const g = parseInt(cleanColor.substr(2, 2), 16);
-                    const b = parseInt(cleanColor.substr(4, 2), 16);
-                    
-                    // Create color info with box and codes
-                    colorInfoOutput += `
-                        <div class="color-item">
-                            <div class="color-box" style="background-color: #${cleanColor};" title="#${cleanColor}"></div>
-                            <div class="color-code tooltip" onclick="copyText('#${cleanColor}')" data-tooltip="클릭하여 복사">HEX: #${cleanColor}</div>
-                            <div class="color-code tooltip" onclick="copyText('${decimalColor}')" data-tooltip="클릭하여 복사">DEC: ${decimalColor}</div>
-                            <div class="color-code tooltip" onclick="copyText('rgb(${r}, ${g}, ${b})')" data-tooltip="클릭하여 복사">RGB: ${r}, ${g}, ${b}</div>
-                        </div>
-                    `;
-                } else if (color !== "") {
-                    errors.push(`잘못된 색상 코드: ${color}`);
+                    if (/^[0-9A-Fa-f]{6}$/i.test(cleanColor)) {
+                        // Convert to 10진수 (decimal)
+                        const decimalColor = hexToDecimal(cleanColor);
+                        
+                        // RGB 값 계산
+                        const r = parseInt(cleanColor.substr(0, 2), 16);
+                        const g = parseInt(cleanColor.substr(2, 2), 16);
+                        const b = parseInt(cleanColor.substr(4, 2), 16);
+                        
+                        // Create font tag with decimal color (10진수)
+                        htmlOutput += `<font color=${decimalColor}>${symbol}</font>`;
+                        
+                        // Create preview with inline styles (hex for preview)
+                        previewOutput += `<span style="color: #${cleanColor}">${symbol}</span> `;
+                        
+                        // Create color info with box and codes
+                        colorInfoOutput += `
+                            <div class="color-item">
+                                <div class="color-box" style="background-color: #${cleanColor};" title="#${cleanColor}"></div>
+                                <div class="color-code" onclick="copyText('#${cleanColor}')" title="클릭하여 복사">HEX: #${cleanColor}</div>
+                                <div class="color-code" onclick="copyText('${decimalColor}')" title="클릭하여 복사">DEC: ${decimalColor}</div>
+                                <div class="color-code" onclick="copyText('rgb(${r}, ${g}, ${b})')" title="클릭하여 복사">RGB: ${r}, ${g}, ${b}</div>
+                            </div>
+                        `;
+                    } else if (color !== "") {
+                        errors.push(`잘못된 색상 코드: ${color}`);
+                    }
+                });
+
+                const outputElement = document.getElementById('output');
+                const previewElement = document.getElementById('preview');
+                const colorInfoElement = document.getElementById('colorInfo');
+                const errorElement = document.getElementById('error');
+
+                outputElement.value = htmlOutput;
+                previewElement.innerHTML = previewOutput || '<span style="color: #64748b; font-size: 16px;">미리보기가 여기에 표시됩니다</span>';
+                colorInfoElement.innerHTML = colorInfoOutput;
+                
+                if (errors.length > 0) {
+                    errorElement.textContent = errors.join('\n');
+                    errorElement.style.display = 'block';
+                } else {
+                    errorElement.style.display = 'none';
                 }
-            });
-
-            const outputElement = document.getElementById('output');
-            const previewElement = document.getElementById('preview');
-            const colorInfoElement = document.getElementById('colorInfo');
-            const errorElement = document.getElementById('error');
-
-            outputElement.value = htmlOutput;
-            previewElement.innerHTML = previewOutput || '<span style="color: #999; font-size: 16px;">미리보기가 여기에 표시됩니다</span>';
-            colorInfoElement.innerHTML = colorInfoOutput;
-            errorElement.textContent = errors.join('\n');
+                
+                convertButton.classList.remove('loading');
+            }, 200); // 약간의 지연으로 로딩 효과 보여주기
         }
 
         // 텍스트를 클립보드에 복사하는 함수
