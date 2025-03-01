@@ -34,6 +34,13 @@
 
         .input-group {
             margin-bottom: 1rem;
+            display: flex;
+            gap: 10px;
+        }
+
+        .symbol-input {
+            width: 80px !important;
+            text-align: center;
         }
 
         input[type="text"] {
@@ -50,8 +57,14 @@
             border-color: #666;
         }
 
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
         button {
-            width: 100%;
+            flex: 1;
             padding: 10px;
             background-color: #333;
             color: white;
@@ -59,17 +72,30 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            transition: background-color 0.2s;
         }
 
         button:hover {
             background-color: #444;
         }
 
+        button.copy-btn {
+            background-color: #0069d9;
+        }
+
+        button.copy-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .output-container {
+            position: relative;
+        }
+
         textarea {
             width: 100%;
             height: 100px;
             padding: 10px;
-            margin-top: 1rem;
+            margin-top: 0.5rem;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-family: monospace;
@@ -89,6 +115,58 @@
             min-height: 50px;
         }
 
+        .color-box {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .color-info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .color-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+            border: 1px solid #eee;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #fafafa;
+            transition: transform 0.2s;
+        }
+
+        .color-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .color-code {
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .copy-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: none;
+        }
+
         .error {
             color: #dc3545;
             margin-top: 0.5rem;
@@ -102,9 +180,29 @@
             font-size: 14px;
         }
 
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .input-wrapper {
+            flex: 1;
+        }
+
         @media (max-width: 480px) {
             .container {
                 padding: 1.5rem;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .symbol-input {
+                width: 100% !important;
             }
         }
     </style>
@@ -112,12 +210,31 @@
 <body>
     <div class="container">
         <h1>색상 코드 변환기</h1>
+        
         <div class="input-group">
-            <input type="text" id="colorInput" placeholder="16진수 색상코드 입력 (예: FFFFFF FF5733)" autocomplete="off">
+            <div class="input-wrapper">
+                <label for="colorInput">16진수 색상코드</label>
+                <input type="text" id="colorInput" placeholder="색상코드 입력 (예: FFFFFF FF5733)" autocomplete="off">
+            </div>
+            <div>
+                <label for="symbolInput">사용할 기호</label>
+                <input type="text" id="symbolInput" class="symbol-input" value="■" maxlength="1" autocomplete="off">
+            </div>
         </div>
-        <button onclick="convertColors()">변환</button>
-        <textarea id="output" readonly placeholder="변환된 코드가 여기에 표시됩니다."></textarea>
+        
+        <div class="button-group">
+            <button onclick="convertColors()">변환</button>
+            <button onclick="copyToClipboard()" class="copy-btn">복사</button>
+        </div>
+        
+        <div class="output-container">
+            <label for="output">변환된 HTML 코드</label>
+            <textarea id="output" readonly placeholder="변환된 코드가 여기에 표시됩니다."></textarea>
+            <div id="copyIndicator" class="copy-indicator">복사 완료!</div>
+        </div>
+        
         <div id="preview" class="preview"></div>
+        <div id="colorInfo" class="color-info"></div>
         <div id="error" class="error"></div>
         <div class="signature">made by 여뉴</div>
     </div>
@@ -125,18 +242,41 @@
     <script>
         function convertColors() {
             const input = document.getElementById('colorInput').value.trim();
+            const symbol = document.getElementById('symbolInput').value || '■';
             const colors = input.split(/\s+/);
             let htmlOutput = '';
             let previewOutput = '';
+            let colorInfoOutput = '';
             let errors = [];
 
             colors.forEach(color => {
-                const cleanColor = color.replace('#', '');
+                let cleanColor = color.replace('#', '');
+                
+                // Handle 3-digit hex codes (expand to 6 digits)
+                if (/^[0-9A-Fa-f]{3}$/i.test(cleanColor)) {
+                    cleanColor = cleanColor[0] + cleanColor[0] + cleanColor[1] + cleanColor[1] + cleanColor[2] + cleanColor[2];
+                }
                 
                 if (/^[0-9A-Fa-f]{6}$/i.test(cleanColor)) {
-                    const decimalColor = parseInt(cleanColor, 16);
-                    htmlOutput += `<font color=${decimalColor}>█</font>`;
-                    previewOutput += `<span style="color: #${cleanColor}">█</span>`;
+                    // Convert to RGB
+                    const r = parseInt(cleanColor.substr(0, 2), 16);
+                    const g = parseInt(cleanColor.substr(2, 2), 16);
+                    const b = parseInt(cleanColor.substr(4, 2), 16);
+                    
+                    // Create font tag with hex color
+                    htmlOutput += `<font color="#${cleanColor}">${symbol}</font> `;
+                    
+                    // Create preview with inline styles
+                    previewOutput += `<span style="color: #${cleanColor}">${symbol}</span> `;
+                    
+                    // Create color info with box and codes
+                    colorInfoOutput += `
+                        <div class="color-item">
+                            <div class="color-box" style="background-color: #${cleanColor};"></div>
+                            <div class="color-code">HEX: #${cleanColor}</div>
+                            <div class="color-code">RGB: ${r}, ${g}, ${b}</div>
+                        </div>
+                    `;
                 } else {
                     errors.push(`잘못된 색상 코드: ${color}`);
                 }
@@ -144,14 +284,35 @@
 
             const outputElement = document.getElementById('output');
             const previewElement = document.getElementById('preview');
+            const colorInfoElement = document.getElementById('colorInfo');
             const errorElement = document.getElementById('error');
 
             outputElement.value = htmlOutput;
             previewElement.innerHTML = previewOutput;
+            colorInfoElement.innerHTML = colorInfoOutput;
             errorElement.textContent = errors.join('\n');
         }
 
+        function copyToClipboard() {
+            const outputElement = document.getElementById('output');
+            outputElement.select();
+            document.execCommand('copy');
+            
+            // Show copy indicator
+            const indicator = document.getElementById('copyIndicator');
+            indicator.style.display = 'block';
+            setTimeout(() => {
+                indicator.style.display = 'none';
+            }, 2000);
+        }
+
         document.getElementById('colorInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertColors();
+            }
+        });
+
+        document.getElementById('symbolInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 convertColors();
             }
