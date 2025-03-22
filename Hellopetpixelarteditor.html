@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>픽셀 아트 에디터</title>
+  <style>
+    :root {
+      --grid-size: 16;
+      --pixel-size: 25px;
+      --primary: #6a5acd;
+      --primary-dark: #5b4cbe;
+      --secondary: #f8f9fa;
+      --text: #333;
+      --border: #ddd;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      padding: 10px;
+      max-width: 100%;
+      overflow-x: hidden;
+      touch-action: manipulation;
+      background-color: #f5f5f5;
+      color: var(--text);
+    }
+    
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      margin: 10px 0;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    
+    .toolbar {
+      display: flex;
+      width: 100%;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .tools-section {
+      display: flex;
+      gap: 5px;
+      background-color: white;
+      padding: 8px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    .tools-section:first-child {
+      flex-grow: 1;
+    }
+    
+    .icon-button {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--secondary);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text);
+      font-size: 16px;
+    }
+    
+    .icon-button:hover {
+      background-color: #e9ecef;
+    }
+    
+    .icon-button.active {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .color-picker {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    input[type="color"] {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 0;
+      background: none;
+    }
+    
+    .color-display {
+      width: 24px;
+      height: 24px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+    
+    .color-hex {
+      font-size: 12px;
+      color: #666;
+      font-family: monospace;
+      min-width: 70px;
+    }
+    
+    .grid-size {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    select {
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+      background-color: white;
+    }
+    
+    .canvas-container {
+      position: relative;
+      margin: 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background-color: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 10px;
+      width: 100%;
+      overflow: auto;
+      max-height: calc(100vh - 140px);
+    }
+    
+    .pixel-grid {
+      display: grid;
+      grid-template-columns: repeat(var(--grid-size), var(--pixel-size));
+      grid-template-rows: repeat(var(--grid-size), var(--pixel-size));
+      gap: 1px;
+      background-color: #ddd;
+      margin: 0 auto;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    
+    .pixel {
+      width: var(--pixel-size);
+      height: var(--pixel-size);
+      background-color: white;
+      cursor: crosshair;
+    }
+    
+    .tooltip {
+      position: relative;
+    }
+    
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 120px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -60px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 12px;
+    }
+    
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    @media (max-width: 600px) {
+      :root {
+        --pixel-size: 20px;
+      }
+      
+      .toolbar {
+        flex-direction: column;
+        gap: 5px;
+      }
+      
+      .tools-section {
+        justify-content: center;
+      }
+      
+      .canvas-container {
+        max-height: calc(100vh - 220px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>픽셀 아트 에디터</h1>
+    
+    <div class="toolbar">
+      <div class="tools-section">
+        <button id="pen-tool" class="icon-button active tooltip">
+          ✏️
+          <span class="tooltiptext">펜</span>
+        </button>
+        <button id="eraser-tool" class="icon-button tooltip">
+          🧽
+          <span class="tooltiptext">지우개</span>
+        </button>
+        <button id="clear-canvas" class="icon-button tooltip">
+          🗑️
+          <span class="tooltiptext">모두 지우기</span>
+        </button>
+        <div class="color-picker">
+          <input type="color" id="color-input" value="#000000">
+          <div class="color-display" id="color-display"></div>
+          <span id="color-hex" class="color-hex">0x000000</span>
+        </div>
+      </div>
+      
+      <div class="tools-section">
+        <button id="undo" class="icon-button tooltip" disabled>
+          ↩️
+          <span class="tooltiptext">실행 취소</span>
+        </button>
+        <button id="redo" class="icon-button tooltip" disabled>
+          ↪️
+          <span class="tooltiptext">다시 실행</span>
+        </button>
+        <button id="copy-all" class="icon-button tooltip">
+          📋
+          <span class="tooltiptext">전체 복사</span>
+        </button>
+        <div class="grid-size">
+          <select id="grid-size-select">
+            <option value="4">4×4</option>
+            <option value="8">8×8</option>
+            <option value="16" selected>16×16</option>
+            <option value="32">32×32</option>
+            <option value="64">64×64</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <div class="canvas-container">
+      <div class="pixel-grid" id="pixel-grid"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Variables
+      let gridSize = 16;
+      let currentColor = '0x000000';
+      let isDrawing = false;
+      let activeTool = 'pen';
+      let history = [];
+      let redoStack = [];
+      let currentState = [];
+      const pixelGrid = document.getElementById('pixel-grid');
+      const colorInput = document.getElementById('color-input');
+      const colorDisplay = document.getElementById('color-display');
+      const colorHex = document.getElementById('color-hex');
+      const gridSizeSelect = document.getElementById('grid-size-select');
+      const penTool = document.getElementById('pen-tool');
+      const eraserTool = document.getElementById('eraser-tool');
+      const clearCanvas = document.getElementById('clear-canvas');
+      const undoButton = document.getElementById('undo');
+      const redoButton = document.getElementById('redo');
+      const copyAllButton = document.getElementById('copy-all');
+      
+      // Initialize the grid
+      function initGrid(size) {
+        // Update CSS variable
+        document.documentElement.style.setProperty('--grid-size', size);
+        
+        // Clear the grid
+        pixelGrid.innerHTML = '';
+        
+        // Create pixels
+        for (let i = 0; i < size * size; i++) {
+          const pixel = document.createElement('div');
+          pixel.classList.add('pixel');
+          pixel.dataset.index = i;
+          pixel.style.backgroundColor = 'white';
+          
+          // Event listeners for drawing
+          pixel.addEventListener('mousedown', startDrawing);
+          pixel.addEventListener('mouseover', draw);
+          pixel.addEventListener('touchstart', handleTouch, { passive: false });
+          pixel.addEventListener('touchmove', handleTouchMove, { passive: false });
+          
+          pixelGrid.appendChild(pixel);
+        }
+        
+        // Initialize current state
+        currentState = Array(size * size).fill('white');
+        saveState();
+      }
+      
+      // Save current state to history
+      function saveState() {
+        history.push([...currentState]);
+        redoStack = [];
+        updateButtons();
+      }
+      
+      // Update undo/redo buttons state
+      function updateButtons() {
+        undoButton.disabled = history.length <= 1;
+        redoButton.disabled = redoStack.length === 0;
+        
+        if (undoButton.disabled) {
+          undoButton.classList.remove('active');
+        }
+        
+        if (redoButton.disabled) {
+          redoButton.classList.remove('active');
+        }
+      }
+      
+      // Set color from input
+      function setColor() {
+        const hexColor = colorInput.value;
+        // Convert #RRGGBB to 0xRRGGBB
+        currentColor = '0x' + hexColor.substring(1);
+        colorDisplay.style.backgroundColor = hexColor;
+        colorHex.textContent = currentColor;
+      }
+      
+      // Start drawing
+      function startDrawing(e) {
+        isDrawing = true;
+        draw(e);
+      }
+      
+      // Handle drawing
+      function draw(e) {
+        if (!isDrawing) return;
+        
+        const pixel = e.target;
+        const index = parseInt(pixel.dataset.index);
+        
+        if (activeTool === 'pen') {
+          pixel.style.backgroundColor = colorInput.value;
+          currentState[index] = colorInput.value;
+        } else if (activeTool === 'eraser') {
+          pixel.style.backgroundColor = 'white';
+          currentState[index] = 'white';
+        }
+      }
+      
+      // Handle touch events for mobile
+      function handleTouch(e) {
+        e.preventDefault();
+        isDrawing = true;
+        const touch = e.touches[0];
+        const pixel = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (pixel && pixel.classList.contains('pixel')) {
+          const index = parseInt(pixel.dataset.index);
+          if (activeTool === 'pen') {
+            pixel.style.backgroundColor = colorInput.value;
+            currentState[index] = colorInput.value;
+          } else if (activeTool === 'eraser') {
+            pixel.style.backgroundColor = 'white';
+            currentState[index] = 'white';
+          }
+        }
+      }
+      
+      // Handle touch move for mobile
+      function handleTouchMove(e) {
+        if (!isDrawing) return;
+        e.preventDefault();
+        
+        const touch = e.touches[0];
+        const pixel = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (pixel && pixel.classList.contains('pixel')) {
+          const index = parseInt(pixel.dataset.index);
+          if (activeTool === 'pen') {
+            pixel.style.backgroundColor = colorInput.value;
+            currentState[index] = colorInput.value;
+          } else if (activeTool === 'eraser') {
+            pixel.style.backgroundColor = 'white';
+            currentState[index] = 'white';
+          }
+        }
+      }
+      
+      // Change grid size
+      function changeGridSize() {
+        const newSize = parseInt(gridSizeSelect.value);
+        gridSize = newSize;
+        initGrid(newSize);
+      }
+      
+      // Undo last action
+      function undo() {
+        if (history.length <= 1) return;
+        
+        redoStack.push([...currentState]);
+        history.pop();
+        currentState = [...history[history.length - 1]];
+        updateCanvas();
+        updateButtons();
+      }
+      
+      // Redo last undone action
+      function redo() {
+        if (redoStack.length === 0) return;
+        
+        const state = redoStack.pop();
+        history.push([...currentState]);
+        currentState = [...state];
+        updateCanvas();
+        updateButtons();
+      }
+      
+      // Update canvas based on current state
+      function updateCanvas() {
+        const pixels = pixelGrid.querySelectorAll('.pixel');
+        pixels.forEach((pixel, index) => {
+          pixel.style.backgroundColor = currentState[index];
+        });
+      }
+      
+      // Copy all pixels as text with formatting
+      function copyAll() {
+        const pixels = pixelGrid.querySelectorAll('.pixel');
+        let result = '';
+        
+        for (let i = 0; i < pixels.length; i++) {
+          const color = pixels[i].style.backgroundColor;
+          let hexColor = rgbToHex(color);
+          
+          // If white or empty, use white
+          if (!color || color === 'white') {
+            hexColor = '0xffffff';
+          }
+          
+          // Create the formatted span
+          result += `<span style="background-color:${hexColor}; color:${hexColor}">█</span>`;
+          
+          // Add newline after each row
+          if ((i + 1) % gridSize === 0 && i < pixels.length - 1) {
+            result += '\n';
+          }
+        }
+        
+        // Copy to clipboard
+        const textarea = document.createElement('textarea');
+        textarea.value = result;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        
+        // Show success notification
+        const notification = document.createElement('div');
+        notification.style.position = 'fixed';
+        notification.style.bottom = '20px';
+        notification.style.left = '50%';
+        notification.style.transform = 'translateX(-50%)';
+        notification.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        notification.style.color = 'white';
+        notification.style.padding = '10px 20px';
+        notification.style.borderRadius = '4px';
+        notification.style.zIndex = '1000';
+        notification.textContent = '픽셀 아트가 클립보드에 복사되었습니다!';
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 2000);
+      }
+      
+      // Convert RGB to Hex
+      function rgbToHex(rgb) {
+        // If already hex or white, return it formatted
+        if (!rgb || rgb === 'white') return '0xffffff';
+        if (rgb.startsWith('#')) return '0x' + rgb.substring(1);
+        
+        // Parse RGB format: rgb(r, g, b)
+        const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        if (!match) return '0x000000';
+        
+        const r = parseInt(match[1]).toString(16).padStart(2, '0');
+        const g = parseInt(match[2]).toString(16).padStart(2, '0');
+        const b = parseInt(match[3]).toString(16).padStart(2, '0');
+        
+        return `0x${r}${g}${b}`;
+      }
+      
+      // Stop drawing when mouse is up
+      document.addEventListener('mouseup', function() {
+        if (isDrawing) {
+          saveState();
+        }
+        isDrawing = false;
+      });
+      
+      // Stop drawing when touch ends
+      document.addEventListener('touchend', function() {
+        if (isDrawing) {
+          saveState();
+        }
+        isDrawing = false;
+      });
+      
+      // Event listeners
+      colorInput.addEventListener('input', setColor);
+      gridSizeSelect.addEventListener('change', changeGridSize);
+      penTool.addEventListener('click', function() {
+        activeTool = 'pen';
+        penTool.classList.add('active');
+        eraserTool.classList.remove('active');
+      });
+      eraserTool.addEventListener('click', function() {
+        activeTool = 'eraser';
+        eraserTool.classList.add('active');
+        penTool.classList.remove('active');
+      });
+      clearCanvas.addEventListener('click', function() {
+        const pixels = pixelGrid.querySelectorAll('.pixel');
+        pixels.forEach(pixel => {
+          pixel.style.backgroundColor = 'white';
+        });
+        currentState = Array(gridSize * gridSize).fill('white');
+        saveState();
+      });
+      undoButton.addEventListener('click', undo);
+      redoButton.addEventListener('click', redo);
+      copyAllButton.addEventListener('click', copyAll);
+      
+      // Initialize
+      initGrid(gridSize);
+      setColor();
+      updateButtons();
+    });
+  </script>
+</body>
+</html>
