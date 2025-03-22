@@ -3,108 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>픽셀 아트 에디터</title>
+  <title>Pixel Art Editor</title>
   <style>
     :root {
       --grid-size: 16;
-      --pixel-size: 25px;
-      --primary: #6a5acd;
-      --primary-dark: #5b4cbe;
-      --secondary: #f8f9fa;
-      --text: #333;
-      --border: #ddd;
+      --pixel-size: 20px;
+      --primary-color: #3498db;
+      --secondary-color: #2980b9;
+      --bg-color: #f8f9fa;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --border-color: #e0e0e0;
     }
     
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     
     body {
-      padding: 10px;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      padding: 5px;
       max-width: 100%;
       overflow-x: hidden;
       touch-action: manipulation;
-      background-color: #f5f5f5;
-      color: var(--text);
+      background-color: var(--bg-color);
+      color: var(--text-color);
     }
     
     .container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       width: 100%;
-      max-width: 900px;
+      max-width: 800px;
       margin: 0 auto;
     }
     
     h1 {
-      margin: 10px 0;
+      margin: 8px 0;
       text-align: center;
-      font-size: 22px;
-      font-weight: 600;
-      color: var(--primary);
+      font-size: 20px;
+      font-weight: 500;
     }
     
-    .toolbar {
+    .tools {
       display: flex;
-      width: 100%;
-      gap: 10px;
-      margin-bottom: 10px;
       flex-wrap: wrap;
-    }
-    
-    .tools-section {
-      display: flex;
-      gap: 5px;
-      background-color: white;
+      gap: 6px;
+      justify-content: center;
+      width: 100%;
       padding: 8px;
+      background-color: var(--card-bg);
       border-radius: 8px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .tools-group {
+      display: flex;
+      gap: 4px;
       align-items: center;
-      flex-wrap: wrap;
+      border-right: 1px solid var(--border-color);
+      padding-right: 6px;
+      margin-right: 2px;
     }
     
-    .tools-section:first-child {
-      flex-grow: 1;
+    .tools-group:last-child {
+      border-right: none;
     }
     
-    .icon-button {
-      width: 32px;
-      height: 32px;
+    button {
+      padding: 5px 8px;
+      border: none;
+      border-radius: 4px;
+      background-color: #f1f1f1;
+      color: var(--text-color);
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: var(--secondary);
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: var(--text);
-      font-size: 16px;
+      height: 28px;
     }
     
-    .icon-button:hover {
-      background-color: #e9ecef;
+    button:hover {
+      background-color: #e5e5e5;
     }
     
-    .icon-button.active {
-      background-color: var(--primary);
+    button.active, button.primary {
+      background-color: var(--primary-color);
       color: white;
+    }
+    
+    button.active:hover, button.primary:hover {
+      background-color: var(--secondary-color);
+    }
+    
+    .icon-button {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .color-picker {
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
     }
     
     input[type="color"] {
-      width: 32px;
-      height: 32px;
+      width: 25px;
+      height: 25px;
       border: none;
       border-radius: 4px;
       cursor: pointer;
@@ -113,44 +128,35 @@
     }
     
     .color-display {
-      width: 24px;
-      height: 24px;
-      border: 1px solid var(--border);
-      border-radius: 4px;
+      width: 16px;
+      height: 16px;
+      border: 1px solid #ccc;
+      border-radius: 2px;
     }
     
     .color-hex {
-      font-size: 12px;
-      color: #666;
-      font-family: monospace;
-      min-width: 70px;
-    }
-    
-    .grid-size {
-      display: flex;
-      align-items: center;
-      gap: 5px;
+      font-size: 11px;
+      width: 72px;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     
     select {
-      padding: 4px 8px;
+      padding: 3px 6px;
       border-radius: 4px;
-      border: 1px solid var(--border);
-      font-size: 14px;
+      border: 1px solid var(--border-color);
+      font-size: 12px;
+      height: 28px;
       background-color: white;
     }
     
     .canvas-container {
       position: relative;
-      margin: 0;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background-color: white;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      padding: 10px;
-      width: 100%;
+      margin: 8px 0;
       overflow: auto;
-      max-height: calc(100vh - 140px);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: white;
     }
     
     .pixel-grid {
@@ -158,7 +164,7 @@
       grid-template-columns: repeat(var(--grid-size), var(--pixel-size));
       grid-template-rows: repeat(var(--grid-size), var(--pixel-size));
       gap: 1px;
-      background-color: #ddd;
+      background-color: #eee;
       margin: 0 auto;
       user-select: none;
       -webkit-user-select: none;
@@ -168,52 +174,62 @@
       width: var(--pixel-size);
       height: var(--pixel-size);
       background-color: white;
-      cursor: crosshair;
+      cursor: pointer;
     }
     
+    /* Icon styles */
+    .icon {
+      width: 14px;
+      height: 14px;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 2px;
+    }
+
+    /* Tooltip */
     .tooltip {
       position: relative;
     }
-    
-    .tooltip .tooltiptext {
-      visibility: hidden;
-      width: 120px;
-      background-color: #555;
-      color: #fff;
-      text-align: center;
-      border-radius: 6px;
-      padding: 5px;
+
+    .tooltip:hover::after {
+      content: attr(data-tooltip);
       position: absolute;
-      z-index: 1;
-      bottom: 125%;
+      bottom: 100%;
       left: 50%;
-      margin-left: -60px;
-      opacity: 0;
-      transition: opacity 0.3s;
-      font-size: 12px;
-    }
-    
-    .tooltip:hover .tooltiptext {
-      visibility: visible;
-      opacity: 1;
+      transform: translateX(-50%);
+      background-color: rgba(0,0,0,0.8);
+      color: white;
+      font-size: 11px;
+      padding: 3px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+      z-index: 10;
     }
     
     @media (max-width: 600px) {
       :root {
-        --pixel-size: 20px;
+        --pixel-size: 15px;
       }
       
-      .toolbar {
-        flex-direction: column;
-        gap: 5px;
+      .tools {
+        flex-wrap: wrap;
+        justify-content: flex-start;
       }
       
-      .tools-section {
-        justify-content: center;
+      .tools-group {
+        margin-bottom: 4px;
       }
       
-      .canvas-container {
-        max-height: calc(100vh - 220px);
+      .color-hex {
+        width: 60px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .tools-group {
+        border-right: none;
+        padding-right: 0;
+        margin-right: 0;
       }
     }
   </style>
@@ -222,49 +238,50 @@
   <div class="container">
     <h1>픽셀 아트 에디터</h1>
     
-    <div class="toolbar">
-      <div class="tools-section">
-        <button id="pen-tool" class="icon-button active tooltip">
-          ✏️
-          <span class="tooltiptext">펜</span>
+    <div class="tools">
+      <div class="tools-group">
+        <button id="pen-tool" class="icon-button active tooltip" data-tooltip="펜">
+          <svg class="icon" viewBox="0 0 24 24"><path fill="currentColor" d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87L20.71,7.04M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"/></svg>
         </button>
-        <button id="eraser-tool" class="icon-button tooltip">
-          🧽
-          <span class="tooltiptext">지우개</span>
+        <button id="eraser-tool" class="icon-button tooltip" data-tooltip="지우개">
+          <svg class="icon" viewBox="0 0 24 24"><path fill="currentColor" d="M16.24,3.56L21.19,8.5C21.97,9.29 21.97,10.55 21.19,11.34L12,20.53C10.44,22.09 7.91,22.09 6.34,20.53L2.81,17C2.03,16.21 2.03,14.95 2.81,14.16L13.41,3.56C14.2,2.78 15.46,2.78 16.24,3.56M4.22,15.58L7.76,19.11C8.54,19.9 9.8,19.9 10.59,19.11L14.12,15.58L9.17,10.63L4.22,15.58Z"/></svg>
         </button>
-        <button id="clear-canvas" class="icon-button tooltip">
-          🗑️
-          <span class="tooltiptext">모두 지우기</span>
-        </button>
+      </div>
+
+      <div class="tools-group">
         <div class="color-picker">
-          <input type="color" id="color-input" value="#000000">
+          <input type="color" id="color-input" value="#000000" class="tooltip" data-tooltip="색상 선택">
           <div class="color-display" id="color-display"></div>
           <span id="color-hex" class="color-hex">0x000000</span>
         </div>
       </div>
+
+      <div class="tools-group">
+        <select id="grid-size-select" class="tooltip" data-tooltip="그리드 크기">
+          <option value="4">4×4</option>
+          <option value="8">8×8</option>
+          <option value="16" selected>16×16</option>
+          <option value="32">32×32</option>
+          <option value="64">64×64</option>
+        </select>
+      </div>
+
+      <div class="tools-group">
+        <button id="undo" class="icon-button tooltip" data-tooltip="실행 취소">
+          <svg class="icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12.5,8C9.85,8 7.45,9 5.6,10.6L2,7V16H11L7.38,12.38C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z"/></svg>
+        </button>
+        <button id="redo" class="icon-button tooltip" data-tooltip="다시 실행">
+          <svg class="icon" viewBox="0 0 24 24"><path fill="currentColor" d="M18.4,10.6C16.55,9 14.15,8 11.5,8C6.85,8 2.92,11.03 1.54,15.22L3.9,16C4.95,12.81 7.95,10.5 11.5,10.5C13.45,10.5 15.23,11.22 16.62,12.38L13,16H22V7L18.4,10.6Z"/></svg>
+        </button>
+      </div>
       
-      <div class="tools-section">
-        <button id="undo" class="icon-button tooltip" disabled>
-          ↩️
-          <span class="tooltiptext">실행 취소</span>
+      <div class="tools-group">
+        <button id="clear-canvas" class="tooltip" data-tooltip="모두 지우기">
+          <svg class="icon" viewBox="0 0 24 24"><path fill="currentColor" d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/></svg>
         </button>
-        <button id="redo" class="icon-button tooltip" disabled>
-          ↪️
-          <span class="tooltiptext">다시 실행</span>
+        <button id="copy-all" class="primary tooltip" data-tooltip="전체 복사">
+          <svg class="icon" viewBox="0 0 24 24"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/></svg>
         </button>
-        <button id="copy-all" class="icon-button tooltip">
-          📋
-          <span class="tooltiptext">전체 복사</span>
-        </button>
-        <div class="grid-size">
-          <select id="grid-size-select">
-            <option value="4">4×4</option>
-            <option value="8">8×8</option>
-            <option value="16" selected>16×16</option>
-            <option value="32">32×32</option>
-            <option value="64">64×64</option>
-          </select>
-        </div>
       </div>
     </div>
     
@@ -313,8 +330,8 @@
           // Event listeners for drawing
           pixel.addEventListener('mousedown', startDrawing);
           pixel.addEventListener('mouseover', draw);
-          pixel.addEventListener('touchstart', handleTouch, { passive: false });
-          pixel.addEventListener('touchmove', handleTouchMove, { passive: false });
+          pixel.addEventListener('touchstart', handleTouch);
+          pixel.addEventListener('touchmove', handleTouchMove);
           
           pixelGrid.appendChild(pixel);
         }
@@ -336,12 +353,21 @@
         undoButton.disabled = history.length <= 1;
         redoButton.disabled = redoStack.length === 0;
         
+        // Apply visual state to buttons
         if (undoButton.disabled) {
-          undoButton.classList.remove('active');
+          undoButton.style.opacity = "0.5";
+          undoButton.style.cursor = "not-allowed";
+        } else {
+          undoButton.style.opacity = "1";
+          undoButton.style.cursor = "pointer";
         }
         
         if (redoButton.disabled) {
-          redoButton.classList.remove('active');
+          redoButton.style.opacity = "0.5";
+          redoButton.style.cursor = "not-allowed";
+        } else {
+          redoButton.style.opacity = "1";
+          redoButton.style.cursor = "pointer";
         }
       }
       
@@ -481,24 +507,7 @@
         document.execCommand('copy');
         document.body.removeChild(textarea);
         
-        // Show success notification
-        const notification = document.createElement('div');
-        notification.style.position = 'fixed';
-        notification.style.bottom = '20px';
-        notification.style.left = '50%';
-        notification.style.transform = 'translateX(-50%)';
-        notification.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-        notification.style.color = 'white';
-        notification.style.padding = '10px 20px';
-        notification.style.borderRadius = '4px';
-        notification.style.zIndex = '1000';
-        notification.textContent = '픽셀 아트가 클립보드에 복사되었습니다!';
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-          document.body.removeChild(notification);
-        }, 2000);
+        alert('픽셀 아트가 클립보드에 복사되었습니다!');
       }
       
       // Convert RGB to Hex
