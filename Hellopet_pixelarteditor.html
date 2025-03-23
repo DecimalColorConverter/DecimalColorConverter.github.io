@@ -142,15 +142,34 @@ body {
       display: flex;
       gap: 6px;
       align-items: center;
+  background: var(--tool-bg);
+  border-radius: 6px;
+  padding: 4px 8px;
+  border: 1px solid var(--border-color);
     }
     
     .canvas-size input {
-      width: 50px;
-      text-align: center;
+     width: 40px;
+  text-align: center;
+  border: none;
+  background: transparent;
+  font-family: 'Pretendard', sans-serif;
+  font-size: 14px;
+  color: var(--text-color);
+  outline: none;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border-color);
+  transition: border-color 0.2s ease;
     }
+    
+    .canvas-size input:focus {
+  border-bottom: 1px solid #275efe;
+}
     
     .size-separator {
       font-weight: bold;
+      color: var(--text-color);
+  margin: 0 2px;
     }
     
     .canvas-container {
@@ -209,7 +228,7 @@ body {
   :root {
     --pixel-size: 16px; /* 기본 픽셀 크기 */
   }
-  
+  .canvas-size
   .tools {
     padding: 6px;
   }
@@ -223,7 +242,7 @@ body {
     font-size: 18px;
   }
   
-  .canvas-size input {
+   input {
     width: 36px;
   }
 
@@ -231,6 +250,15 @@ body {
   .canvas-container {
     overflow-x: auto; /* 가로 스크롤 추가 */
     max-width: 100%;
+  }
+      {
+  .canvas-size {
+    padding: 3px 6px;
+  }
+  
+  .canvas-size input {
+    width: 30px;
+    font-size: 12px;
   }
 }
 :root {
@@ -304,6 +332,24 @@ body.dark-mode input[type="number"] {
 body.dark-mode .tooltip {
   background: var(--dark-tool-bg);
   border-color: var(--dark-border-color);
+  color: var(--dark-text-color);
+}
+    body.dark-mode .canvas-size {
+  background: var(--dark-tool-bg);
+  border-color: var(--dark-border-color);
+}
+
+body.dark-mode .canvas-size input {
+  color: var(--dark-text-color);
+  border-bottom-color: var(--dark-border-color);
+  background: transparent;
+}
+
+body.dark-mode .canvas-size input:focus {
+  border-bottom-color: #4d8eff;
+}
+
+body.dark-mode .size-separator {
   color: var(--dark-text-color);
 }
 
