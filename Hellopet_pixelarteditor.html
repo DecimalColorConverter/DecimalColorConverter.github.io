@@ -225,6 +225,79 @@
         width: 36px;
       }
     }
+    :root {
+  /* 기존 변수 유지 */
+  --grid-cols: 16;
+  --grid-rows: 16;
+  --pixel-size: 20px;
+  --primary-color: #000000;
+  --text-color: #444;
+  --bg-color: #f5f5f5;
+  --canvas-bg: #ffffff;
+  --tool-bg: #ffffff;
+  --border-color: #ddd;
+  
+  /* 다크모드 변수 추가 */
+  --dark-text-color: #e0e0e0;
+  --dark-bg-color: #222222;
+  --dark-canvas-bg: #333333;
+  --dark-tool-bg: #333333;
+  --dark-border-color: #555;
+}
+
+/* 다크모드 클래스 추가 */
+body.dark-mode {
+  background-color: var(--dark-bg-color);
+  color: var(--dark-text-color);
+}
+
+body.dark-mode h1 {
+  color: var(--dark-text-color);
+}
+
+body.dark-mode .tools {
+  background: var(--dark-tool-bg);
+  border-color: var(--dark-border-color);
+}
+
+body.dark-mode .tool-button {
+  background: var(--dark-tool-bg);
+  border-color: var(--dark-border-color);
+  color: var(--dark-text-color);
+}
+
+body.dark-mode .tool-button:hover {
+  background-color: #444;
+}
+
+body.dark-mode .tool-button:active, 
+body.dark-mode .tool-button.active {
+  background-color: #555;
+  color: var(--dark-text-color);
+}
+
+body.dark-mode .canvas-container {
+  background: var(--dark-canvas-bg);
+  border-color: var(--dark-border-color);
+}
+
+body.dark-mode .color-picker {
+  background: var(--dark-tool-bg);
+  border-color: var(--dark-border-color);
+}
+
+body.dark-mode input[type="text"],
+body.dark-mode input[type="number"] {
+  background: var(--dark-tool-bg);
+  border-color: var(--dark-border-color);
+  color: var(--dark-text-color);
+}
+
+body.dark-mode .tooltip {
+  background: var(--dark-tool-bg);
+  border-color: var(--dark-border-color);
+  color: var(--dark-text-color);
+}
   </style>
 </head>
 <body>
@@ -872,6 +945,41 @@ function handleTouch(e) {
   }
 }
     });
+    state.isDarkMode = false;
+
+// 제목에 더블클릭 이벤트 리스너 추가
+const title = document.querySelector('h1');
+title.addEventListener('dblclick', toggleDarkMode);
+title.style.cursor = 'pointer'; // 커서를 포인터로 변경하여 클릭 가능함을 표시
+
+// 다크모드 토글 함수
+function toggleDarkMode() {
+  state.isDarkMode = !state.isDarkMode;
+  document.body.classList.toggle('dark-mode', state.isDarkMode);
+  
+  // 현재 모드를 툴팁으로 표시
+  const modeText = state.isDarkMode ? '다크모드 활성화' : '라이트모드 활성화';
+  showTooltip(title, modeText);
+  
+  // 다크모드 상태를 로컬 스토리지에 저장
+  localStorage.setItem('pixelArtEditorDarkMode', state.isDarkMode);
+}
+
+// 페이지 로드 시 다크모드 상태 복원
+function initDarkMode() {
+  const savedDarkMode = localStorage.getItem('pixelArtEditorDarkMode');
+  if (savedDarkMode === 'true') {
+    state.isDarkMode = true;
+    document.body.classList.add('dark-mode');
+  }
+}
+
+// 초기화 함수 호출 부분에 다크모드 초기화 추가
+// initGrid(state.gridCols, state.gridRows); 
+// setColor();
+// updateButtons();
+// 이 코드 바로 밑에 다음 코드 추가:
+initDarkMode();
   </script>
 </body>
 </html>
