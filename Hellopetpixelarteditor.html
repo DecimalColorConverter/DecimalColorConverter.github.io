@@ -23,16 +23,18 @@
       padding: 0;
     }
     
-    body {
-      font-family: 'Noto Sans KR', 'Arial', sans-serif;
-      padding: 15px;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      touch-action: manipulation;
-    }
+ @import url('https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css'); 
+
+body {
+    font-family: 'Pretendard', sans-serif; 
+    padding: 15px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    touch-action: manipulation;
+}
     
     .container {
       display: flex;
@@ -46,7 +48,7 @@
     }
     
     h1 {
-      margin: 10px 0;
+      margin: 8px 0;
       text-align: center;
       font-size: 24px;
       color: var(--primary-color);
@@ -55,10 +57,10 @@
     .tools {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
       justify-content: center;
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       border-radius: 8px;
       background: var(--tool-bg);
       border: 1px solid var(--border-color);
@@ -67,8 +69,8 @@
     .tool-group {
       display: flex;
       align-items: center;
-      gap: 6px;
-      margin: 4px;
+      gap: 4px;
+      margin: 2px;
     }
     
     .tool-button {
@@ -105,13 +107,13 @@
       background: var(--tool-bg);
       border-radius: 6px;
       border: 1px solid var(--border-color);
-      padding: 4px 8px;
+      padding: 2px 6px;
     }
     
     input[type="color"] {
       -webkit-appearance: none;
-      width: 30px;
-      height: 30px;
+      width: 26px;
+      height: 26px;
       border: none;
       background: none;
       cursor: pointer;
@@ -128,11 +130,11 @@
     }
     
     input[type="text"] {
-      width: 70px;
+      width: 60px;
       border: 1px solid var(--border-color);
       border-radius: 4px;
       padding: 4px;
-      font-size: 12px;
+      font-size: 11px;
       margin-left: 6px;
     }
     
@@ -204,27 +206,142 @@
     }
     
     @media (max-width: 600px) {
-      :root {
-        --pixel-size: 16px;
-      }
-      
-      .tools {
-        padding: 8px;
-      }
-      
-      .tool-button {
-        width: 36px;
-        height: 36px;
-      }
-      
-      h1 {
-        font-size: 20px;
-      }
-      
-      .canvas-size input {
-        width: 40px;
-      }
-    }
+  :root {
+    --pixel-size: 16px; /* 기본 픽셀 크기 */
+  }
+  
+  .tools {
+    padding: 6px;
+  }
+  
+  .tool-button {
+    width: 32px;
+    height: 32px;
+  }
+  
+  h1 {
+    font-size: 18px;
+  }
+  
+  .canvas-size input {
+    width: 36px;
+  }
+
+  /* 캔버스가 커질 때 픽셀 크기를 동적으로 조정 */
+  .canvas-container {
+    overflow-x: auto; /* 가로 스크롤 추가 */
+    max-width: 100%;
+  }
+}
+:root {
+  /* 기존 변수 유지 */
+  --grid-cols: 16;
+  --grid-rows: 16;
+  --pixel-size: 20px;
+  --primary-color: #000000;
+  --text-color: #444;
+  --bg-color: #f5f5f5;
+  --canvas-bg: #ffffff;
+  --tool-bg: #ffffff;
+  --border-color: #ddd;
+  
+  /* 다크모드 변수 추가 */
+  --dark-text-color: #e0e0e0;
+  --dark-bg-color: #222222;
+  --dark-canvas-bg: #333333;
+  --dark-tool-bg: #333333;
+  --dark-border-color: #555;
+}
+
+/* 다크모드 클래스 추가 */
+body.dark-mode {
+  background-color: var(--dark-bg-color);
+  color: var(--dark-text-color);
+}
+
+body.dark-mode h1 {
+  color: var(--dark-text-color);
+}
+
+body.dark-mode .tools {
+  background: var(--dark-tool-bg);
+  border-color: var(--dark-border-color);
+}
+
+body.dark-mode .tool-button {
+  background: var(--dark-tool-bg);
+  border-color: var(--dark-border-color);
+  color: var(--dark-text-color);
+}
+
+body.dark-mode .tool-button:hover {
+  background-color: #444;
+}
+
+body.dark-mode .tool-button:active, 
+body.dark-mode .tool-button.active {
+  background-color: #555;
+  color: var(--dark-text-color);
+}
+
+body.dark-mode .canvas-container {
+  background: var(--dark-canvas-bg);
+  border-color: var(--dark-border-color);
+}
+
+body.dark-mode .color-picker {
+  background: var(--dark-tool-bg);
+  border-color: var(--dark-border-color);
+}
+
+body.dark-mode input[type="text"],
+body.dark-mode input[type="number"] {
+  background: var(--dark-tool-bg);
+  border-color: var(--dark-border-color);
+  color: var(--dark-text-color);
+}
+
+body.dark-mode .tooltip {
+  background: var(--dark-tool-bg);
+  border-color: var(--dark-border-color);
+  color: var(--dark-text-color);
+}
+
+.download-button {
+ --background: #275efe;
+    --text: #fff; 
+    --font-size: 14px; 
+    --duration: .44s;
+    --move-hover: -3px;
+    --shadow: 0 2px 6px -1px rgba(39, 94, 254, 0.3);
+    --shadow-hover: 0 4px 16px -2px rgba(39, 94, 254, 0.45);
+    --font-shadow: var(--font-size);
+
+    padding: 12px 24px;
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 500;
+    line-height: var(--font-size);
+    border-radius: 18px; 
+    display: block;
+    outline: none;
+    appearance: none;
+    border: none;
+    text-decoration: none;
+    font-size: var(--font-size);
+    letter-spacing: .4px;
+    background: var(--background);
+    color: var(--text);
+    box-shadow: var(--shadow);
+    transform: translateY(var(--y)) translateZ(0);
+    transition: transform var(--duration) ease, box-shadow var(--duration) ease;
+
+    margin: 0 auto;
+    text-align: center;
+}
+.download-button:hover {
+ --y: var(--move-hover);
+    --shadow: var(--shadow-hover);
+}
   </style>
 </head>
 <body>
@@ -234,16 +351,14 @@
     <div class="tools">
       <div class="tool-group">
         <button id="pen-tool" class="tool-button active" title="펜">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"></path>
-          </svg>
+         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pen-line"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
         </button>
         <button id="eraser-tool" class="tool-button" title="지우개">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="m20 20-6-6M7 21l-4-4 9-9 7 7-3 3"></path>
-            <path d="m18 12 4 4"></path>
-          </svg>
-        </button>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
+  </svg>
+</button>
+        <button id="eyedropper-tool" class="tool-button" title="스포이트">
+ <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pipette"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg>
         <button id="clear-canvas" class="tool-button" title="모두 지우기">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -313,8 +428,8 @@
   </div>
   
   <div class="footer">
-    Made by 여뉴
-  </div>
+  <button id="download-image" class="download-button">Made by 여뉴</button>
+</div>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -497,26 +612,41 @@
       }
       
       // 캔버스 크기 변경
-      function changeCanvasSize() {
-        let newWidth = parseInt(elements.widthInput.value);
-        let newHeight = parseInt(elements.heightInput.value);
-        
-        // 유효성 검사
-        newWidth = Math.max(3, Math.min(64, newWidth));
-        newHeight = Math.max(3, Math.min(64, newHeight));
-        
-        // 입력값 업데이트
-        elements.widthInput.value = newWidth;
-        elements.heightInput.value = newHeight;
-        
-        // 상태 업데이트
-        state.gridCols = newWidth;
-        state.gridRows = newHeight;
-        
-        // 그리드 초기화
-        initGrid(newWidth, newHeight);
-        showTooltip(elements.applySizeButton, '캔버스 크기 변경');
-      }
+function changeCanvasSize() {
+  let newWidth = parseInt(elements.widthInput.value);
+  let newHeight = parseInt(elements.heightInput.value);
+  
+  // 유효성 검사
+  newWidth = Math.max(3, Math.min(64, newWidth));
+  newHeight = Math.max(3, Math.min(64, newHeight));
+  
+  // 입력값 업데이트
+  elements.widthInput.value = newWidth;
+  elements.heightInput.value = newHeight;
+  
+  // 모바일에서 픽셀 크기 자동 조정
+  if (window.innerWidth <= 600 && newWidth > 18) {
+    // 화면 너비에 맞게 픽셀 크기 계산 (여백 고려)
+    const containerWidth = document.querySelector('.canvas-container').clientWidth - 20; // 패딩 고려
+    const newPixelSize = Math.floor(containerWidth / (newWidth + 1)); // 픽셀 간 간격 고려
+    
+    if (newPixelSize < 16) { // 최소 픽셀 크기 보장
+      document.documentElement.style.setProperty('--pixel-size', `${newPixelSize}px`);
+    }
+  } else {
+    // 기본 픽셀 크기로 복원 (모바일이면 16px, 아니면 20px)
+    const defaultSize = window.innerWidth <= 600 ? '16px' : '20px';
+    document.documentElement.style.setProperty('--pixel-size', defaultSize);
+  }
+  
+  // 상태 업데이트
+  state.gridCols = newWidth;
+  state.gridRows = newHeight;
+  
+  // 그리드 초기화
+  initGrid(newWidth, newHeight);
+  showTooltip(elements.applySizeButton, '캔버스 크기 변경');
+}
       
       // 실행 취소
       function undo() {
@@ -753,7 +883,218 @@ function convertToPixelArt(img) {
   // 변환 완료 알림
   showTooltip(imageUpload.parentElement, '이미지가 픽셀아트로 변환되었습니다.');
 }
+      // DOM 요소에 스포이트 도구 추가
+elements.eyedropperTool = document.getElementById('eyedropper-tool');
+
+// 상태에 스포이트 도구 추가 (activeTool에 'eyedropper' 상태 추가)
+// state 객체 내부에는 이미 정의되어 있으므로 수정할 필요 없음
+
+// 스포이트 이벤트 리스너 설정
+elements.eyedropperTool.addEventListener('click', function() {
+  state.activeTool = 'eyedropper';
+  elements.penTool.classList.remove('active');
+  elements.eraserTool.classList.remove('active');
+  elements.eyedropperTool.classList.add('active');
+  showTooltip(elements.eyedropperTool, '스포이트');
+});
+
+// 기존 펜 툴과 지우개 툴 이벤트 리스너 수정
+elements.penTool.addEventListener('click', function() {
+  state.activeTool = 'pen';
+  elements.penTool.classList.add('active');
+  elements.eraserTool.classList.remove('active');
+  elements.eyedropperTool.classList.remove('active');
+  showTooltip(elements.penTool, '펜');
+});
+
+elements.eraserTool.addEventListener('click', function() {
+  state.activeTool = 'eraser';
+  elements.eraserTool.classList.add('active');
+  elements.penTool.classList.remove('active');
+  elements.eyedropperTool.classList.remove('active');
+  showTooltip(elements.eraserTool, '지우개');
+});
+
+// 픽셀 클릭/터치 이벤트 핸들러 수정
+// draw 함수 수정
+function draw(e) {
+  if (!state.isDrawing) return;
+  
+  const pixel = e.target;
+  const index = parseInt(pixel.dataset.index);
+  
+  if (state.activeTool === 'pen') {
+    pixel.style.backgroundColor = elements.colorInput.value;
+    state.currentState[index] = elements.colorInput.value;
+  } else if (state.activeTool === 'eraser') {
+    pixel.style.backgroundColor = 'white';
+    state.currentState[index] = 'white';
+  } else if (state.activeTool === 'eyedropper') {
+    // 스포이트 기능은 색상을 변경하지 않음
+  }
+}
+
+// 스포이트 기능을 위한 새로운 이벤트 핸들러 추가
+function handleEyedropper(pixel) {
+  if (pixel && pixel.classList.contains('pixel')) {
+    const color = pixel.style.backgroundColor;
+    if (color && color !== 'white') {
+      // RGB to Hex 변환
+      const hexColor = rgbToHex(color);
+      // 0xRRGGBB 형식에서 #RRGGBB 형식으로 변환
+      const colorValue = '#' + hexColor.substring(2);
+      
+      // 색상 입력 필드 업데이트
+      elements.colorInput.value = colorValue;
+      state.currentColor = hexColor;
+      elements.colorHex.value = hexColor;
+      
+      // 툴을 다시 펜으로 돌려놓음
+      state.activeTool = 'pen';
+      elements.penTool.classList.add('active');
+      elements.eyedropperTool.classList.remove('active');
+      elements.eraserTool.classList.remove('active');
+      
+      showTooltip(elements.eyedropperTool, '색상 선택됨: ' + hexColor);
+    }
+  }
+}
+
+// 픽셀에 대한 마우스다운 이벤트 핸들러를 수정
+function startDrawing(e) {
+  if (state.activeTool === 'eyedropper') {
+    handleEyedropper(e.target);
+    return;
+  }
+  
+  state.isDrawing = true;
+  draw(e);
+}
+
+// 터치 이벤트 핸들러 수정
+function handleTouch(e) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  const pixel = document.elementFromPoint(touch.clientX, touch.clientY);
+  
+  if (state.activeTool === 'eyedropper') {
+    handleEyedropper(pixel);
+    return;
+  }
+  
+  state.isDrawing = true;
+  if (pixel && pixel.classList.contains('pixel')) {
+    const index = parseInt(pixel.dataset.index);
+    if (state.activeTool === 'pen') {
+      pixel.style.backgroundColor = elements.colorInput.value;
+      state.currentState[index] = elements.colorInput.value;
+    } else if (state.activeTool === 'eraser') {
+      pixel.style.backgroundColor = 'white';
+      state.currentState[index] = 'white';
+    }
+  }
+}
+state.isDarkMode = false;
+
+// 제목에 더블클릭 이벤트 리스너 추가
+const title = document.querySelector('h1');
+title.addEventListener('dblclick', toggleDarkMode);
+title.style.cursor = 'pointer'; // 커서를 포인터로 변경하여 클릭 가능함을 표시
+
+// 다크모드 토글 함수
+function toggleDarkMode() {
+  state.isDarkMode = !state.isDarkMode;
+  document.body.classList.toggle('dark-mode', state.isDarkMode);
+  
+  // 현재 모드를 툴팁으로 표시
+  const modeText = state.isDarkMode ? '다크모드 활성화' : '라이트모드 활성화';
+  showTooltip(title, modeText);
+  
+  // 다크모드 상태를 로컬 스토리지에 저장
+  localStorage.setItem('pixelArtEditorDarkMode', state.isDarkMode);
+}
+
+// 페이지 로드 시 다크모드 상태 복원
+function initDarkMode() {
+  const savedDarkMode = localStorage.getItem('pixelArtEditorDarkMode');
+  if (savedDarkMode === 'true') {
+    state.isDarkMode = true;
+    document.body.classList.add('dark-mode');
+  }
+}
+
+// 초기화 함수 호출 부분에 다크모드 초기화 추가
+// initGrid(state.gridCols, state.gridRows); 
+// setColor();
+// updateButtons();
+// 이 코드 바로 밑에 다음 코드 추가:
+initDarkMode();
+// 이미지 다운로드 기능
+const downloadButton = document.getElementById('download-image');
+downloadButton.addEventListener('click', downloadPixelArtAsImage);
+
+// 픽셀아트를 이미지로 변환하여 다운로드하는 함수
+function downloadPixelArtAsImage() {
+  // 이미지 크기 계산 (픽셀 크기 + 간격)
+  const pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
+  const canvasWidth = state.gridCols * pixelSize + (state.gridCols - 1);
+  const canvasHeight = state.gridRows * pixelSize + (state.gridRows - 1);
+  
+  // 캔버스 생성
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+  
+  // 배경 색상 (흰색)
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+  
+  // 모든 픽셀 그리기
+  const pixels = elements.pixelGrid.querySelectorAll('.pixel');
+  pixels.forEach((pixel, index) => {
+    const row = Math.floor(index / state.gridCols);
+    const col = index % state.gridCols;
+    
+    // 픽셀의 색상 가져오기
+    const color = pixel.style.backgroundColor || 'white';
+    
+    // 픽셀 그리기
+    ctx.fillStyle = color;
+    ctx.fillRect(
+      col * (pixelSize + 1), 
+      row * (pixelSize + 1), 
+      pixelSize, 
+      pixelSize
+    );
+  });
+  
+  // 이미지로 변환하여 다운로드
+  const link = document.createElement('a');
+  link.download = `pixelart_${state.gridCols}x${state.gridRows}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  
+  // 다운로드 알림
+  showTooltip(downloadButton, '이미지가 다운로드되었습니다!');
+}
     });
+    // 화면 크기 변경 감지
+window.addEventListener('resize', function() {
+  if (window.innerWidth <= 600 && state.gridCols > 18) {
+    const containerWidth = document.querySelector('.canvas-container').clientWidth - 20;
+    const newPixelSize = Math.floor(containerWidth / (state.gridCols + 1));
+    
+    if (newPixelSize < 16) {
+      document.documentElement.style.setProperty('--pixel-size', `${newPixelSize}px`);
+    } else {
+      document.documentElement.style.setProperty('--pixel-size', '16px');
+    }
+  } else {
+    const defaultSize = window.innerWidth <= 600 ? '16px' : '20px';
+    document.documentElement.style.setProperty('--pixel-size', defaultSize);
+  }
+});
   </script>
 </body>
 </html>
