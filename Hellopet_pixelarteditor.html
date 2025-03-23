@@ -142,12 +142,16 @@ body {
       display: flex;
       gap: 6px;
       align-items: center;
+    }
+    .size-input-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   background: var(--tool-bg);
   border-radius: 6px;
   padding: 4px 8px;
   border: 1px solid var(--border-color);
     }
-    
     .canvas-size input {
      width: 40px;
   text-align: center;
@@ -159,7 +163,6 @@ body {
   outline: none;
   padding: 4px 0;
   border-bottom: 1px solid var(--border-color);
-  transition: border-color 0.2s ease;
     }
     
     .canvas-size input:focus {
@@ -352,6 +355,10 @@ body.dark-mode .canvas-size input:focus {
 body.dark-mode .size-separator {
   color: var(--dark-text-color);
 }
+    body.dark-mode .size-input-container {
+  background: var(--dark-tool-bg);
+  border-color: var(--dark-border-color);
+    }
 
 .download-button {
  --background: #275efe;
@@ -444,7 +451,19 @@ body.dark-mode .size-separator {
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
         </button>
       </div>
-    
+
+          <div class="tool-group">
+  <div class="canvas-size">
+    <div class="size-input-container">
+      <input type="number" id="width-input" min="3" max="64" value="16">
+      <span class="size-separator">×</span>
+      <input type="number" id="height-input" min="3" max="64" value="16">
+    </div>
+    <button id="apply-size" class="tool-button" title="적용">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
+    </button>
+  </div>
+          </div>
     <div class="canvas-container">
       <div class="pixel-grid" id="pixel-grid"></div>
     </div>
@@ -455,7 +474,7 @@ body.dark-mode .size-separator {
   <div class="footer">
   <button id="download-image" class="download-button">Made by 여뉴</button>
 </div>
-
+          
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // 기본 변수 설정
