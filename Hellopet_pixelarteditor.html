@@ -225,7 +225,7 @@
         width: 36px;
       }
     }
-    :root {
+:root {
   /* 기존 변수 유지 */
   --grid-cols: 16;
   --grid-rows: 16;
@@ -297,6 +297,24 @@ body.dark-mode .tooltip {
   background: var(--dark-tool-bg);
   border-color: var(--dark-border-color);
   color: var(--dark-text-color);
+}
+    .download-button {
+  background-color: var(--tool-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+}
+
+.download-button:hover {
+  background-color: #f0f0f0;
+}
+
+.download-button:active {
+  background-color: #e0e0e0;
 }
   </style>
 </head>
@@ -392,9 +410,9 @@ body.dark-mode .tooltip {
     <div id="tooltip" class="tooltip"></div>
   </div>
   
-  <div class="footer">
-    Made by 여뉴
-  </div>
+ <div class="footer">
+  <button id="download-button" class="download-button">Made by 여뉴</button>
+</div>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -944,8 +962,7 @@ function handleTouch(e) {
     }
   }
 }
-    });
-    state.isDarkMode = false;
+state.isDarkMode = false;
 
 // 제목에 더블클릭 이벤트 리스너 추가
 const title = document.querySelector('h1');
@@ -980,6 +997,25 @@ function initDarkMode() {
 // updateButtons();
 // 이 코드 바로 밑에 다음 코드 추가:
 initDarkMode();
+      // DOM 요소
+const elements = {
+  pixelGrid: document.getElementById('pixel-grid'),
+  colorInput: document.getElementById('color-input'),
+  colorHex: document.getElementById('color-hex'),
+  widthInput: document.getElementById('width-input'),
+  heightInput: document.getElementById('height-input'),
+  applySizeButton: document.getElementById('apply-size'),
+  penTool: document.getElementById('pen-tool'),
+  eraserTool: document.getElementById('eraser-tool'),
+  clearCanvas: document.getElementById('clear-canvas'),
+  undoButton: document.getElementById('undo'),
+  redoButton: document.getElementById('redo'),
+  copyAllButton: document.getElementById('copy-all'),
+  tooltip: document.getElementById('tooltip'),
+  downloadButton: document.getElementById('download-button') // 추가된 부분
+// 다운로드 버튼 이벤트 리스너
+elements.downloadButton.addEventListener('click', downloadPixelArt);
+    });
   </script>
 </body>
 </html>
