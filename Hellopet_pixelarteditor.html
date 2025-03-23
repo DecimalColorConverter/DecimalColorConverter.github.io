@@ -244,6 +244,13 @@
             <path d="m18 12 4 4"></path>
           </svg>
         </button>
+        <button id="eyedropper-tool" class="tool-button" title="스포이트">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+    <path d="m2 2 7.586 7.586"></path>
+  </svg>
+</button>
         <button id="clear-canvas" class="tool-button" title="모두 지우기">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -752,6 +759,117 @@ function convertToPixelArt(img) {
   
   // 변환 완료 알림
   showTooltip(imageUpload.parentElement, '이미지가 픽셀아트로 변환되었습니다.');
+}
+      // DOM 요소에 스포이트 도구 추가
+elements.eyedropperTool = document.getElementById('eyedropper-tool');
+
+// 상태에 스포이트 도구 추가 (activeTool에 'eyedropper' 상태 추가)
+// state 객체 내부에는 이미 정의되어 있으므로 수정할 필요 없음
+
+// 스포이트 이벤트 리스너 설정
+elements.eyedropperTool.addEventListener('click', function() {
+  state.activeTool = 'eyedropper';
+  elements.penTool.classList.remove('active');
+  elements.eraserTool.classList.remove('active');
+  elements.eyedropperTool.classList.add('active');
+  showTooltip(elements.eyedropperTool, '스포이트');
+});
+
+// 기존 펜 툴과 지우개 툴 이벤트 리스너 수정
+elements.penTool.addEventListener('click', function() {
+  state.activeTool = 'pen';
+  elements.penTool.classList.add('active');
+  elements.eraserTool.classList.remove('active');
+  elements.eyedropperTool.classList.remove('active');
+  showTooltip(elements.penTool, '펜');
+});
+
+elements.eraserTool.addEventListener('click', function() {
+  state.activeTool = 'eraser';
+  elements.eraserTool.classList.add('active');
+  elements.penTool.classList.remove('active');
+  elements.eyedropperTool.classList.remove('active');
+  showTooltip(elements.eraserTool, '지우개');
+});
+
+// 픽셀 클릭/터치 이벤트 핸들러 수정
+// draw 함수 수정
+function draw(e) {
+  if (!state.isDrawing) return;
+  
+  const pixel = e.target;
+  const index = parseInt(pixel.dataset.index);
+  
+  if (state.activeTool === 'pen') {
+    pixel.style.backgroundColor = elements.colorInput.value;
+    state.currentState[index] = elements.colorInput.value;
+  } else if (state.activeTool === 'eraser') {
+    pixel.style.backgroundColor = 'white';
+    state.currentState[index] = 'white';
+  } else if (state.activeTool === 'eyedropper') {
+    // 스포이트 기능은 색상을 변경하지 않음
+  }
+}
+
+// 스포이트 기능을 위한 새로운 이벤트 핸들러 추가
+function handleEyedropper(pixel) {
+  if (pixel && pixel.classList.contains('pixel')) {
+    const color = pixel.style.backgroundColor;
+    if (color && color !== 'white') {
+      // RGB to Hex 변환
+      const hexColor = rgbToHex(color);
+      // 0xRRGGBB 형식에서 #RRGGBB 형식으로 변환
+      const colorValue = '#' + hexColor.substring(2);
+      
+      // 색상 입력 필드 업데이트
+      elements.colorInput.value = colorValue;
+      state.currentColor = hexColor;
+      elements.colorHex.value = hexColor;
+      
+      // 툴을 다시 펜으로 돌려놓음
+      state.activeTool = 'pen';
+      elements.penTool.classList.add('active');
+      elements.eyedropperTool.classList.remove('active');
+      elements.eraserTool.classList.remove('active');
+      
+      showTooltip(elements.eyedropperTool, '색상 선택됨: ' + hexColor);
+    }
+  }
+}
+
+// 픽셀에 대한 마우스다운 이벤트 핸들러를 수정
+function startDrawing(e) {
+  if (state.activeTool === 'eyedropper') {
+    handleEyedropper(e.target);
+    return;
+  }
+  
+  state.isDrawing = true;
+  draw(e);
+}
+
+// 터치 이벤트 핸들러 수정
+function handleTouch(e) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  const pixel = document.elementFromPoint(touch.clientX, touch.clientY);
+  
+  if (state.activeTool === 'eyedropper') {
+    handleEyedropper(pixel);
+    return;
+  }
+  
+  state.isDrawing = true;
+  if (pixel && pixel.classList.contains('pixel')) {
+    const index = parseInt(pixel.dataset.index);
+    if (state.activeTool === 'pen') {
+      pixel.style.backgroundColor = elements.colorInput.value;
+      state.currentState[index] = elements.colorInput.value;
+    } else if (state.activeTool === 'eraser') {
+      pixel.style.backgroundColor = 'white';
+      state.currentState[index] = 'white';
+    }
+  }
 }
     });
   </script>
