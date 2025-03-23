@@ -143,6 +143,7 @@ body {
       gap: 6px;
       align-items: center;
     }
+    
     .size-input-container {
   display: flex;
   align-items: center;
@@ -152,6 +153,7 @@ body {
   padding: 4px 8px;
   border: 1px solid var(--border-color);
     }
+    
     .canvas-size input {
      width: 40px;
   text-align: center;
@@ -163,6 +165,7 @@ body {
   outline: none;
   padding: 4px 0;
   border-bottom: 1px solid var(--border-color);
+  transition: border-color 0.2s ease;
     }
     
     .canvas-size input:focus {
@@ -173,18 +176,6 @@ body {
       font-weight: bold;
       color: var(--text-color);
   margin: 0 2px;
-    }
-    
-    .canvas-container {
-      position: relative;
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 8px;
-      background: var(--canvas-bg);
-      border: 1px solid var(--border-color);
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
     
     .pixel-grid {
