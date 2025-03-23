@@ -298,23 +298,20 @@ body.dark-mode .tooltip {
   border-color: var(--dark-border-color);
   color: var(--dark-text-color);
 }
-    .download-button {
-  background-color: var(--tool-bg);
-  border: 1px solid var(--border-color);
+
+.download-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
   border-radius: 6px;
   padding: 8px 16px;
-  cursor: pointer;
   font-size: 14px;
-  color: var(--text-color);
-  transition: all 0.2s ease;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .download-button:hover {
-  background-color: #f0f0f0;
-}
-
-.download-button:active {
-  background-color: #e0e0e0;
+  background-color: #333;
 }
   </style>
 </head>
@@ -410,8 +407,8 @@ body.dark-mode .tooltip {
     <div id="tooltip" class="tooltip"></div>
   </div>
   
- <div class="footer">
-  <button id="download-button" class="download-button">Made by 여뉴</button>
+  <div class="footer">
+  <button id="download-image" class="download-button">Made by 여뉴</button>
 </div>
 
   <script>
@@ -997,24 +994,55 @@ function initDarkMode() {
 // updateButtons();
 // 이 코드 바로 밑에 다음 코드 추가:
 initDarkMode();
-      // DOM 요소
-const elements = {
-  pixelGrid: document.getElementById('pixel-grid'),
-  colorInput: document.getElementById('color-input'),
-  colorHex: document.getElementById('color-hex'),
-  widthInput: document.getElementById('width-input'),
-  heightInput: document.getElementById('height-input'),
-  applySizeButton: document.getElementById('apply-size'),
-  penTool: document.getElementById('pen-tool'),
-  eraserTool: document.getElementById('eraser-tool'),
-  clearCanvas: document.getElementById('clear-canvas'),
-  undoButton: document.getElementById('undo'),
-  redoButton: document.getElementById('redo'),
-  copyAllButton: document.getElementById('copy-all'),
-  tooltip: document.getElementById('tooltip'),
-  downloadButton: document.getElementById('download-button') // 추가된 부분
-// 다운로드 버튼 이벤트 리스너
-elements.downloadButton.addEventListener('click', downloadPixelArt);
+// 이미지 다운로드 기능
+const downloadButton = document.getElementById('download-image');
+downloadButton.addEventListener('click', downloadPixelArtAsImage);
+
+// 픽셀아트를 이미지로 변환하여 다운로드하는 함수
+function downloadPixelArtAsImage() {
+  // 이미지 크기 계산 (픽셀 크기 + 간격)
+  const pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
+  const canvasWidth = state.gridCols * pixelSize + (state.gridCols - 1);
+  const canvasHeight = state.gridRows * pixelSize + (state.gridRows - 1);
+  
+  // 캔버스 생성
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+  
+  // 배경 색상 (흰색)
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+  
+  // 모든 픽셀 그리기
+  const pixels = elements.pixelGrid.querySelectorAll('.pixel');
+  pixels.forEach((pixel, index) => {
+    const row = Math.floor(index / state.gridCols);
+    const col = index % state.gridCols;
+    
+    // 픽셀의 색상 가져오기
+    const color = pixel.style.backgroundColor || 'white';
+    
+    // 픽셀 그리기
+    ctx.fillStyle = color;
+    ctx.fillRect(
+      col * (pixelSize + 1), 
+      row * (pixelSize + 1), 
+      pixelSize, 
+      pixelSize
+    );
+  });
+  
+  // 이미지로 변환하여 다운로드
+  const link = document.createElement('a');
+  link.download = `pixelart_${state.gridCols}x${state.gridRows}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  
+  // 다운로드 알림
+  showTooltip(downloadButton, '이미지가 다운로드되었습니다!');
+}
     });
   </script>
 </body>
