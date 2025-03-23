@@ -270,6 +270,18 @@
           </button>
         </div>
       </div>
+
+      <div class="tool-group">
+  <label for="image-upload" class="tool-button" title="이미지 업로드">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"></path>
+      <circle cx="16" cy="8" r="2"></circle>
+      <path d="m18 12-3-3-6 6"></path>
+      <path d="m19 21-5-5"></path>
+    </svg>
+    <input type="file" id="image-upload" accept="image/*" style="display: none;">
+  </label>
+</div>
       
       <div class="tool-group">
         <button id="undo" class="tool-button" title="실행 취소">
@@ -657,6 +669,90 @@
       initGrid(state.gridCols, state.gridRows);
       setColor();
       updateButtons();
+
+      // 이미지 업로드 이벤트 리스너 추가
+const imageUpload = document.getElementById('image-upload');
+imageUpload.addEventListener('change', handleImageUpload);
+
+// 이미지 업로드 처리 함수
+function handleImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  if (!file.type.match('image.*')) {
+    showTooltip(imageUpload.parentElement, '이미지 파일만 업로드 가능합니다.');
+    return;
+  }
+  
+  const reader = new FileReader();
+  
+  reader.onload = function(event) {
+    const img = new Image();
+    img.onload = function() {
+      convertToPixelArt(img);
+    };
+    img.src = event.target.result;
+  };
+  
+  reader.readAsDataURL(file);
+  // 파일 입력 필드 초기화 (같은 파일 다시 선택 가능하도록)
+  e.target.value = '';
+}
+
+// 이미지를 픽셀아트로 변환하는 함수
+function convertToPixelArt(img) {
+  // 캔버스 그리드 크기 가져오기
+  const gridCols = state.gridCols;
+  const gridRows = state.gridRows;
+  
+  // 임시 캔버스 생성
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  
+  // 캔버스 크기를 그리드 크기에 맞게 설정
+  canvas.width = gridCols;
+  canvas.height = gridRows;
+  
+  // 이미지를 캔버스에 그리드 크기로 리사이징하여 그림
+  ctx.drawImage(img, 0, 0, gridCols, gridRows);
+  
+  // 픽셀 데이터 추출
+  const imageData = ctx.getImageData(0, 0, gridCols, gridRows);
+  const pixels = imageData.data;
+  
+  // 현재 상태 저장 (실행 취소를 위해)
+  saveState();
+  
+  // 픽셀 그리드 업데이트
+  const gridPixels = elements.pixelGrid.querySelectorAll('.pixel');
+  
+  for (let y = 0; y < gridRows; y++) {
+    for (let x = 0; x < gridCols; x++) {
+      const index = (y * gridCols + x);
+      const dataIndex = (y * gridCols + x) * 4; // RGBA 데이터 인덱스
+      
+      // RGBA 값 가져오기
+      const r = pixels[dataIndex];
+      const g = pixels[dataIndex + 1];
+      const b = pixels[dataIndex + 2];
+      const a = pixels[dataIndex + 3];
+      
+      // 완전 투명이 아닌 경우에만 색상 적용
+      if (a > 0) {
+        // RGB를 HEX 색상으로 변환
+        const hexColor = rgbToHex(`rgb(${r}, ${g}, ${b})`);
+        const colorValue = '#' + hexColor.substring(2); // 0xRRGGBB -> #RRGGBB로 변환
+        
+        // 픽셀에 색상 적용
+        gridPixels[index].style.backgroundColor = colorValue;
+        state.currentState[index] = colorValue;
+      }
+    }
+  }
+  
+  // 변환 완료 알림
+  showTooltip(imageUpload.parentElement, '이미지가 픽셀아트로 변환되었습니다.');
+}
     });
   </script>
 </body>
