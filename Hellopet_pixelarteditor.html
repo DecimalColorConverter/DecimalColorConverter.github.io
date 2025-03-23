@@ -204,27 +204,33 @@
     }
     
     @media (max-width: 600px) {
-      :root {
-        --pixel-size: 16px;
-      }
-      
-      .tools {
-        padding: 6px;
-      }
-      
-      .tool-button {
-        width: 32px;
-        height: 32px;
-      }
-      
-      h1 {
-        font-size: 18px;
-      }
-      
-      .canvas-size input {
-        width: 36px;
-      }
-    }
+  :root {
+    --pixel-size: 16px; /* 기본 픽셀 크기 */
+  }
+  
+  .tools {
+    padding: 6px;
+  }
+  
+  .tool-button {
+    width: 32px;
+    height: 32px;
+  }
+  
+  h1 {
+    font-size: 18px;
+  }
+  
+  .canvas-size input {
+    width: 36px;
+  }
+
+  /* 캔버스가 커질 때 픽셀 크기를 동적으로 조정 */
+  .canvas-container {
+    overflow-x: auto; /* 가로 스크롤 추가 */
+    max-width: 100%;
+  }
+}
 :root {
   /* 기존 변수 유지 */
   --grid-cols: 16;
@@ -592,26 +598,41 @@ body.dark-mode .tooltip {
       }
       
       // 캔버스 크기 변경
-      function changeCanvasSize() {
-        let newWidth = parseInt(elements.widthInput.value);
-        let newHeight = parseInt(elements.heightInput.value);
-        
-        // 유효성 검사
-        newWidth = Math.max(3, Math.min(64, newWidth));
-        newHeight = Math.max(3, Math.min(64, newHeight));
-        
-        // 입력값 업데이트
-        elements.widthInput.value = newWidth;
-        elements.heightInput.value = newHeight;
-        
-        // 상태 업데이트
-        state.gridCols = newWidth;
-        state.gridRows = newHeight;
-        
-        // 그리드 초기화
-        initGrid(newWidth, newHeight);
-        showTooltip(elements.applySizeButton, '캔버스 크기 변경');
-      }
+function changeCanvasSize() {
+  let newWidth = parseInt(elements.widthInput.value);
+  let newHeight = parseInt(elements.heightInput.value);
+  
+  // 유효성 검사
+  newWidth = Math.max(3, Math.min(64, newWidth));
+  newHeight = Math.max(3, Math.min(64, newHeight));
+  
+  // 입력값 업데이트
+  elements.widthInput.value = newWidth;
+  elements.heightInput.value = newHeight;
+  
+  // 모바일에서 픽셀 크기 자동 조정
+  if (window.innerWidth <= 600 && newWidth > 18) {
+    // 화면 너비에 맞게 픽셀 크기 계산 (여백 고려)
+    const containerWidth = document.querySelector('.canvas-container').clientWidth - 20; // 패딩 고려
+    const newPixelSize = Math.floor(containerWidth / (newWidth + 1)); // 픽셀 간 간격 고려
+    
+    if (newPixelSize < 16) { // 최소 픽셀 크기 보장
+      document.documentElement.style.setProperty('--pixel-size', `${newPixelSize}px`);
+    }
+  } else {
+    // 기본 픽셀 크기로 복원 (모바일이면 16px, 아니면 20px)
+    const defaultSize = window.innerWidth <= 600 ? '16px' : '20px';
+    document.documentElement.style.setProperty('--pixel-size', defaultSize);
+  }
+  
+  // 상태 업데이트
+  state.gridCols = newWidth;
+  state.gridRows = newHeight;
+  
+  // 그리드 초기화
+  initGrid(newWidth, newHeight);
+  showTooltip(elements.applySizeButton, '캔버스 크기 변경');
+}
       
       // 실행 취소
       function undo() {
@@ -1044,6 +1065,22 @@ function downloadPixelArtAsImage() {
   showTooltip(downloadButton, '이미지가 다운로드되었습니다!');
 }
     });
+    // 화면 크기 변경 감지
+window.addEventListener('resize', function() {
+  if (window.innerWidth <= 600 && state.gridCols > 18) {
+    const containerWidth = document.querySelector('.canvas-container').clientWidth - 20;
+    const newPixelSize = Math.floor(containerWidth / (state.gridCols + 1));
+    
+    if (newPixelSize < 16) {
+      document.documentElement.style.setProperty('--pixel-size', `${newPixelSize}px`);
+    } else {
+      document.documentElement.style.setProperty('--pixel-size', '16px');
+    }
+  } else {
+    const defaultSize = window.innerWidth <= 600 ? '16px' : '20px';
+    document.documentElement.style.setProperty('--pixel-size', defaultSize);
+  }
+});
   </script>
 </body>
 </html>
