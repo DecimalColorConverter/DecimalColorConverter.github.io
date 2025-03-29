@@ -99,13 +99,13 @@
         }
 
         .correct {
-            background-color: #6CEE91; /* 7134297 */
+            background-color: #69D953; /* 7134297 */
             color: white;
             border-color: #57D57E;
         }
 
         .present {
-            background-color: #F9E551; /* 16374097 */
+            background-color: #F5D139; /* 16374097 */
             color: #504808; /* Darker text for yellow */
             border-color: #E6D342;
         }
@@ -362,7 +362,7 @@
     <div class="modal" id="customModal">
         <div class="modal-content">
             <div class="modal-title">커스텀 단어 설정</div>
-            <p style="font-size: 0.9rem; color: #555; margin-bottom: 1rem;">도전할 단어를 입력하세요. 생성된 URL을 친구에게 공유하여 같은 단어에 도전하게 할 수 있습니다.</p>
+            <p style="font-size: 0.9rem; color: #555; margin-bottom: 1rem;">게임을 만들 단어를 입력하세요. 생성된 URL을 친구에게 공유하여 게임에 도전하게 할 수 있습니다.</p>
             <input type="text" id="customWordInput" placeholder="커스텀 단어 입력" style="width: 100%; margin: 1rem 0; padding: 0.7rem; border: 1px solid #ccc; border-radius: 6px;">
              <div class="modal-actions">
                  <button id="cancelCustom" style="background-color: #757575;">취소</button>
@@ -659,7 +659,7 @@
                  if (guess === targetWord) {
                      gameOver = true;
                      clearInterval(timerInterval); // 타이머 정지!
-                     showMessage(`정답입니다! ${guessCount}번 만에 성공! 🎉`, 'success', 5000);
+                     showMessage(`정답입니다. ${guessCount}번 만에 성공! 🎉`, 'success', 5000);
                      guessInput.disabled = true;
                      submitBtn.disabled = true;
                      shareBtn.disabled = false; // 공유 버튼 활성화
@@ -708,10 +708,10 @@
                  // 사용자가 요청한 색상 매핑 (<font> 태그 사용)
                  const colorMap = {
                     // Hex codes from decimal values provided or CSS:
-                    correct: '<font color=0x6cee91>█</font>', // 7134297
-                    present: '<font color=0xf9e551>█</font>', // 16374097
-                    absent:  '<font color=0x9e9e9e>█</font>', // Using darker gray for better visibility than #EFEFEF (15724527)
-                    excess:  '<font color=0cef5350>█</font>', // Using CSS red
+                                        correct: '<font color=#69d953>█</font>', // 7134297
+                    present: '<font color=#f5d139>█</font>', // 16374097
+                    absent:  '<font color=#9e9e9e>█</font>', // Using darker gray for better visibility than #EFEFEF (15724527)
+                    excess:  '<font color=#ef5350>█</font>', // Using CSS red
                  };
 
                  let gridHtml = '';
@@ -729,10 +729,10 @@
                  const title = `뉴들 ${isCustomMode ? '(커스텀)' : ''} ${guessCount}/${allGuessResults.length} | ⏱️${formatTime(elapsedTime)}`;
                  // 일반 텍스트용 이모지 매핑 (더 표준적)
                  const plainBlockMap = {
-                    correct: '🟩',
-                    present: '🟨',
-                    absent:  '⬜',
-                    excess:  '🟥',
+                    correct: '<font color=6543440>█</font>',
+                    present: '<font color=16373577>█</font>',
+                    absent:  '<font color=10395294>█</font>',
+                    excess:  '<font color=16403275>█</font>',
                  };
 
                  let gridPlainText = '';
@@ -781,15 +781,15 @@
 
                      // URL을 클립보드에 복사 (Clipboard API 사용)
                      navigator.clipboard.writeText(url).then(() => {
-                         alert(`URL이 클립보드에 복사되었습니다!\n${url}\n\n이 URL을 친구에게 공유하세요. 페이지를 새로고침하면 기본 게임으로 돌아갑니다.`);
+                         alert(`URL이 클립보드에 복사되었습니다!\n${url}\n\n이 URL을 친구에게 공유하세요! Letgo`);
                          customModal.style.display = 'none';
                      }).catch(err => {
                          console.error('URL 복사 실패:', err);
-                         alert('URL 복사에 실패했습니다. 수동으로 복사해주세요:\n' + url);
+                         alert('URL 복사에 실패했습니다. 왜지?? 수동으로 복사해주세요.ㅎㅎ:\n' + url);
                      });
 
                  } else {
-                     alert('유효한 단어를 입력해주세요.');
+                     alert('유효한 단어를 입력하세요.');
                  }
              });
 
@@ -847,7 +847,7 @@
 
              // 새 게임 버튼
              resetBtn.addEventListener('click', function() {
-                 if (confirm('현재 게임 진행 상황이 초기화됩니다.\n정말 새 게임을 시작하시겠습니까?')) {
+                 if (confirm('현재 게임 진행 상황이 초기화됩니다.\n 새 게임을 시작하시겠습니까?')) {
                      // 커스텀 모드였다면, URL 파라미터 없이 페이지를 리로드하여 기본 단어로 시작
                      if (isCustomMode) {
                          window.location.href = window.location.pathname;
