@@ -274,7 +274,6 @@
         <main>
             <div class="game-container">
                 <div class="guesses" id="guesses">
-                    <!-- 추측 내용이 동적으로 추가됨 -->
                 </div>
                 
                 <div class="input-area">
@@ -298,15 +297,13 @@
         </main>
         
         <footer>
-            © 2025 뉴들 - 모든 권리 보유
+            Made by 여뉴
         </footer>
     </div>
-    
-    <!-- 커스텀 단어 모달 -->
     <div class="modal" id="customModal">
         <div class="modal-content">
             <div class="modal-title">커스텀 단어 설정</div>
-            <p>도전할 단어를 입력하세요. 이 단어를 친구에게 도전 과제로 공유할 수 있습니다.</p>
+            <p>도전할 단어를 입력하세요. 친구에게 풀어보라고 공유해 보세요!</p>
             <input type="text" id="customWordInput" placeholder="커스텀 단어 입력" style="width: 100%; margin: 1rem 0;">
             <div class="modal-actions">
                 <button id="cancelCustom">취소</button>
@@ -329,7 +326,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 기본 설정 및 요소
+            // set
             let targetWord = "트위터아이디는@kjy2604♡";
             let guessCount = 0;
             let gameOver = false;
@@ -356,41 +353,66 @@
             const resultContent = document.getElementById('resultContent');
             const copyResultBtn = document.getElementById('copyResult');
             const closeResultBtn = document.getElementById('closeResult');
-            
-            // URL 매개변수 처리 (커스텀 단어용)
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('word')) {
-                try {
-                    const encodedWord = urlParams.get('word');
-                    targetWord = atob(encodedWord);
-                    isCustomMode = true;
-                    gameModeEl.textContent = "커스텀 모드";
-                } catch (e) {
-                    console.error("단어 디코딩 오류:", e);
-                }
-            }
+
+// UTF-8을 지원하는 Base64 디코딩 함수
+function decodeBase64(str) {
+    return decodeURIComponent(escape(atob(str)));
+}
+
+// URL 매개변수 처리 (커스텀 단어용)
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.has('word')) {
+    try {
+        const encodedWord = urlParams.get('word');
+        targetWord = decodeBase64(encodedWord); // 수정된 디코딩 함수 사용
+        isCustomMode = true;
+        gameModeEl.textContent = "커스텀 모드";
+    } catch (e) {
+        console.error("단어 디코딩 오류:", e);
+    }
+}
+
+// 커스텀 단어 저장
+saveCustomBtn.addEventListener('click', function() {
+    const word = customWordInput.value.trim();
+    if (word) {
+        const encodedWord = encodeBase64(word); // 수정된 인코딩 함수 사용
+        const url = `${window.location.origin}${window.location.pathname}?word=${encodedWord}`;
+        
+        // 결과 모달에 URL 표시
+        resultContent.innerHTML = `
+            <p>아래 URL을 복사하여 친구에게 공유하세요:</p>
+            <textarea readonly style="width: 100%; height: 60px; margin-top: 0.5rem; padding: 0.5rem;">${url}</textarea>
+        `;
+        
+        customModal.style.display = 'none';
+        resultModal.style.display = 'flex';
+    } else {
+        alert('단어를 입력해주세요.');
+    }
+});
             
             // 특정 횟수 이스터에그 메시지
             const countEasterEggs = {
-                5: "조금만 더 노력해보세요!",
-                10: "파이팅! 계속 도전하세요!",
-                20: "꾸준함이 성공의 열쇠입니다!",
-                30: "포기하지 마세요, 가까워지고 있어요!",
-                50: "와우! 정말 의지력이 대단하시네요!",
-                75: "인내심의 챔피언이시군요!",
-                100: "100번째 도전! 놀라운 끈기입니다!"
+                5: "조금만 더 노력해보세용.",
+                10: "렛츠끼릿",
+                20: "힘들지않아거친세상속에뛰어든건너니까 유오케",
+                30: "포기는 배추셀때만하는것.",
+                50: "대단하십니다...",
+                83: "여뉴생일 20100803♡",
+                100: "당신을 개레전드로임명합니다"
             };
             
             // 특정 단어 이스터에그
             const wordEasterEggs = {
-                "사랑": "♡ 사랑은 아름다워요! ♡",
-                "트위터": "🐦 짹짹! 트위터를 찾고 계신가요?",
-                "아이디": "👤 ID를 확인 중이신가요?",
-                "kjy": "🔍 가까워지고 있어요!",
-                "kjy2604": "⭐ 정말 근접했어요!",
-                "정답": "🤔 맞아요, 정답을 찾고 계시죠!",
-                "너무어려워": "😅 힌트: 트위터와 관련이 있어요!",
-                "포기": "💪 포기는 없습니다! 다시 도전해보세요!"
+                "사랑": "♡",
+                "윤산하": "여뉴의 사랑",
+                "육성재": "윤산하육성재 둘중뭘먼저입력하셧음?",
+                "kjy": "헉!! 명탐정",
+                "kjy2604": "코난이다",
+                "뭐지": "그러게요",
+                "여뉴": "왜요",
+                "포기": "하지마!! 육캔두잇"
             };
             
             // 타이머 시작
@@ -404,33 +426,6 @@
             guessInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     submitGuess();
-                }
-            });
-            
-            // 커스텀 단어 버튼
-            customBtn.addEventListener('click', function() {
-                customModal.style.display = 'flex';
-                customWordInput.value = '';
-                customWordInput.focus();
-            });
-            
-            // 커스텀 단어 저장
-            saveCustomBtn.addEventListener('click', function() {
-                const word = customWordInput.value.trim();
-                if (word) {
-                    const encodedWord = btoa(word);
-                    const url = `${window.location.origin}${window.location.pathname}?word=${encodedWord}`;
-                    
-                    // 결과 모달에 URL 표시
-                    resultContent.innerHTML = `
-                        <p>아래 URL을 복사하여 친구에게 공유하세요:</p>
-                        <textarea readonly style="width: 100%; height: 60px; margin-top: 0.5rem; padding: 0.5rem;">${url}</textarea>
-                    `;
-                    
-                    customModal.style.display = 'none';
-                    resultModal.style.display = 'flex';
-                } else {
-                    alert('단어를 입력해주세요.');
                 }
             });
             
@@ -472,7 +467,7 @@
             
             // 게임 리셋
             resetBtn.addEventListener('click', function() {
-                if (confirm('정말 게임을 새로 시작하시겠습니까?')) {
+                if (confirm('게임을 새로 시작하시겠습니까?')) {
                     resetGame();
                 }
             });
@@ -590,7 +585,7 @@
                 // 정답 맞춤 여부 확인
                 if (isCorrect) {
                     gameOver = true;
-                    showMessage('정답입니다! 퍼즐을 성공적으로 해결했습니다! 🎉', 'success');
+                    showMessage('정답입니다! 퍼즐 풀이 성공! 🎉', 'success');
                     guessInput.disabled = true;
                     submitBtn.disabled = true;
                     shareBtn.disabled = false;
