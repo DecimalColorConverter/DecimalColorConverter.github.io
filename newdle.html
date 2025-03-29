@@ -6,14 +6,14 @@
     <title>Hello, Newdle!</title>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Pretendard', sans-serif;
         }
-        
+
         body {
             background-color: #f0f2f5;
             color: #333;
@@ -22,29 +22,29 @@
             min-height: 100vh;
             padding: 1rem;
         }
-        
+
         .container {
             max-width: 500px;
             margin: 0 auto;
             width: 100%;
         }
-        
+
         header {
             text-align: center;
             margin-bottom: 1.5rem;
         }
-        
+
         h1 {
             font-size: 2.2rem;
             color: #3998EB;
             margin-bottom: 0.5rem;
         }
-        
+
         .subtitle {
             color: #666;
             font-size: 0.9rem;
         }
-        
+
         .timer {
             text-align: center;
             font-size: 1.1rem;
@@ -52,11 +52,11 @@
             color: #3998EB;
             margin-bottom: 1rem;
         }
-        
+
         main {
             flex: 1;
         }
-        
+
         .game-container {
             background: white;
             border-radius: 12px;
@@ -64,7 +64,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             margin-bottom: 1.5rem;
         }
-        
+
         .guesses {
             display: flex;
             flex-direction: column;
@@ -76,14 +76,14 @@
             background: #f5f7fa;
             border-radius: 8px;
         }
-        
+
         .guess-row {
             display: flex;
             justify-content: center;
             gap: 0.25rem;
-            flex-wrap: wrap;
+            flex-wrap: wrap; /* Allow wrapping for very long words */
         }
-        
+
         .guess-cell {
             width: 2rem;
             height: 2rem;
@@ -94,35 +94,48 @@
             font-weight: 600;
             font-size: 0.9rem;
             animation: flip 0.5s;
+            /* --- 색상 정의 --- */
+            border: 1px solid transparent; /* Add border for definition */
         }
-        
+
         .correct {
-            background-color: #4caf50;
+            background-color: #6CEE91; /* 7134297 */
             color: white;
+            border-color: #57D57E;
         }
-        
+
         .present {
-            background-color: #ffca28;
-            color: #333;
+            background-color: #F9E551; /* 16374097 */
+            color: #504808; /* Darker text for yellow */
+            border-color: #E6D342;
         }
-        
+
         .absent {
-            background-color: #9e9e9e;
+            /* background-color: #EFEFEF; */ /* 15724527 - Very light, use darker */
+            background-color: #9e9e9e; /* Using the original darker absent color */
             color: white;
+            border-color: #888888;
         }
-        
+
+        .excess {
+            background-color: #ef5350; /* Using CSS defined red */
+            color: white;
+            border-color: #d32f2f;
+        }
+        /* ----------------------- */
+
         @keyframes flip {
             0% { transform: rotateX(0); }
-            50% { transform: rotateX(90deg); }
+            50% { transform: rotateX(90deg); background-color: #ddd; } /* Mid-flip color */
             100% { transform: rotateX(0); }
         }
-        
+
         .input-area {
             display: flex;
             gap: 0.5rem;
             margin-bottom: 1rem;
         }
-        
+
         input {
             flex: 1;
             padding: 0.7rem;
@@ -130,7 +143,7 @@
             border-radius: 6px;
             font-size: 0.9rem;
         }
-        
+
         button {
             padding: 0.7rem 1rem;
             background: #3998EB;
@@ -141,16 +154,16 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        
-        button:hover {
-            background: #3998EB;
+
+        button:hover:not(:disabled) {
+            background: #2b85d0; /* Slightly darker on hover */
         }
-        
+
         button:disabled {
-            background: #9e9e9e;
+            background: #bdbdbd; /* Lighter gray for disabled */
             cursor: not-allowed;
         }
-        
+
         .message {
             margin: 0.8rem 0;
             padding: 0.8rem;
@@ -158,46 +171,47 @@
             text-align: center;
             font-weight: 500;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s ease-out, background-color 0.3s, color 0.3s;
+            min-height: 1.5em; /* Prevent layout shift */
         }
-        
+
         .success {
             background-color: #e8f5e9;
             color: #2e7d32;
             opacity: 1;
         }
-        
+
         .error {
             background-color: #ffebee;
             color: #c62828;
             opacity: 1;
         }
-        
+
         .easter-egg {
             background-color: #e3f2fd;
             color: #1565c0;
             opacity: 1;
         }
-        
+
         .stats {
             display: flex;
             justify-content: space-between;
             font-size: 0.9rem;
             color: #666;
         }
-        
+
         .toolbar {
             display: flex;
             gap: 0.5rem;
             margin-bottom: 1.5rem;
             flex-wrap: wrap;
         }
-        
+
         .toolbar button {
             flex: 1;
             min-width: 100px;
         }
-        
+
         .modal {
             display: none;
             position: fixed;
@@ -205,82 +219,102 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6); /* Darker overlay */
             align-items: center;
             justify-content: center;
             z-index: 10;
+            padding: 1rem; /* Padding for smaller screens */
         }
-        
+
         .modal-content {
             background: white;
             padding: 1.5rem;
             border-radius: 12px;
             width: 90%;
-            max-width: 400px;
+            max-width: 450px; /* Slightly wider for results */
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            max-height: 90vh; /* Limit height */
+            overflow-y: auto; /* Allow scrolling if content exceeds height */
         }
-        
+
         .modal-title {
-            font-size: 1.2rem;
+            font-size: 1.3rem; /* Larger title */
             font-weight: 600;
             margin-bottom: 1rem;
             color: #3998EB;
+            text-align: center;
         }
-        
+
         .modal-actions {
             display: flex;
             justify-content: flex-end;
             gap: 0.5rem;
             margin-top: 1.5rem;
         }
-        
+
+        /* Style for result grid within modal */
+        #resultContent .result-grid {
+            font-family: 'Courier New', Courier, monospace; /* Monospace for grid alignment */
+            line-height: 1.3;
+            font-size: 1.1rem; /* Adjust size as needed */
+            background: #f8f8f8;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto; /* Scroll if grid is too wide */
+            text-align: center; /* Center the grid */
+            margin: 1rem 0;
+        }
+         /* Style for URL in modal */
+        #resultContent .result-url {
+            font-size: 0.85rem;
+            color: #555;
+            word-break: break-all; /* Wrap long URLs */
+            margin-top: 1rem;
+            text-align: center;
+        }
+         /* Style for result summary text */
+        #resultContent .result-summary {
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+
         footer {
             text-align: center;
             margin-top: 1.5rem;
             font-size: 0.8rem;
             color: #888;
         }
-        
+
         @media (max-width: 480px) {
+             h1 { font-size: 1.8rem; }
             .guess-cell {
                 width: 1.8rem;
                 height: 1.8rem;
                 font-size: 0.8rem;
             }
-            
+
             .toolbar {
                 flex-direction: column;
             }
-            
+
             .input-area {
                 flex-direction: column;
             }
-            
+
             input, button {
                 width: 100%;
             }
-                    /* ... 기존 스타일 ... */
-
-        .absent {
-            background-color: #9e9e9e;
-            color: white;
-        }
-
-        /* --- 새로운 스타일 추가 --- */
-        .excess {
-            background-color: #ef5350; /* 밝은 빨강 */
-            color: white;
-            border: 1px solid #d32f2f; /* 약간 어두운 테두리 (선택 사항) */
-        }
-        /* ----------------------- */
-
-        @keyframes flip {
-            0% { transform: rotateX(0); }
-            50% { transform: rotateX(90deg); }
-            100% { transform: rotateX(0); }
-        }
-
-        /* ... 나머지 스타일 ... */
+            .modal-content {
+                 padding: 1rem;
+            }
+            .modal-title {
+                 font-size: 1.1rem;
+            }
+            #resultContent .result-grid {
+                 font-size: 0.9rem; /* Smaller grid on mobile */
+            }
         }
     </style>
 </head>
@@ -290,76 +324,79 @@
             <h1>뉴들</h1>
             <div class="subtitle">한 여 Newddle</div>
         </header>
-        
+
         <div class="timer" id="timer">00:00</div>
-        
+
         <main>
             <div class="game-container">
                 <div class="guesses" id="guesses">
                     <!-- 추측 내용이 동적으로 추가됨 -->
                 </div>
-                
+
                 <div class="input-area">
                     <input type="text" id="guessInput" placeholder="정답을 입력하세요" autocomplete="off">
                     <button id="submitBtn">제출</button>
                 </div>
-                
+
                 <div class="message" id="message"></div>
-                
+
                 <div class="stats">
                     <div id="guessCount">시도: 0</div>
                     <div id="gameMode">기본 모드</div>
                 </div>
             </div>
-            
+
             <div class="toolbar">
                 <button id="customBtn">커스텀 단어</button>
-                <button id="shareBtn" disabled>결과 복사</button>
+                <button id="shareBtn" disabled>결과 공유</button> <!-- Changed text -->
                 <button id="resetBtn">새 게임</button>
             </div>
         </main>
-        
+
         <footer>
-Made by 여뉴
+            Made by 여뉴
         </footer>
     </div>
-    
+
     <!-- 커스텀 단어 모달 -->
     <div class="modal" id="customModal">
         <div class="modal-content">
             <div class="modal-title">커스텀 단어 설정</div>
-            <p>도전할 단어를 입력하세요. 이 단어를 친구에게 도전 과제로 공유할 수 있습니다.</p>
-            <input type="text" id="customWordInput" placeholder="커스텀 단어 입력" style="width: 100%; margin: 1rem 0;">
-            <div class="modal-actions">
-                <button id="cancelCustom">취소</button>
-                <button id="saveCustom">저장</button>
+            <p style="font-size: 0.9rem; color: #555; margin-bottom: 1rem;">도전할 단어를 입력하세요. 생성된 URL을 친구에게 공유하여 같은 단어에 도전하게 할 수 있습니다.</p>
+            <input type="text" id="customWordInput" placeholder="커스텀 단어 입력" style="width: 100%; margin: 1rem 0; padding: 0.7rem; border: 1px solid #ccc; border-radius: 6px;">
+             <div class="modal-actions">
+                 <button id="cancelCustom" style="background-color: #757575;">취소</button>
+                <button id="saveCustom">URL 생성 및 복사</button>
             </div>
         </div>
     </div>
-    
+
     <!-- 결과 모달 -->
     <div class="modal" id="resultModal">
         <div class="modal-content">
             <div class="modal-title">게임 결과</div>
-            <div id="resultContent" style="margin-bottom: 1rem;"></div>
+            <div id="resultContent" style="margin-bottom: 1rem;">
+                 <!-- 결과 내용이 동적으로 채워짐 -->
+            </div>
             <div class="modal-actions">
-                <button id="closeResult">닫기</button>
-                <button id="copyResult">복사</button>
+                <button id="closeResult" style="background-color: #757575;">닫기</button>
+                <button id="copyResult">클립보드에 복사</button>
             </div>
         </div>
     </div>
-    
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 기본 설정 및 요소
-            let targetWord = "트위터아이디는@kjy2604♡";
+            // --- 기본 설정 및 요소 ---
+            let targetWord = "트위터아이디는@kjy2604♡"; // 기본 단어
             let guessCount = 0;
             let gameOver = false;
             let startTime = new Date();
             let elapsedTime = 0;
             let timerInterval;
             let isCustomMode = false;
-            
+            let allGuessResults = []; // <<--- 시각적 결과 공유를 위해 추가
+
             const guessesContainer = document.getElementById('guesses');
             const guessInput = document.getElementById('guessInput');
             const submitBtn = document.getElementById('submitBtn');
@@ -378,140 +415,94 @@ Made by 여뉴
             const resultContent = document.getElementById('resultContent');
             const copyResultBtn = document.getElementById('copyResult');
             const closeResultBtn = document.getElementById('closeResult');
-            
-            // URL 매개변수 처리 (커스텀 단어용)
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('word')) {
+
+            // --- 유틸리티 함수 ---
+            // UTF-8을 지원하는 Base64 인코딩 함수
+            function encodeBase64(str) {
                 try {
-                    const encodedWord = urlParams.get('word');
-                    targetWord = atob(encodedWord);
-                    isCustomMode = true;
-                    gameModeEl.textContent = "커스텀 모드";
+                    return btoa(unescape(encodeURIComponent(str)));
                 } catch (e) {
-                    console.error("단어 디코딩 오류:", e);
+                    console.error("Base64 인코딩 오류:", e);
+                    return ""; // 오류 시 빈 문자열 반환
                 }
             }
-            // UTF-8을 지원하는 Base64 인코딩 함수
-function encodeBase64(str) {
-    return btoa(unescape(encodeURIComponent(str)));
-}
 
-// UTF-8을 지원하는 Base64 디코딩 함수
-function decodeBase64(str) {
-    return decodeURIComponent(escape(atob(str)));
-}
+            // UTF-8을 지원하는 Base64 디코딩 함수
+            function decodeBase64(str) {
+                try {
+                    // URL-safe Base64 변환 (혹시 +나 /가 _나 -로 바뀌었을 경우 대비)
+                    const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+                     // 패딩 추가 (Base64 길이는 4의 배수여야 함)
+                    const padding = '='.repeat((4 - base64.length % 4) % 4);
+                    return decodeURIComponent(escape(atob(base64 + padding)));
+                } catch (e) {
+                    console.error("Base64 디코딩 오류:", e, "입력값:", str);
+                    return "디코딩오류"; // 오류 시 표시
+                }
+            }
 
-            // 특정 횟수 이스터에그 메시지
-            const countEasterEggs = {
-                5: "조금만 더 노력해보세용.",
-                10: "렛츠끼릿",
-                20: "힘들지않아거친세상속에뛰어든건너니까 유오케",
-                30: "포기는 배추셀때만하는것.",
-                50: "대단하십니다...",
-                83: "여뉴생일 20100803♡",
-                100: "당신을 개레전드로임명합니다"
-            };
-            
-            // 특정 단어 이스터에그
-            const wordEasterEggs = {
-"사랑": "♡",
-                "윤산하": "여뉴의 사랑",
-                "육성재": "윤산하육성재둘중뭘먼저쳣을까?",
-                "kjy": "헉!! 명탐정",
-                "kjy2604": "코난이다",
-                "뭐지": "그러게요",
-                "여뉴": "왜요",
-                "포기": "하지마!! 육캔두잇"
-            };
-            
-            // 타이머 시작
-            startTimer();
-            
-            // 입력 필드에 포커스
-            guessInput.focus();
-            
-            // 이벤트 리스너 등록
-            submitBtn.addEventListener('click', submitGuess);
-            guessInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    submitGuess();
-                }
-            });
-            
-            // 커스텀 단어 버튼
-            customBtn.addEventListener('click', function() {
-                customModal.style.display = 'flex';
-                customWordInput.value = '';
-                customWordInput.focus();
-            });
-            
-// 커스텀 단어 저장
-saveCustomBtn.addEventListener('click', function() {
-    const word = customWordInput.value.trim();
-    if (word) {
-        const encodedWord = encodeBase64(word); // 수정된 인코딩 함수 사용
-        const url = `${window.location.origin}${window.location.pathname}?word=${encodedWord}`;
-        
-        // 결과 모달에 URL 표시
-        resultContent.innerHTML = `
-            <p>아래 URL을 복사하여 친구에게 공유하세요:</p>
-            <textarea readonly style="width: 100%; height: 60px; margin-top: 0.5rem; padding: 0.5rem;">${url}</textarea>
-        `;
-        
-        customModal.style.display = 'none';
-        resultModal.style.display = 'flex';
-    } else {
-        alert('단어를 입력해주세요.');
-    }
-});
-            
-            // 모달 닫기
-            cancelCustomBtn.addEventListener('click', function() {
-                customModal.style.display = 'none';
-            });
-            
-            closeResultBtn.addEventListener('click', function() {
-                resultModal.style.display = 'none';
-            });
-            
-            // 결과 복사
-            copyResultBtn.addEventListener('click', function() {
-                const textArea = resultModal.querySelector('textarea');
-                if (textArea) {
-                    textArea.select();
-                    document.execCommand('copy');
-                    alert('복사되었습니다!');
-                } else {
-                    const tempTextArea = document.createElement('textarea');
-                    tempTextArea.value = resultContent.textContent;
-                    document.body.appendChild(tempTextArea);
-                    tempTextArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(tempTextArea);
-                    alert('복사되었습니다!');
-                }
-            });
-            
-            // 공유 버튼
-            shareBtn.addEventListener('click', function() {
-                const formattedTime = formatTime(elapsedTime);
-                const shareText = `뉴들을 ${guessCount}번의 시도만에 ${formattedTime} 만에 해결했어요!\n${window.location.origin}${window.location.pathname}`;
-                
-                resultContent.textContent = shareText;
-                resultModal.style.display = 'flex';
-            });
-            
-            // 게임 리셋
-            resetBtn.addEventListener('click', function() {
-                if (confirm('정말 게임을 새로 시작하시겠습니까?')) {
-                    resetGame();
-                }
-            });
-            
+            // 시간 형식화 함수
+            function formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+
+             // --- 이스터에그 정의 ---
+             const countEasterEggs = {
+                 5: "조금만 더 노력해보세용.",
+                 10: "렛츠끼릿",
+                 20: "힘들지않아거친세상속에뛰어든건너니까 유오케",
+                 30: "포기는 배추셀때만하는것.",
+                 50: "대단하십니다...",
+                 83: "여뉴생일 20100803♡",
+                 100: "당신을 개레전드로임명합니다"
+             };
+             const wordEasterEggs = {
+                 "사랑": "♡",
+                 "윤산하": "여뉴의 사랑",
+                 "육성재": "윤산하육성재둘중뭘먼저쳣을까?",
+                 "kjy": "헉!! 명탐정",
+                 "kjy2604": "코난이다",
+                 "뭐지": "그러게요",
+                 "여뉴": "왜요",
+                 "포기": "하지마!! 육캔두잇"
+             };
+
+            // --- 게임 초기화 및 시작 ---
+            function initializeGame() {
+                 // URL 매개변수 처리 (커스텀 단어용) - 맨 처음 한 번만 실행
+                 const urlParams = new URLSearchParams(window.location.search);
+                 if (urlParams.has('word')) {
+                     const encodedWord = urlParams.get('word');
+                     const decodedWord = decodeBase64(encodedWord); // 수정된 디코딩 함수 사용
+
+                     if (decodedWord && decodedWord !== "디코딩오류") {
+                         targetWord = decodedWord;
+                         isCustomMode = true;
+                         gameModeEl.textContent = "커스텀 모드";
+                         console.log("커스텀 모드 로드됨. 정답:", targetWord);
+                         // 성공적으로 로드 후 URL에서 파라미터 제거 (새로고침 시 기본 단어로 돌아가지 않도록)
+                         // history.replaceState(null, '', window.location.pathname); // 주석 처리: 공유 URL 유지 위해
+                     } else {
+                         showMessage('커스텀 단어 로딩 실패!', 'error');
+                         gameModeEl.textContent = "기본 모드"; // 오류 시 기본 모드로
+                     }
+                 } else {
+                     isCustomMode = false;
+                     gameModeEl.textContent = "기본 모드";
+                 }
+
+                 resetGame(); // 게임 상태 초기화
+                 startTimer();
+                 guessInput.focus();
+             }
+
             // 게임 리셋 함수
             function resetGame() {
                 guessCount = 0;
                 gameOver = false;
+                allGuessResults = []; // <<--- 결과 기록 초기화
                 guessesContainer.innerHTML = '';
                 guessCountEl.textContent = `시도: 0`;
                 guessInput.value = '';
@@ -519,216 +510,363 @@ saveCustomBtn.addEventListener('click', function() {
                 submitBtn.disabled = false;
                 shareBtn.disabled = true;
                 messageEl.className = 'message';
-                
-                // 타이머 리셋
+                messageEl.textContent = ''; // 메시지 내용도 초기화
+
+                // 타이머 리셋 및 재시작
                 clearInterval(timerInterval);
                 startTime = new Date();
                 elapsedTime = 0;
                 timerEl.textContent = '00:00';
                 startTimer();
-                
-                // 포커스
+
+                // 이전 축하 메시지 제거 (만약 있었다면)
+                const existingCongrats = document.querySelector('.congrats-message');
+                if (existingCongrats) {
+                    existingCongrats.remove();
+                }
+
                 guessInput.focus();
             }
-            
+
             // 타이머 시작 함수
             function startTimer() {
+                clearInterval(timerInterval); // 기존 타이머 중복 방지
                 timerInterval = setInterval(function() {
                     if (!gameOver) {
                         const now = new Date();
                         elapsedTime = Math.floor((now - startTime) / 1000);
                         timerEl.textContent = formatTime(elapsedTime);
+                    } else {
+                        clearInterval(timerInterval); // 게임 종료 시 타이머 확실히 멈춤
                     }
                 }, 1000);
             }
-            
-            // 시간 형식화 함수
-            function formatTime(seconds) {
-                const mins = Math.floor(seconds / 60);
-                const secs = seconds % 60;
-                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            }
-            
-            // 추측 제출 함수
-            function submitGuess() {
-                if (gameOver) return;
 
-                const guess = guessInput.value.trim();
+             // 메시지 표시 함수
+             function showMessage(text, type, duration = 3000) {
+                 messageEl.textContent = text;
+                 // 기존 클래스 제거 후 새 클래스 추가 (message는 기본)
+                 messageEl.className = 'message';
+                 void messageEl.offsetWidth; // 리플로우 강제하여 애니메이션 재시작
+                 messageEl.classList.add(type);
+                 messageEl.style.opacity = '1'; // 표시
 
-                // 입력값 유효성 검사 (빈 입력 방지)
-                if (!guess) {
-                    showMessage('단어를 입력해주세요!', 'error');
-                    return;
-                }
+                 // 성공 메시지가 아니면 일정 시간 후 사라짐
+                 if (type !== 'success') {
+                     setTimeout(() => {
+                         messageEl.style.opacity = '0';
+                         // 사라진 후 클래스 제거하여 다음 메시지 준비
+                         setTimeout(() => {
+                             if (messageEl.textContent === text) { // 다른 메시지로 덮어쓰지 않았다면
+                                 messageEl.className = 'message';
+                                 messageEl.textContent = '';
+                             }
+                         }, 300); // opacity 전환 시간 기다림
+                     }, duration);
+                 }
+             }
 
-                guessCount++;
-                guessCountEl.textContent = `시도: ${guessCount}`;
+             // --- 핵심 게임 로직 ---
+             function submitGuess() {
+                 if (gameOver) return;
 
-                const guessRow = document.createElement('div');
-                guessRow.className = 'guess-row';
+                 const guess = guessInput.value.trim();
 
-                // --- 워들 비교 로직 시작 ---
-                const results = new Array(guess.length).fill(null); // 각 셀의 결과를 저장 (null로 초기화)
-                const targetLetters = targetWord.split(''); // 정답 단어 배열 (수정 가능하게)
-                const guessLetters = guess.split('');       // 추측 단어 배열
+                 if (!guess) {
+                     showMessage('단어를 입력해주세요!', 'error', 2000);
+                     return;
+                 }
 
-                // 1단계: Correct(초록색) 찾기 및 처리된 글자 표시
-                for (let i = 0; i < guessLetters.length; i++) {
-                    // targetWord 길이를 벗어나는 추측 글자는 비교 대상 아님
-                    if (i < targetLetters.length && guessLetters[i] === targetLetters[i]) {
-                        results[i] = 'correct';
-                        targetLetters[i] = null; // 정답 글자 사용됨 표시
-                        guessLetters[i] = null;  // 추측 글자 처리됨 표시
-                    }
-                }
+                 guessCount++;
+                 guessCountEl.textContent = `시도: ${guessCount}`;
 
-                // 2단계: Present(노란색) 찾기
-                for (let i = 0; i < guessLetters.length; i++) {
-                    // 이미 correct로 처리되었거나, targetWord 길이를 벗어난 추측 글자는 건너뜀
-                    if (guessLetters[i] === null || i >= targetLetters.length) {
-                        continue;
-                    }
+                 const guessRow = document.createElement('div');
+                 guessRow.className = 'guess-row';
 
-                    // 남은 정답 글자 중에 현재 추측 글자가 있는지 확인
-                    const presentIndex = targetLetters.indexOf(guessLetters[i]);
-                    if (presentIndex !== -1) {
-                        results[i] = 'present'; // present로 표시
-                        targetLetters[presentIndex] = null; // 해당 정답 글자 사용됨 표시 (중복 노란색 방지)
-                        guessLetters[i] = null; // 추측 글자 처리됨 표시
-                    }
-                }
+                 // 워들 비교 로직 (수정됨 - 상태 저장 포함)
+                 const results = new Array(Math.max(guess.length, targetWord.length)).fill(null);
+                 const targetLetters = targetWord.split('');
+                 const guessLetters = guess.split('');
+                 const currentGuessStatuses = []; // <<--- 현재 추측 결과 상태 저장용
 
-                // 3단계: 남은 글자 Absent(회색) 처리
-                // results 배열에서 아직 null인 칸은 absent
-                for (let i = 0; i < guess.length; i++) {
-                    // targetWord 길이 내에서만 absent 처리 (초과 부분은 excess로 처리될 것임)
-                    if (results[i] === null && i < targetWord.length) {
-                        results[i] = 'absent';
-                    }
-                    // 초과된 부분은 results[i]가 null로 남아있게 됨
-                }
-                // --- 워들 비교 로직 끝 ---
+                 const displayLength = Math.max(guess.length, targetWord.length);
 
+                 // 1단계: Correct (초록색)
+                 for (let i = 0; i < displayLength; i++) {
+                     if (i < guess.length && i < targetLetters.length && guessLetters[i] === targetLetters[i]) {
+                         results[i] = 'correct';
+                         targetLetters[i] = null; // 사용됨 표시
+                         guessLetters[i] = null; // 처리됨 표시
+                     }
+                 }
 
-                // --- 수정된 DOM 생성 로직 ---
-                const displayLength = Math.max(guess.length, targetWord.length); // 표시할 셀의 총 개수
+                 // 2단계: Present (노란색)
+                 for (let i = 0; i < displayLength; i++) {
+                     if (results[i] === null && i < guess.length && guessLetters[i] !== null) { // 아직 처리 안됐고, 추측 문자 남음
+                         if (i < targetWord.length) { // 타겟 범위 내에서만 present 확인
+                             const presentIndex = targetLetters.indexOf(guessLetters[i]);
+                             if (presentIndex !== -1) {
+                                 results[i] = 'present';
+                                 targetLetters[presentIndex] = null; // 사용됨 표시 (중복 방지)
+                                 guessLetters[i] = null; // 처리됨 표시
+                             }
+                         }
+                     }
+                 }
 
-                for (let i = 0; i < displayLength; i++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'guess-cell';
-                    // 애니메이션 딜레이 적용 (선택 사항)
-                    cell.style.animationDelay = `${i * 0.05}s`; // 약간 빠르게
-
-                    if (i < guess.length) {
-                        // 추측한 글자가 있는 인덱스
-                        cell.textContent = guess[i]; // 추측 글자 표시
-
-                        if (i < targetWord.length) {
-                            // targetWord 범위 내: 계산된 결과(correct, present, absent) 적용
-                            cell.classList.add(results[i]); // results[i]는 'correct', 'present', 'absent' 중 하나
-                        } else {
-                            // targetWord 범위 초과: 'excess' 스타일 적용
-                            cell.classList.add('excess'); // CSS에 정의된 .excess 스타일 사용
-                        }
-                    } else {
-                        // 추측한 글자가 없는 경우 (guess가 targetWord보다 짧음)
-                        // 빈 'absent' 셀로 채움
-                        cell.textContent = '';
-                        cell.classList.add('absent');
-                    }
-                    guessRow.appendChild(cell);
-                }
-                // --- DOM 생성 로직 끝 ---
-
-                guessesContainer.appendChild(guessRow);
-                guessesContainer.scrollTop = guessesContainer.scrollHeight; // 스크롤 아래로
-                guessInput.value = ''; // 입력 필드 초기화
-                guessInput.focus(); // 입력 필드에 포커스
-
-                // 정답 맞춤 여부 확인 (정확히 일치해야 함)
-                if (guess === targetWord) {
-                    gameOver = true;
-                    showMessage('정답입니다! 퍼즐을 성공적으로 해결했습니다! 🎉', 'success');
-                    guessInput.disabled = true;
-                    submitBtn.disabled = true;
-                    shareBtn.disabled = false;
-                    clearInterval(timerInterval); // 타이머 정지
-                    celebrateWin();
-                } else {
-                     // --- 실패 시 로직 (이스터에그 등) ---
-                    // 특정 횟수 이스터에그 확인
-                    if (countEasterEggs[guessCount]) {
-                        showMessage(countEasterEggs[guessCount], 'easter-egg');
-                    }
-                    // 특정 단어 이스터에그 확인
-                    for (const [word, message] of Object.entries(wordEasterEggs)) {
-                        // 정확히 일치하지 않고, 추측 단어에 이스터에그 단어가 포함될 때
-                        if (guess.includes(word)) {
-                            // 약간의 딜레이 후 메시지 표시 (기존 메시지와 겹치지 않게)
-                            setTimeout(() => {
-                                showMessage(message, 'easter-egg');
-                            }, 800);
-                            break; // 첫 번째 매칭되는 이스터에그만 표시
+                 // 3단계: Absent (회색) 및 Excess (빨간색) 처리 + 상태 저장
+                 for (let i = 0; i < displayLength; i++) {
+                    let status = '';
+                    if (results[i] !== null) { // Correct or Present
+                        status = results[i];
+                    } else { // Absent or Excess
+                        if (i < guess.length) { // 추측 문자가 있는 경우
+                            if (i < targetWord.length) { // 타겟 길이 내부는 Absent
+                                status = 'absent';
+                            } else { // 타겟 길이 초과는 Excess
+                                status = 'excess';
+                            }
+                        } else { // 추측 문자가 없는 경우 (guess가 target보다 짧음) - Absent로 채움
+                           status = 'absent';
                         }
                     }
-                    // --- 추가적인 피드백 (예: 길이 관련 메시지) ---
-                    // if (guess.length !== targetWord.length && !gameOver) {
-                    //    setTimeout(() => {
-                    //        showMessage(`단어 길이는 ${targetWord.length}자입니다.`, 'error');
-                    //    }, 1200); // 다른 메시지와 시간차 두기
-                    // }
-                }
-            }
-            // 메시지 표시 함수
-            function showMessage(text, type) {
-                messageEl.textContent = text;
-                messageEl.className = 'message'; // 클래스 초기화
+                    results[i] = status; // 최종 상태 업데이트
+                    currentGuessStatuses.push(status); // <<--- 결과 공유용 상태 저장
+                 }
 
-                // --- 이 부분을 추가하세요 ---
-                messageEl.style.opacity = '1'; // 메시지를 표시하기 전에 항상 불투명하게 만듦
-                // --------------------------
+                 // DOM 생성 로직
+                 for (let i = 0; i < displayLength; i++) {
+                     const cell = document.createElement('div');
+                     cell.className = 'guess-cell';
+                     cell.style.animationDelay = `${i * 0.07}s`; // 약간의 애니메이션 지연
 
-                messageEl.classList.add(type); // 'success', 'error', 'easter-egg' 클래스 추가
+                     if (i < guess.length) {
+                         cell.textContent = guess[i];
+                     } else {
+                         cell.textContent = ''; // 추측이 짧으면 빈 칸
+                     }
+                     cell.classList.add(results[i]); // 계산된 상태 클래스 추가
+                     guessRow.appendChild(cell);
+                 }
 
-                // 일정 시간 후 메시지 사라짐 (에러/이스터에그 메시지만)
-                if (type === 'error' || type === 'easter-egg') {
-                    // 기존 setTimeout 로직은 그대로 둡니다.
-                    setTimeout(() => {
-                        // 투명도를 0으로 만들어 메시지를 숨깁니다.
-                        // 이전에 opacity가 1로 설정되었기 때문에 사라지는 애니메이션 효과도 자연스럽게 적용됩니다.
-                        messageEl.style.opacity = '0';
-                    }, 3000);
-                }
-                // 성공 메시지는 opacity가 1인 상태로 계속 유지됩니다.
-            }            
-            // 승리 축하 효과
-            function celebrateWin() {
-                const formattedTime = formatTime(elapsedTime);
-                const congratsText = document.createElement('div');
-                
-                congratsText.innerHTML = `<strong>${guessCount}번</strong> 시도, <strong>${formattedTime}</strong> 만에 성공! 🎊`;
-                congratsText.style.fontSize = '1.1rem';
-                congratsText.style.textAlign = 'center';
-                congratsText.style.margin = '1rem 0';
-                congratsText.style.color = '#5e35b1';
-                
-                // 결과 모달 내용 설정
-                const shareText = `뉴들을 ${guessCount}번의 시도만에 ${formattedTime} 만에 해결했어요!\n${window.location.origin}${window.location.pathname}`;
-                resultContent.textContent = shareText;
-                
-                document.querySelector('.game-container').appendChild(congratsText);
-            }
-            
-            // 모달 외부 클릭 시 닫기
-            window.addEventListener('click', function(e) {
-                if (e.target === customModal) {
-                    customModal.style.display = 'none';
-                }
-                if (e.target === resultModal) {
-                    resultModal.style.display = 'none';
-                }
+                 allGuessResults.push(currentGuessStatuses); // <<--- 전체 결과 배열에 현재 추측 결과 추가
+                 guessesContainer.appendChild(guessRow);
+                 guessesContainer.scrollTop = guessesContainer.scrollHeight; // 스크롤 아래로
+                 guessInput.value = '';
+                 guessInput.focus();
+
+                 // 정답 확인
+                 if (guess === targetWord) {
+                     gameOver = true;
+                     clearInterval(timerInterval); // 타이머 정지!
+                     showMessage(`정답입니다! ${guessCount}번 만에 성공! 🎉`, 'success', 5000);
+                     guessInput.disabled = true;
+                     submitBtn.disabled = true;
+                     shareBtn.disabled = false; // 공유 버튼 활성화
+                     celebrateWin();
+                 } else {
+                     // 실패 시 이스터에그 등
+                     if (countEasterEggs[guessCount]) {
+                         // 약간의 딜레이 후 표시 (플립 애니메이션 끝날 때쯤)
+                         setTimeout(() => showMessage(countEasterEggs[guessCount], 'easter-egg'), 600);
+                     }
+                     for (const [word, message] of Object.entries(wordEasterEggs)) {
+                         if (guess.includes(word)) {
+                             setTimeout(() => showMessage(message, 'easter-egg'), 800);
+                             break;
+                         }
+                     }
+                 }
+             }
+
+             // 승리 축하 함수 (별도 메시지 표시용)
+             function celebrateWin() {
+                 // 기존 축하 메시지 제거 (혹시 모를 중복 방지)
+                 const existingCongrats = document.querySelector('.congrats-message');
+                 if (existingCongrats) existingCongrats.remove();
+
+                 const formattedTime = formatTime(elapsedTime);
+                 const congratsText = document.createElement('div');
+                 congratsText.className = 'congrats-message'; // 클래스 추가
+                 congratsText.innerHTML = `<strong>${guessCount}번</strong> 시도, <strong>${formattedTime}</strong> 만에 성공! 🎊`;
+                 congratsText.style.cssText = `
+                     font-size: 1.1rem;
+                     text-align: center;
+                     margin: 1rem 0 0; /* 위쪽 여백 추가 */
+                     color: #388e3c; /* Success color */
+                     font-weight: 600;
+                 `;
+                 // 게임 컨테이너의 메시지 영역 아래에 추가
+                 document.querySelector('.game-container .stats').insertAdjacentElement('afterend', congratsText);
+             }
+
+
+             // --- 시각적 결과 생성 및 공유 ---
+
+             // 시각적 결과 그리드 HTML 생성 (모달 표시용)
+             function generateShareableResultHtml() {
+                 // 사용자가 요청한 색상 매핑 (<font> 태그 사용)
+                 const colorMap = {
+                    // Hex codes from decimal values provided or CSS:
+                    correct: '<font color=0x6cee91>█</font>', // 7134297
+                    present: '<font color=0xf9e551>█</font>', // 16374097
+                    absent:  '<font color=0x9e9e9e>█</font>', // Using darker gray for better visibility than #EFEFEF (15724527)
+                    excess:  '<font color=0cef5350>█</font>', // Using CSS red
+                 };
+
+                 let gridHtml = '';
+                 allGuessResults.forEach(row => {
+                     row.forEach(status => {
+                         gridHtml += colorMap[status] || colorMap['absent']; // 상태에 맞는 블록 추가
+                     });
+                     gridHtml += '<br>'; // HTML 줄바꿈
+                 });
+                 return gridHtml;
+             }
+
+             // 공유용 일반 텍스트 결과 생성 (클립보드 복사용)
+             function generateShareableResultPlainText() {
+                 const title = `뉴들 ${isCustomMode ? '(커스텀)' : ''} ${guessCount}/${allGuessResults.length} | ⏱️${formatTime(elapsedTime)}`;
+                 // 일반 텍스트용 이모지 매핑 (더 표준적)
+                 const plainBlockMap = {
+                    correct: '🟩',
+                    present: '🟨',
+                    absent:  '⬜',
+                    excess:  '🟥',
+                 };
+
+                 let gridPlainText = '';
+                 allGuessResults.forEach(row => {
+                     row.forEach(status => {
+                         gridPlainText += plainBlockMap[status] || plainBlockMap['absent'];
+                     });
+                     gridPlainText += '\n'; // 일반 텍스트 줄바꿈
+                 });
+
+                 const currentUrl = `${window.location.origin}${window.location.pathname}${window.location.search}`; // 현재 URL 그대로 사용
+
+                 return `${title}\n\n${gridPlainText}\n${currentUrl}`;
+             }
+
+
+             // --- 이벤트 리스너 설정 ---
+             submitBtn.addEventListener('click', submitGuess);
+             guessInput.addEventListener('keypress', function(e) {
+                 if (e.key === 'Enter') {
+                     submitGuess();
+                 }
+             });
+
+             // 커스텀 단어 모달 열기
+             customBtn.addEventListener('click', function() {
+                 customModal.style.display = 'flex';
+                 customWordInput.value = '';
+                 customWordInput.focus();
+             });
+
+             // 커스텀 단어 저장 및 URL 생성/복사
+             saveCustomBtn.addEventListener('click', function() {
+                 const word = customWordInput.value.trim();
+                 if (word && word.length > 0) {
+                     if (word.length > 30) { // 단어 길이 제한 (선택 사항)
+                         alert('단어가 너무 깁니다. 30자 이하로 입력해주세요.');
+                         return;
+                     }
+                     const encodedWord = encodeBase64(word);
+                     if (!encodedWord) {
+                         alert('단어 인코딩 중 오류가 발생했습니다.');
+                         return;
+                     }
+                     const url = `${window.location.origin}${window.location.pathname}?word=${encodedWord}`;
+
+                     // URL을 클립보드에 복사 (Clipboard API 사용)
+                     navigator.clipboard.writeText(url).then(() => {
+                         alert(`URL이 클립보드에 복사되었습니다!\n${url}\n\n이 URL을 친구에게 공유하세요. 페이지를 새로고침하면 기본 게임으로 돌아갑니다.`);
+                         customModal.style.display = 'none';
+                     }).catch(err => {
+                         console.error('URL 복사 실패:', err);
+                         alert('URL 복사에 실패했습니다. 수동으로 복사해주세요:\n' + url);
+                     });
+
+                 } else {
+                     alert('유효한 단어를 입력해주세요.');
+                 }
+             });
+
+
+             // 모달 닫기 버튼들
+             cancelCustomBtn.addEventListener('click', () => customModal.style.display = 'none');
+             closeResultBtn.addEventListener('click', () => resultModal.style.display = 'none');
+
+             // 결과 공유 버튼 (툴바) - 모달 열기
+             shareBtn.addEventListener('click', function() {
+                 if (!gameOver) return; // 게임 종료 시에만 활성화
+
+                 const formattedTime = formatTime(elapsedTime);
+                 const summaryText = `뉴들 ${isCustomMode ? '(커스텀)' : ''} ${guessCount}번 시도, ${formattedTime} 만에 해결!`;
+                 const gridHtml = generateShareableResultHtml();
+                 const currentUrl = `${window.location.origin}${window.location.pathname}${window.location.search}`;
+
+                 // 모달 내용 구성 (HTML 사용)
+                 resultContent.innerHTML = `
+                     <div class="result-summary">${summaryText}</div>
+                     <div class="result-grid">${gridHtml}</div>
+                     <div class="result-url">${currentUrl}</div>
+                 `;
+                 resultModal.style.display = 'flex'; // 모달 표시
+             });
+
+            // 결과 복사 버튼 (모달 안) - 클립보드에 복사
+            copyResultBtn.addEventListener('click', function() {
+                const plainTextResult = generateShareableResultPlainText(); // 일반 텍스트 버전 생성
+
+                // Clipboard API 사용
+                navigator.clipboard.writeText(plainTextResult).then(() => {
+                    alert('결과가 클립보드에 복사되었습니다! (텍스트 형식)');
+                    // resultModal.style.display = 'none'; // 복사 후 닫기 (선택 사항)
+                }).catch(err => {
+                    console.error('클립보드 복사 오류:', err);
+                    // 구식 방법 시도 (fallback) - 텍스트 영역 사용
+                    try {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = plainTextResult;
+                        textArea.style.position = 'fixed'; // 화면 밖에 위치
+                        textArea.style.left = '-9999px';
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        alert('결과가 클립보드에 복사되었습니다! (텍스트 - Fallback)');
+                    } catch (execErr) {
+                        console.error('Fallback 복사 오류:', execErr);
+                        alert('클립보드 복사에 실패했습니다.');
+                    }
+                });
             });
-        });
+
+
+             // 새 게임 버튼
+             resetBtn.addEventListener('click', function() {
+                 if (confirm('현재 게임 진행 상황이 초기화됩니다.\n정말 새 게임을 시작하시겠습니까?')) {
+                     // 커스텀 모드였다면, URL 파라미터 없이 페이지를 리로드하여 기본 단어로 시작
+                     if (isCustomMode) {
+                         window.location.href = window.location.pathname;
+                     } else {
+                         resetGame(); // 기본 모드면 상태만 리셋
+                     }
+                 }
+             });
+
+             // 모달 외부 클릭 시 닫기
+             window.addEventListener('click', function(e) {
+                 if (e.target === customModal) customModal.style.display = 'none';
+                 if (e.target === resultModal) resultModal.style.display = 'none';
+             });
+
+            // --- 게임 시작 ---
+            initializeGame();
+
+        }); // End DOMContentLoaded
     </script>
 </body>
 </html>
