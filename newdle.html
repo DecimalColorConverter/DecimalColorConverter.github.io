@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>뉴들 - 1회용 단어 퍼즐 게임</title>
+    <title>Hello, Newdle!</title>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         
@@ -36,7 +36,7 @@
         
         h1 {
             font-size: 2.2rem;
-            color: #5e35b1;
+            color: #3998EB;
             margin-bottom: 0.5rem;
         }
         
@@ -49,7 +49,7 @@
             text-align: center;
             font-size: 1.1rem;
             font-weight: 600;
-            color: #5e35b1;
+            color: #3998EB;
             margin-bottom: 1rem;
         }
         
@@ -133,7 +133,7 @@
         
         button {
             padding: 0.7rem 1rem;
-            background: #5e35b1;
+            background: #3998EB;
             color: white;
             border: none;
             border-radius: 6px;
@@ -143,7 +143,7 @@
         }
         
         button:hover {
-            background: #512da8;
+            background: #3998EB;
         }
         
         button:disabled {
@@ -224,7 +224,7 @@
             font-size: 1.2rem;
             font-weight: 600;
             margin-bottom: 1rem;
-            color: #5e35b1;
+            color: #3998EB;
         }
         
         .modal-actions {
@@ -259,6 +259,28 @@
             input, button {
                 width: 100%;
             }
+                    /* ... 기존 스타일 ... */
+
+        .absent {
+            background-color: #9e9e9e;
+            color: white;
+        }
+
+        /* --- 새로운 스타일 추가 --- */
+        .excess {
+            background-color: #ef5350; /* 밝은 빨강 */
+            color: white;
+            border: 1px solid #d32f2f; /* 약간 어두운 테두리 (선택 사항) */
+        }
+        /* ----------------------- */
+
+        @keyframes flip {
+            0% { transform: rotateX(0); }
+            50% { transform: rotateX(90deg); }
+            100% { transform: rotateX(0); }
+        }
+
+        /* ... 나머지 스타일 ... */
         }
     </style>
 </head>
@@ -266,7 +288,7 @@
     <div class="container">
         <header>
             <h1>뉴들</h1>
-            <div class="subtitle">한번만 맞추면 끝나는 1회용 단어 퍼즐</div>
+            <div class="subtitle">한 여 Newddle</div>
         </header>
         
         <div class="timer" id="timer">00:00</div>
@@ -274,6 +296,7 @@
         <main>
             <div class="game-container">
                 <div class="guesses" id="guesses">
+                    <!-- 추측 내용이 동적으로 추가됨 -->
                 </div>
                 
                 <div class="input-area">
@@ -297,13 +320,15 @@
         </main>
         
         <footer>
-            Made by 여뉴
+Made by 여뉴
         </footer>
     </div>
+    
+    <!-- 커스텀 단어 모달 -->
     <div class="modal" id="customModal">
         <div class="modal-content">
             <div class="modal-title">커스텀 단어 설정</div>
-            <p>도전할 단어를 입력하세요. 친구에게 풀어보라고 공유해 보세요!</p>
+            <p>도전할 단어를 입력하세요. 이 단어를 친구에게 도전 과제로 공유할 수 있습니다.</p>
             <input type="text" id="customWordInput" placeholder="커스텀 단어 입력" style="width: 100%; margin: 1rem 0;">
             <div class="modal-actions">
                 <button id="cancelCustom">취소</button>
@@ -326,7 +351,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // set
+            // 기본 설정 및 요소
             let targetWord = "트위터아이디는@kjy2604♡";
             let guessCount = 0;
             let gameOver = false;
@@ -353,45 +378,29 @@
             const resultContent = document.getElementById('resultContent');
             const copyResultBtn = document.getElementById('copyResult');
             const closeResultBtn = document.getElementById('closeResult');
+            
+            // URL 매개변수 처리 (커스텀 단어용)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('word')) {
+                try {
+                    const encodedWord = urlParams.get('word');
+                    targetWord = atob(encodedWord);
+                    isCustomMode = true;
+                    gameModeEl.textContent = "커스텀 모드";
+                } catch (e) {
+                    console.error("단어 디코딩 오류:", e);
+                }
+            }
+            // UTF-8을 지원하는 Base64 인코딩 함수
+function encodeBase64(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+}
 
 // UTF-8을 지원하는 Base64 디코딩 함수
 function decodeBase64(str) {
     return decodeURIComponent(escape(atob(str)));
 }
 
-// URL 매개변수 처리 (커스텀 단어용)
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.has('word')) {
-    try {
-        const encodedWord = urlParams.get('word');
-        targetWord = decodeBase64(encodedWord); // 수정된 디코딩 함수 사용
-        isCustomMode = true;
-        gameModeEl.textContent = "커스텀 모드";
-    } catch (e) {
-        console.error("단어 디코딩 오류:", e);
-    }
-}
-
-// 커스텀 단어 저장
-saveCustomBtn.addEventListener('click', function() {
-    const word = customWordInput.value.trim();
-    if (word) {
-        const encodedWord = encodeBase64(word); // 수정된 인코딩 함수 사용
-        const url = `${window.location.origin}${window.location.pathname}?word=${encodedWord}`;
-        
-        // 결과 모달에 URL 표시
-        resultContent.innerHTML = `
-            <p>아래 URL을 복사하여 친구에게 공유하세요:</p>
-            <textarea readonly style="width: 100%; height: 60px; margin-top: 0.5rem; padding: 0.5rem;">${url}</textarea>
-        `;
-        
-        customModal.style.display = 'none';
-        resultModal.style.display = 'flex';
-    } else {
-        alert('단어를 입력해주세요.');
-    }
-});
-            
             // 특정 횟수 이스터에그 메시지
             const countEasterEggs = {
                 5: "조금만 더 노력해보세용.",
@@ -405,9 +414,9 @@ saveCustomBtn.addEventListener('click', function() {
             
             // 특정 단어 이스터에그
             const wordEasterEggs = {
-                "사랑": "♡",
+"사랑": "♡",
                 "윤산하": "여뉴의 사랑",
-                "육성재": "윤산하육성재 둘중뭘먼저입력하셧음?",
+                "육성재": "윤산하육성재둘중뭘먼저쳣을까?",
                 "kjy": "헉!! 명탐정",
                 "kjy2604": "코난이다",
                 "뭐지": "그러게요",
@@ -428,6 +437,33 @@ saveCustomBtn.addEventListener('click', function() {
                     submitGuess();
                 }
             });
+            
+            // 커스텀 단어 버튼
+            customBtn.addEventListener('click', function() {
+                customModal.style.display = 'flex';
+                customWordInput.value = '';
+                customWordInput.focus();
+            });
+            
+// 커스텀 단어 저장
+saveCustomBtn.addEventListener('click', function() {
+    const word = customWordInput.value.trim();
+    if (word) {
+        const encodedWord = encodeBase64(word); // 수정된 인코딩 함수 사용
+        const url = `${window.location.origin}${window.location.pathname}?word=${encodedWord}`;
+        
+        // 결과 모달에 URL 표시
+        resultContent.innerHTML = `
+            <p>아래 URL을 복사하여 친구에게 공유하세요:</p>
+            <textarea readonly style="width: 100%; height: 60px; margin-top: 0.5rem; padding: 0.5rem;">${url}</textarea>
+        `;
+        
+        customModal.style.display = 'none';
+        resultModal.style.display = 'flex';
+    } else {
+        alert('단어를 입력해주세요.');
+    }
+});
             
             // 모달 닫기
             cancelCustomBtn.addEventListener('click', function() {
@@ -459,7 +495,7 @@ saveCustomBtn.addEventListener('click', function() {
             // 공유 버튼
             shareBtn.addEventListener('click', function() {
                 const formattedTime = formatTime(elapsedTime);
-                const shareText = `뉴들 퍼즐을 ${guessCount}번의 시도만에 ${formattedTime} 만에 해결했어요!\n${window.location.origin}${window.location.pathname}`;
+                const shareText = `뉴들을 ${guessCount}번의 시도만에 ${formattedTime} 만에 해결했어요!\n${window.location.origin}${window.location.pathname}`;
                 
                 resultContent.textContent = shareText;
                 resultModal.style.display = 'flex';
@@ -467,7 +503,7 @@ saveCustomBtn.addEventListener('click', function() {
             
             // 게임 리셋
             resetBtn.addEventListener('click', function() {
-                if (confirm('게임을 새로 시작하시겠습니까?')) {
+                if (confirm('정말 게임을 새로 시작하시겠습니까?')) {
                     resetGame();
                 }
             });
@@ -516,117 +552,155 @@ saveCustomBtn.addEventListener('click', function() {
             // 추측 제출 함수
             function submitGuess() {
                 if (gameOver) return;
-                
+
                 const guess = guessInput.value.trim();
-                
+
+                // 입력값 유효성 검사 (빈 입력 방지)
                 if (!guess) {
                     showMessage('단어를 입력해주세요!', 'error');
                     return;
                 }
-                
-                // 시도 횟수 증가
+
                 guessCount++;
                 guessCountEl.textContent = `시도: ${guessCount}`;
-                
-                // 새로운 추측 행 생성
+
                 const guessRow = document.createElement('div');
                 guessRow.className = 'guess-row';
-                
-                // 정답 맞춤 여부
-                let isCorrect = true;
-                
-                // 입력한 글자와 정답 비교
-                for (let i = 0; i < Math.max(guess.length, targetWord.length); i++) {
+
+                // --- 워들 비교 로직 시작 ---
+                const results = new Array(guess.length).fill(null); // 각 셀의 결과를 저장 (null로 초기화)
+                const targetLetters = targetWord.split(''); // 정답 단어 배열 (수정 가능하게)
+                const guessLetters = guess.split('');       // 추측 단어 배열
+
+                // 1단계: Correct(초록색) 찾기 및 처리된 글자 표시
+                for (let i = 0; i < guessLetters.length; i++) {
+                    // targetWord 길이를 벗어나는 추측 글자는 비교 대상 아님
+                    if (i < targetLetters.length && guessLetters[i] === targetLetters[i]) {
+                        results[i] = 'correct';
+                        targetLetters[i] = null; // 정답 글자 사용됨 표시
+                        guessLetters[i] = null;  // 추측 글자 처리됨 표시
+                    }
+                }
+
+                // 2단계: Present(노란색) 찾기
+                for (let i = 0; i < guessLetters.length; i++) {
+                    // 이미 correct로 처리되었거나, targetWord 길이를 벗어난 추측 글자는 건너뜀
+                    if (guessLetters[i] === null || i >= targetLetters.length) {
+                        continue;
+                    }
+
+                    // 남은 정답 글자 중에 현재 추측 글자가 있는지 확인
+                    const presentIndex = targetLetters.indexOf(guessLetters[i]);
+                    if (presentIndex !== -1) {
+                        results[i] = 'present'; // present로 표시
+                        targetLetters[presentIndex] = null; // 해당 정답 글자 사용됨 표시 (중복 노란색 방지)
+                        guessLetters[i] = null; // 추측 글자 처리됨 표시
+                    }
+                }
+
+                // 3단계: 남은 글자 Absent(회색) 처리
+                // results 배열에서 아직 null인 칸은 absent
+                for (let i = 0; i < guess.length; i++) {
+                    // targetWord 길이 내에서만 absent 처리 (초과 부분은 excess로 처리될 것임)
+                    if (results[i] === null && i < targetWord.length) {
+                        results[i] = 'absent';
+                    }
+                    // 초과된 부분은 results[i]가 null로 남아있게 됨
+                }
+                // --- 워들 비교 로직 끝 ---
+
+
+                // --- 수정된 DOM 생성 로직 ---
+                const displayLength = Math.max(guess.length, targetWord.length); // 표시할 셀의 총 개수
+
+                for (let i = 0; i < displayLength; i++) {
                     const cell = document.createElement('div');
                     cell.className = 'guess-cell';
-                    
-                    // 정답보다 짧은 경우
-                    if (i >= guess.length) {
+                    // 애니메이션 딜레이 적용 (선택 사항)
+                    cell.style.animationDelay = `${i * 0.05}s`; // 약간 빠르게
+
+                    if (i < guess.length) {
+                        // 추측한 글자가 있는 인덱스
+                        cell.textContent = guess[i]; // 추측 글자 표시
+
+                        if (i < targetWord.length) {
+                            // targetWord 범위 내: 계산된 결과(correct, present, absent) 적용
+                            cell.classList.add(results[i]); // results[i]는 'correct', 'present', 'absent' 중 하나
+                        } else {
+                            // targetWord 범위 초과: 'excess' 스타일 적용
+                            cell.classList.add('excess'); // CSS에 정의된 .excess 스타일 사용
+                        }
+                    } else {
+                        // 추측한 글자가 없는 경우 (guess가 targetWord보다 짧음)
+                        // 빈 'absent' 셀로 채움
                         cell.textContent = '';
                         cell.classList.add('absent');
-                        isCorrect = false;
-                    } 
-                    // 정답보다 긴 경우
-                    else if (i >= targetWord.length) {
-                        cell.textContent = guess[i];
-                        cell.classList.add('absent');
-                        isCorrect = false;
                     }
-                    // 일치하는 경우
-                    else if (guess[i] === targetWord[i]) {
-                        cell.textContent = guess[i];
-                        cell.classList.add('correct');
-                    } 
-                    // 다른 위치에 있는 경우
-                    else if (targetWord.includes(guess[i])) {
-                        cell.textContent = guess[i];
-                        cell.classList.add('present');
-                        isCorrect = false;
-                    } 
-                    // 없는 글자
-                    else {
-                        cell.textContent = guess[i];
-                        cell.classList.add('absent');
-                        isCorrect = false;
-                    }
-                    
                     guessRow.appendChild(cell);
                 }
-                
+                // --- DOM 생성 로직 끝 ---
+
                 guessesContainer.appendChild(guessRow);
-                
-                // 스크롤을 가장 아래로 이동
-                guessesContainer.scrollTop = guessesContainer.scrollHeight;
-                
-                // 입력 필드 초기화
-                guessInput.value = '';
-                guessInput.focus();
-                
-                // 정답 맞춤 여부 확인
-                if (isCorrect) {
+                guessesContainer.scrollTop = guessesContainer.scrollHeight; // 스크롤 아래로
+                guessInput.value = ''; // 입력 필드 초기화
+                guessInput.focus(); // 입력 필드에 포커스
+
+                // 정답 맞춤 여부 확인 (정확히 일치해야 함)
+                if (guess === targetWord) {
                     gameOver = true;
-                    showMessage('정답입니다! 퍼즐 풀이 성공! 🎉', 'success');
+                    showMessage('정답입니다! 퍼즐을 성공적으로 해결했습니다! 🎉', 'success');
                     guessInput.disabled = true;
                     submitBtn.disabled = true;
                     shareBtn.disabled = false;
-                    
-                    // 타이머 정지
-                    clearInterval(timerInterval);
-                    
-                    // 축하 효과
+                    clearInterval(timerInterval); // 타이머 정지
                     celebrateWin();
                 } else {
+                     // --- 실패 시 로직 (이스터에그 등) ---
                     // 특정 횟수 이스터에그 확인
                     if (countEasterEggs[guessCount]) {
                         showMessage(countEasterEggs[guessCount], 'easter-egg');
                     }
-                    
                     // 특정 단어 이스터에그 확인
                     for (const [word, message] of Object.entries(wordEasterEggs)) {
+                        // 정확히 일치하지 않고, 추측 단어에 이스터에그 단어가 포함될 때
                         if (guess.includes(word)) {
+                            // 약간의 딜레이 후 메시지 표시 (기존 메시지와 겹치지 않게)
                             setTimeout(() => {
                                 showMessage(message, 'easter-egg');
                             }, 800);
-                            break;
+                            break; // 첫 번째 매칭되는 이스터에그만 표시
                         }
                     }
+                    // --- 추가적인 피드백 (예: 길이 관련 메시지) ---
+                    // if (guess.length !== targetWord.length && !gameOver) {
+                    //    setTimeout(() => {
+                    //        showMessage(`단어 길이는 ${targetWord.length}자입니다.`, 'error');
+                    //    }, 1200); // 다른 메시지와 시간차 두기
+                    // }
                 }
             }
-            
             // 메시지 표시 함수
             function showMessage(text, type) {
                 messageEl.textContent = text;
-                messageEl.className = 'message';
-                messageEl.classList.add(type);
-                
+                messageEl.className = 'message'; // 클래스 초기화
+
+                // --- 이 부분을 추가하세요 ---
+                messageEl.style.opacity = '1'; // 메시지를 표시하기 전에 항상 불투명하게 만듦
+                // --------------------------
+
+                messageEl.classList.add(type); // 'success', 'error', 'easter-egg' 클래스 추가
+
                 // 일정 시간 후 메시지 사라짐 (에러/이스터에그 메시지만)
                 if (type === 'error' || type === 'easter-egg') {
+                    // 기존 setTimeout 로직은 그대로 둡니다.
                     setTimeout(() => {
+                        // 투명도를 0으로 만들어 메시지를 숨깁니다.
+                        // 이전에 opacity가 1로 설정되었기 때문에 사라지는 애니메이션 효과도 자연스럽게 적용됩니다.
                         messageEl.style.opacity = '0';
                     }, 3000);
                 }
-            }
-            
+                // 성공 메시지는 opacity가 1인 상태로 계속 유지됩니다.
+            }            
             // 승리 축하 효과
             function celebrateWin() {
                 const formattedTime = formatTime(elapsedTime);
@@ -639,7 +713,7 @@ saveCustomBtn.addEventListener('click', function() {
                 congratsText.style.color = '#5e35b1';
                 
                 // 결과 모달 내용 설정
-                const shareText = `뉴들 퍼즐을 ${guessCount}번의 시도만에 ${formattedTime} 만에 해결했어요!\n${window.location.origin}${window.location.pathname}`;
+                const shareText = `뉴들을 ${guessCount}번의 시도만에 ${formattedTime} 만에 해결했어요!\n${window.location.origin}${window.location.pathname}`;
                 resultContent.textContent = shareText;
                 
                 document.querySelector('.game-container').appendChild(congratsText);
