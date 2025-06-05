@@ -145,24 +145,27 @@ body {
     }
     
     .canvas-size input {
-      width: 50px;
-      text-align: center;
+     width: 40px;
+  text-align: center;
+  border: none;
+  background: transparent;
+  font-family: 'Pretendard', sans-serif;
+  font-size: 14px;
+  color: var(--text-color);
+  outline: none;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border-color);
+  transition: border-color 0.2s ease;
     }
+    
+    .canvas-size input:focus {
+  border-bottom: 1px solid #275efe;
+}
     
     .size-separator {
       font-weight: bold;
-    }
-    
-    .canvas-container {
-      position: relative;
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 8px;
-      background: var(--canvas-bg);
-      border: 1px solid var(--border-color);
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      color: var(--text-color);
+  margin: 0 2px;
     }
     
     .pixel-grid {
@@ -209,7 +212,7 @@ body {
   :root {
     --pixel-size: 16px; /* 기본 픽셀 크기 */
   }
-  
+  .canvas-size
   .tools {
     padding: 6px;
   }
@@ -223,7 +226,7 @@ body {
     font-size: 18px;
   }
   
-  .canvas-size input {
+   input {
     width: 36px;
   }
 
@@ -231,6 +234,15 @@ body {
   .canvas-container {
     overflow-x: auto; /* 가로 스크롤 추가 */
     max-width: 100%;
+  }
+      {
+  .canvas-size {
+    padding: 3px 6px;
+  }
+  
+  .canvas-size input {
+    width: 30px;
+    font-size: 12px;
   }
 }
 :root {
@@ -306,6 +318,28 @@ body.dark-mode .tooltip {
   border-color: var(--dark-border-color);
   color: var(--dark-text-color);
 }
+    body.dark-mode .canvas-size {
+  background: var(--dark-tool-bg);
+  border-color: var(--dark-border-color);
+}
+
+body.dark-mode .canvas-size input {
+  color: var(--dark-text-color);
+  border-bottom-color: var(--dark-border-color);
+  background: transparent;
+}
+
+body.dark-mode .canvas-size input:focus {
+  border-bottom-color: #4d8eff;
+}
+
+body.dark-mode .size-separator {
+  color: var(--dark-text-color);
+}
+    body.dark-mode .size-input-container {
+  background: var(--dark-tool-bg);
+  border-color: var(--dark-border-color);
+    }
 
 .download-button {
  --background: #275efe;
@@ -351,8 +385,7 @@ body.dark-mode .tooltip {
     <div class="tools">
       <div class="tool-group">
         <button id="pen-tool" class="tool-button active" title="펜">
-         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pen-line"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
-        </button>
+         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-line"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/><path d="m15 5 3 3"/></svg>
         <button id="eraser-tool" class="tool-button" title="지우개">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
   </svg>
@@ -360,9 +393,7 @@ body.dark-mode .tooltip {
         <button id="eyedropper-tool" class="tool-button" title="스포이트">
  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pipette"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg>
         <button id="clear-canvas" class="tool-button" title="모두 지우기">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-          </svg>
+         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
         </button>
       </div>
       
@@ -379,47 +410,29 @@ body.dark-mode .tooltip {
           <span class="size-separator">×</span>
           <input type="number" id="height-input" min="3" max="64" value="16">
           <button id="apply-size" class="tool-button" title="적용">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
           </button>
         </div>
       </div>
 
       <div class="tool-group">
   <label for="image-upload" class="tool-button" title="이미지 업로드">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"></path>
-      <circle cx="16" cy="8" r="2"></circle>
-      <path d="m18 12-3-3-6 6"></path>
-      <path d="m19 21-5-5"></path>
-    </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-image"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
     <input type="file" id="image-upload" accept="image/*" style="display: none;">
   </label>
 </div>
       
       <div class="tool-group">
         <button id="undo" class="tool-button" title="실행 취소">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 14 4 9l5-5"></path>
-            <path d="M4 9h12a4 4 0 0 1 4 4v6"></path>
-          </svg>
-        </button>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-corner-up-left"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></path>
         <button id="redo" class="tool-button" title="다시 실행">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="m15 14 5-5-5-5"></path>
-            <path d="M4 19v-6a4 4 0 0 1 4-4h12"></path>
-          </svg>
+     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-corner-up-right"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg></path>
         </button>
         <button id="copy-all" class="tool-button" title="전체 복사">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
         </button>
       </div>
-    </div>
-    
+
     <div class="canvas-container">
       <div class="pixel-grid" id="pixel-grid"></div>
     </div>
@@ -430,7 +443,7 @@ body.dark-mode .tooltip {
   <div class="footer">
   <button id="download-image" class="download-button">Made by 여뉴</button>
 </div>
-
+          
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // 기본 변수 설정
@@ -1097,4 +1110,4 @@ window.addEventListener('resize', function() {
 });
   </script>
 </body>
-</html>
+        </html>
