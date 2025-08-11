@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>비밀의 소개서 짝꿍 찾기 (v2.0)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-text-color: #e0e0e0;
+            --secondary-text-color: #a0a0a0;
+            --border-color: #333;
+            --accent-color: #03dac6;
+            --accent-hover-color: #018786;
+            --error-color: #cf6679;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--surface-color);
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        h1 { font-size: 26px; }
+        h2 { font-size: 18px; color: var(--secondary-text-color); font-weight: 500; margin-bottom: 30px; }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 12px 15px;
+            background-color: #2c2c2c;
+            color: var(--primary-text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-color);
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: var(--accent-color);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover-color);
+            color: #fff;
+        }
+
+        #participantList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            background-color: #2c2c2c;
+            border-radius: 8px;
+            min-height: 60px;
+        }
+
+        .participant-tag {
+            background-color: #444;
+            padding: 8px 12px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: var(--secondary-text-color);
+            cursor: pointer;
+            margin-left: 8px;
+            font-size: 16px;
+            padding: 0 5px;
+        }
+        .remove-btn:hover {
+            color: var(--error-color);
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #2a2a2a;
+            border-left: 5px solid var(--accent-color);
+            border-radius: 0 8px 8px 0;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--primary-text-color);
+            line-height: 1.6;
+            text-align: center;
+        }
+        
+        #result .highlight {
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>비밀의 소개서 짝꿍 찾기</h1>
+        <h2>결과는 시드값에 따라 고정됩니다</h2>
+
+        <!-- 참가자 관리 섹션 -->
+        <div class="section">
+            <div class="input-group">
+                <input type="text" id="addParticipantInput" placeholder="추가할 참가자 닉네임 입력">
+                <button onclick="addParticipant()">추가</button>
+            </div>
+            <div id="participantList"></div>
+        </div>
+
+        <!-- 짝꿍 찾기 섹션 -->
+        <div class="section">
+             <div class="input-group">
+                <input type="text" id="seedInput" placeholder="여기에 비밀 시드를 입력하세요">
+            </div>
+            <div class="input-group">
+                <input type="text" id="nicknameInput" placeholder="결과를 확인할 자신의 닉네임 입력">
+                <button onclick="findPartner()">내 짝꿍은?</button>
+            </div>
+        </div>
+        
+        <!-- 결과 표시 영역 -->
+        <div id="result">
+            결과가 여기에 표시됩니다.
+        </div>
+    </div>
+
+    <script>
+        // 초기 참가자 목록
+        let participants = ['시현', '이셜', '류하', '참치', '여뉴'];
+
+        // DOM 요소 가져오기
+        const participantListElem = document.getElementById('participantList');
+        const addParticipantInput = document.getElementById('addParticipantInput');
+        const nicknameInput = document.getElementById('nicknameInput');
+        
+        // 참가자 목록을 화면에 렌더링하는 함수
+        function renderParticipants() {
+            participantListElem.innerHTML = ''; // 기존 목록 초기화
+            participants.forEach(name => {
+                const tag = document.createElement('div');
+                tag.className = 'participant-tag';
+                tag.innerHTML = `
+                    <span>${name}</span>
+                    <button class="remove-btn" onclick="removeParticipant('${name}')">×</button>
+                `;
+                participantListElem.appendChild(tag);
+            });
+        }
+
+        // 참가자 추가 함수
+        function addParticipant() {
+            const name = addParticipantInput.value.trim();
+            if (name === "") {
+                alert('닉네임을 입력해주세요.');
+                return;
+            }
+            if (participants.includes(name)) {
+                alert('이미 존재하는 닉네임입니다.');
+                return;
+            }
+            participants.push(name);
+            addParticipantInput.value = ''; // 입력창 비우기
+            renderParticipants(); // 목록 새로고침
+        }
+        
+        // 참가자 삭제 함수
+        function removeParticipant(name) {
+            participants = participants.filter(p => p !== name);
+            renderParticipants(); // 목록 새로고침
+        }
+        
+        // 고정된 순환 짝꿍 결과를 생성하는 함수
+        function generateFixedPairings() {
+            const seedInput = document.getElementById('seedInput');
+            const secretSeed = seedInput.value.trim();
+
+            if (secretSeed === "") {
+                alert('비밀 시드를 입력해야 결과를 알 수 있습니다!');
+                return null;
+            }
+            if (participants.length < 2) {
+                return null; // 2명 미만이면 짝꿍 생성 불가
+            }
+
+            const shuffled = [...participants]; // 원본 배열 복사
+            const seededRandom = mulberry32(cyrb53(secretSeed));
+
+            // 시드 기반으로 참가자 리스트를 섞습니다 (Fisher-Yates Shuffle).
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(seededRandom() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            // 섞인 리스트를 기반으로 순환(꼬리물기) 매칭
+            const pairings = {};
+            for (let i = 0; i < shuffled.length; i++) {
+                const writer = shuffled[i];
+                const target = shuffled[(i + 1) % shuffled.length]; // 마지막 사람은 첫 사람과 연결
+                pairings[writer] = target;
+            }
+            return pairings;
+        }
+
+        // '내 짝꿍은?' 버튼 클릭 시 실행
+        function findPartner() {
+            const resultElem = document.getElementById('result');
+            
+            if (participants.length < 2) {
+                resultElem.textContent = "참가자가 2명 이상이어야 합니다!";
+                return;
+            }
+
+            const pairings = generateFixedPairings();
+            if (!pairings) { // 시드가 입력되지 않았거나 참가자가 부족할 경우
+                resultElem.textContent = "비밀 시드를 입력 후 다시 시도해주세요.";
+                return;
+            }
+            
+            const nickname = nicknameInput.value.trim();
+            if (nickname === "") {
+                resultElem.innerHTML = "결과를 확인할 자신의 닉네임을 입력해주세요! 🤔";
+                return;
+            }
+
+            const partner = pairings[nickname];
+
+            if (partner) {
+                resultElem.innerHTML = `<strong>${nickname}</strong> 님은 <strong class="highlight">${partner}</strong> 님의 소개서를 써주세요! ✨`;
+            } else {
+                resultElem.innerHTML = `<strong>'${nickname}'</strong> 님은 현재 참가자 목록에 없어요.<br>닉네임을 확인하거나 목록에 추가해주세요.`;
+            }
+        }
+
+        // Enter 키 이벤트 리스너 추가
+        addParticipantInput.addEventListener('keyup', e => e.key === 'Enter' && addParticipant());
+        nicknameInput.addEventListener('keyup', e => e.key === 'Enter' && findPartner());
+        
+        // 페이지 로드 시 초기 참가자 목록 렌더링
+        window.onload = renderParticipants;
+
+
+        // --- 아래는 결과를 고정시키기 위한 기술적인 코드입니다 (수정 X) ---
+        function cyrb53(str, seed = 0) {
+            let h1=0xdeadbeef^seed, h2=0x41c6ce57^seed;
+            for(let i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}
+            h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);
+            h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);
+            return 4294967296*(2097151&h2)+(h1>>>0);
+        }
+        function mulberry32(a) {
+            return function() {
+              var t = a += 0x6D2B79F5;
+              t = Math.imul(t ^ t >>> 15, t | 1);
+              t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+              return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            }
+        }
+    </script>
+
+</body>
+</html>
