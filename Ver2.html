@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
 
+    <!-- NEW FEATURE: COLOR THIEF for Image Color Extraction -->
+    <script src="https://cdn.jsdelivr.net/npm/colorthief@2.4.0/dist/color-thief.umd.js"></script>
+
     <style>
         :root {
             /* Light Theme */
@@ -23,11 +26,12 @@
             --shadow-outer: 0 12px 28px 0 rgba(0, 0, 0, 0.06), 0 2px 4px 0 rgba(0, 0, 0, 0.05);
             --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
 
-            --primary: #4361ee;
-            --primary-dark: #3a56d4;
-            --primary-light: #e7eafc;
-            --success: #38b000;
-            --success-dark: #2d9200;
+            /* --- REFINED COLOR PALETTE --- */
+            --primary: #5E5DF0;
+            --primary-dark: #4F4CE1;
+            --primary-light: rgba(94, 93, 240, 0.2);
+            --success: #28A745;
+            --success-dark: #218838;
             --danger: #f44336;
 
             --radius-l: 16px;
@@ -48,479 +52,87 @@
             --primary-light: #3a3b3c;
         }
         
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; 
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; }
+        body { background: var(--bg-color); color: var(--text-color); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.6; transition: background-color 0.3s ease, color 0.3s ease; }
+        h2 { font-size: 26px; margin-bottom: 24px; font-weight: 700; text-align: center; }
+        .container { width: 100%; max-width: 580px; background: var(--card-bg); padding: 24px; border-radius: var(--radius-l); box-shadow: var(--shadow-outer); transition: background-color 0.3s ease; }
+        .color-area { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+        .color-block { background: var(--card-inner-bg); border: 1px solid var(--border-color); border-radius: var(--radius-m); padding: 16px; position: relative; transition: background-color 0.3s ease, border-color 0.3s ease, opacity 0.2s ease; cursor: grab; }
+        .color-block.dragging { opacity: 0.5; cursor: grabbing; }
+        .color-label { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--text-color-light); display: flex; justify-content: space-between; align-items: center; transition: color 0.3s ease; }
+        .color-input-group { display: flex; align-items: center; gap: 12px; width: 100%; }
+        .color-input-group input[type="text"] { flex: 1; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: var(--radius-s); font-size: 16px; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; outline: none; transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s ease; background: var(--card-bg); color: var(--text-color); min-width: 0; box-shadow: var(--shadow-inner); }
+        .color-input-group input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+        .color-picker-container { width: 44px; height: 44px; flex-shrink: 0; }
+        .pickr .pcr-button { width: 44px; height: 44px; border-radius: var(--radius-s); border: 1px solid var(--border-color); transition: border-color 0.3s ease; }
+        .pickr .pcr-button::before, .pickr .pcr-button::after { border-radius: var(--radius-s); }
+        .pcr-app { background: var(--card-bg); border: 1px solid var(--border-color); box-shadow: var(--shadow-outer); border-radius: var(--radius-m); width: 280px; }
+        .pcr-app .pcr-selection .pcr-color-preview, .pcr-app .pcr-selection .pcr-color-palette, .pcr-app .pcr-selection .pcr-color-chooser { border-radius: var(--radius-s); }
+        .pcr-app .pcr-interaction input { border: 1px solid var(--border-color) !important; border-radius: var(--radius-s) !important; color: var(--text-color) !important; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; background: var(--card-inner-bg) !important; box-shadow: var(--shadow-inner); }
+        .pcr-app .pcr-interaction input:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 3px var(--primary-light) !important; }
+        .pcr-app .pcr-interaction .pcr-save { background: var(--primary) !important; border-radius: var(--radius-s) !important; }
+        .pcr-app .pcr-interaction .pcr-save:hover { background: var(--primary-dark) !important; }
+        .steps-area { margin-bottom: 16px; }
+        .steps-input { width: 100%; padding: 12px 14px; font-size: 16px; border: 1px solid var(--border-color); border-radius: var(--radius-s); outline: none; transition: all 0.2s ease; background: var(--card-bg); color: var(--text-color); box-shadow: var(--shadow-inner); }
+        .steps-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+        .pro-mode-container { margin-bottom: 24px; }
+        .pro-mode-header { padding: 12px 16px; background: var(--card-inner-bg); border: 1px solid var(--border-color); border-radius: var(--radius-m); cursor: pointer; font-weight: 600; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease; user-select: none; }
+        .pro-mode-header:hover { border-color: var(--text-color-light); }
+        /* --- OPTIMIZED: Refined Pro Mode Arrow --- */
+        .pro-mode-header .arrow { width: 8px; height: 8px; border-right: 2px solid var(--text-color-light); border-bottom: 2px solid var(--text-color-light); transform: rotate(-45deg); transition: transform 0.3s ease-in-out; }
+        .pro-mode-header.active .arrow { transform: rotate(45deg); }
+        .pro-mode-content { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out, padding-top 0.4s, padding-bottom 0.4s; background: var(--card-inner-bg); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 var(--radius-m) var(--radius-m); padding: 0 16px; }
+        .pro-mode-content.show { max-height: 700px; opacity: 1; padding: 16px; }
+        .pro-mode-content .color-label { margin-bottom: 8px; }
+        .pro-mode-section { margin-bottom: 16px; }
+        .interpolation-modes { display: flex; gap: 16px; }
+        .interpolation-modes label { display: flex; align-items: center; gap: 6px; font-size: 15px; cursor: pointer; }
+        .pro-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .btn { padding: 14px; font-size: 16px; font-weight: 600; border: none; border-radius: var(--radius-s); cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn:active { transform: translateY(1px) scale(0.98); }
+        .primary-button { background: var(--primary); color: white; }
+        .primary-button:hover { background: var(--primary-dark); box-shadow: 0 4px 12px rgba(94, 93, 240, 0.3); }
+        .secondary-button { background: var(--card-inner-bg); color: var(--text-color); border: 1px solid var(--border-color); }
+        .secondary-button:hover { border-color: var(--text-color-light); background: var(--bg-color); }
         
-        body { 
-            background: var(--bg-color); 
-            color: var(--text-color); 
-            padding: 20px; 
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            line-height: 1.6;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
+        /* --- OPTIMIZED: Button Group Layout --- */
+        .button-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
         
-        h2 { 
-            font-size: 26px; 
-            margin-bottom: 24px; 
-            font-weight: 700;
-            text-align: center;
-        }
-        
-        .container { 
-            width: 100%;
-            max-width: 580px; 
-            background: var(--card-bg); 
-            padding: 24px; 
-            border-radius: var(--radius-l); 
-            box-shadow: var(--shadow-outer);
-            transition: background-color 0.3s ease;
-        }
-        
-        .color-area {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        
-        .color-block {
-            background: var(--card-inner-bg);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-m);
-            padding: 16px;
-            position: relative;
-            transition: background-color 0.3s ease, border-color 0.3s ease, opacity 0.2s ease;
-            cursor: grab; /* NEW FEATURE */
-        }
-        
-        /* NEW FEATURE: Style for the element being dragged */
-        .color-block.dragging {
-            opacity: 0.5;
-            cursor: grabbing;
-        }
-        
-        .color-label {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: var(--text-color-light);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: color 0.3s ease;
-        }
-        
-        .color-input-group { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            width: 100%;
-        }
-        
-        .color-input-group input[type="text"] { 
-            flex: 1;
-            padding: 12px 14px; 
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-s);
-            font-size: 16px; 
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s ease;
-            background: var(--card-bg);
-            color: var(--text-color);
-            min-width: 0;
-            box-shadow: var(--shadow-inner);
-        }
-        
-        .color-input-group input[type="text"]:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-light);
-        }
-        
-        /* --- START: PICKR STYLES --- */
-        .color-picker-container {
-            width: 44px;
-            height: 44px;
-            flex-shrink: 0;
-        }
-
-        .pickr .pcr-button {
-            width: 44px;
-            height: 44px;
-            border-radius: var(--radius-s);
-            border: 1px solid var(--border-color);
-            transition: border-color 0.3s ease;
-        }
-        
-        .pickr .pcr-button::before,
-        .pickr .pcr-button::after {
-            border-radius: var(--radius-s);
-        }
-        /* --- END: PICKR STYLES --- */
-
-        /* --- START: PICKR THEME CUSTOMIZATION --- */
-        .pcr-app {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-outer);
-            border-radius: var(--radius-m);
-            width: 280px;
-        }
-        
-        .pcr-app .pcr-selection .pcr-color-preview,
-        .pcr-app .pcr-selection .pcr-color-palette,
-        .pcr-app .pcr-selection .pcr-color-chooser {
-            border-radius: var(--radius-s);
-        }
-        
-        .pcr-app .pcr-interaction input {
-            border: 1px solid var(--border-color) !important;
-            border-radius: var(--radius-s) !important;
-            color: var(--text-color) !important;
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-            background: var(--card-inner-bg) !important;
-            box-shadow: var(--shadow-inner);
-        }
-
-        .pcr-app .pcr-interaction input:focus {
-            border-color: var(--primary) !important;
-            box-shadow: 0 0 0 3px var(--primary-light) !important;
-        }
-        
-        .pcr-app .pcr-interaction .pcr-save {
-            background: var(--primary) !important;
-            border-radius: var(--radius-s) !important;
-        }
-        .pcr-app .pcr-interaction .pcr-save:hover {
-            background: var(--primary-dark) !important;
-        }
-        /* --- END: PICKR THEME CUSTOMIZATION --- */
-
-
-        .steps-area {
-            margin-bottom: 16px;
-        }
-        
-        .steps-input { 
-            width: 100%;
-            padding: 12px 14px; 
-            font-size: 16px; 
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-s);
-            outline: none;
-            transition: all 0.2s ease;
-            background: var(--card-bg);
-            color: var(--text-color);
-            box-shadow: var(--shadow-inner);
-        }
-        
-        .steps-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-light);
-        }
-
-        .pro-mode-container {
-            margin-bottom: 24px;
-        }
-
-        .pro-mode-header {
-            padding: 12px 16px;
-            background: var(--card-inner-bg);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-m);
-            cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s ease;
-            user-select: none;
-        }
-
-        .pro-mode-header:hover {
-            border-color: var(--text-color-light);
-        }
-
-        .pro-mode-header .arrow {
-            transition: transform 0.3s ease-in-out;
-            font-size: 12px;
-        }
-
-        .pro-mode-header.active .arrow {
-            transform: rotate(90deg);
-        }
-
-        .pro-mode-content {
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out, padding-top 0.4s, padding-bottom 0.4s;
-            background: var(--card-inner-bg);
-            border: 1px solid var(--border-color);
-            border-top: none;
-            border-radius: 0 0 var(--radius-m) var(--radius-m);
-            padding: 0 16px;
-        }
-
-        .pro-mode-content.show {
-            max-height: 500px;
-            opacity: 1;
-            padding: 16px;
-        }
-
-        .pro-mode-content .color-label {
-            margin-bottom: 8px;
-        }
-
-        .interpolation-modes {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-        .interpolation-modes label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 15px;
-            cursor: pointer;
-        }
-        
-        .pro-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .button-group {
-            display: grid;
-            grid-template-columns: 2fr 1.5fr;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-        
-        .btn {
-            padding: 14px; 
-            font-size: 16px; 
-            font-weight: 600;
-            border: none; 
-            border-radius: var(--radius-s);
-            cursor: pointer; 
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .btn:active {
-            transform: translateY(1px) scale(0.98);
-        }
-        
-        .primary-button {
-            background: var(--primary); 
-            color: white; 
-        }
-        
-        .primary-button:hover { 
-            background: var(--primary-dark); 
-            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
-        }
-        
-        .secondary-button {
-            background: var(--card-inner-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-        }
-        
-        .secondary-button:hover {
-            border-color: var(--text-color-light);
-            background: var(--bg-color);
-        }
-        
-        .result-area {
-            margin-top: 10px;
-            text-align: center;
-        }
-        
-        .gradient-bar { 
-            width: 100%; 
-            height: 60px; 
-            border-radius: var(--radius-m); 
-            overflow: hidden; 
-            margin-bottom: 20px;
-            display: flex;
-            border: 1px solid var(--border-color);
-            transition: border-color 0.3s ease;
-        }
-        
-        .color { 
-            height: 100%; flex: 1; 
-        }
-        
-        .code-box { 
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        
-        .code { 
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; 
-            background: var(--card-inner-bg); 
-            padding: 8px 12px; 
-            border-radius: var(--radius-s); 
-            font-size: 14px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            border: 1px solid transparent;
-            color: var(--text-color-light);
-        }
-        
-        .code:hover {
-            background: var(--bg-color);
-            border-color: var(--border-color);
-            color: var(--text-color);
-            transform: translateY(-2px);
-        }
-        
-        .decimal-view {
-            margin-top: 24px;
-            margin-bottom: 20px;
-            padding: 20px;
-            background: var(--card-inner-bg);
-            border-radius: var(--radius-m);
-            border: 1px solid var(--border-color);
-            display: none;
-            transition: all 0.3s ease;
-        }
-        
-        .decimal-colors {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 12px;
-        }
-        
-        .decimal-color {
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-            cursor: pointer;
-            transition: transform 0.1s;
-            padding: 4px 8px;
-            border-radius: var(--radius-s);
-            font-size: 14px;
-        }
-        
-        .decimal-color:hover {
-            background: var(--bg-color);
-            transform: scale(1.05);
-        }
-        
-        .add-color-btn {
-            background: none; border: none; color: var(--primary);
-            cursor: pointer; font-size: 14px; font-weight: 600;
-            display: flex; align-items: center; gap: 4px;
-        }
-        
+        .result-area { text-align: center; }
+        .gradient-bar { width: 100%; height: 60px; border-radius: var(--radius-m); overflow: hidden; margin-bottom: 20px; display: flex; border: 1px solid var(--border-color); transition: border-color 0.3s ease; }
+        .color { height: 100%; flex: 1; }
+        .code-box { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
+        .code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; background: var(--card-inner-bg); padding: 8px 12px; border-radius: var(--radius-s); font-size: 14px; transition: all 0.2s ease; cursor: pointer; border: 1px solid transparent; color: var(--text-color-light); }
+        .code:hover { background: var(--bg-color); border-color: var(--border-color); color: var(--text-color); transform: translateY(-2px); }
+        .decimal-view { margin-top: 24px; margin-bottom: 20px; padding: 20px; background: var(--card-inner-bg); border-radius: var(--radius-m); border: 1px solid var(--border-color); display: none; transition: all 0.3s ease; }
+        .decimal-colors { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+        .decimal-color { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; cursor: pointer; transition: transform 0.1s; padding: 4px 8px; border-radius: var(--radius-s); font-size: 14px; }
+        .decimal-color:hover { background: var(--bg-color); transform: scale(1.05); }
+        .add-color-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
         .add-color-btn:hover { text-decoration: underline; }
-        
-        .remove-color-btn {
-            background: none; border: none; color: var(--danger);
-            cursor: pointer; font-size: 20px; position: absolute;
-            top: 12px; right: 12px; opacity: 0.6;
-            transition: opacity 0.2s; line-height: 1;
-        }
-        
+        .remove-color-btn { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 20px; position: absolute; top: 12px; right: 12px; opacity: 0.6; transition: opacity 0.2s; line-height: 1; }
         .remove-color-btn:hover { opacity: 1; }
+        .copy-btn { background: var(--success); color: white; display: inline-flex; }
+        .copy-btn:hover { background: var(--success-dark); box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3); }
+        .tooltip { position: fixed; background: #222; color: white; padding: 8px 14px; border-radius: var(--radius-s); font-size: 14px; pointer-events: none; opacity: 0; transition: opacity 0.2s, transform 0.2s; z-index: 1000; transform: translateY(10px); }
+        .tooltip.show { opacity: 1; transform: translateY(0); }
+        .footer { margin-top: 32px; text-align: center; position: relative; }
+        .dark-mode-toggle { background: var(--card-bg); border: 1px solid var(--border-color); padding: 10px 20px; border-radius: var(--radius-s); font-size: 14px; font-weight: 600; color: var(--text-color-light); cursor: pointer; transition: all 0.3s ease; box-shadow: var(--shadow-outer); }
+        .dark-mode-toggle:hover { border-color: var(--primary); color: var(--text-color); transform: translateY(-2px); }
+        #easterEggCharacter { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); font-size: 32px; opacity: 0; pointer-events: none; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease; }
+        #easterEggCharacter.show { transform: translateX(-50%) translateY(-110%); opacity: 1; }
         
-        .copy-btn {
-            background: var(--success); 
-            color: white; 
-            display: inline-flex;
-        }
-        
-        .copy-btn:hover { 
-            background: var(--success-dark);
-            box-shadow: 0 4px 12px rgba(56, 176, 0, 0.3);
-        }
-        
-        .tooltip {
-            position: fixed; background: #222;
-            color: white; padding: 8px 14px;
-            border-radius: var(--radius-s); font-size: 14px;
-            pointer-events: none; opacity: 0;
-            transition: opacity 0.2s, transform 0.2s;
-            z-index: 1000; transform: translateY(10px);
-        }
-        
-        .tooltip.show {
-             opacity: 1;
-             transform: translateY(0);
-        }
-        
-        .footer {
-            margin-top: 32px;
-            text-align: center;
-            position: relative; /* NEW FEATURE: for positioning the character */
-        }
-        
-        .dark-mode-toggle {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 10px 20px;
-            border-radius: var(--radius-s);
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-color-light);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow-outer);
-        }
-        .dark-mode-toggle:hover {
-            border-color: var(--primary);
-            color: var(--text-color);
-            transform: translateY(-2px);
-        }
+        .easing-control { display: flex; align-items: center; gap: 12px; }
+        .easing-control input[type="range"] { flex-grow: 1; accent-color: var(--primary); }
+        .easing-control span { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 14px; min-width: 40px; text-align: right; }
+        #imagePreview { width: 100%; max-height: 150px; object-fit: cover; border-radius: var(--radius-m); margin-top: 12px; border: 1px solid var(--border-color); display: none; }
+        .image-upload-btn { width: 100%; }
+        input[type="file"] { display: none; }
 
-        /* NEW FEATURE: Easter Egg Character Styles */
-        #easterEggCharacter {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%) translateY(100%);
-            font-size: 32px;
-            opacity: 0;
-            pointer-events: none;
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
-        }
-
-        #easterEggCharacter.show {
-            transform: translateX(-50%) translateY(-110%);
-            opacity: 1;
-        }
-        
         @media (min-width: 600px) {
-            .color-area {
-                grid-template-columns: 1fr 1fr;
-            }
-            .container {
-                padding: 32px;
-            }
-            h2 {
-                font-size: 28px;
-            }
-            body {
-                padding: 40px 20px;
-            }
+            .container { padding: 32px; }
+            h2 { font-size: 28px; }
+            body { padding: 40px 20px; }
         }
     </style>
 </head>
@@ -536,7 +148,7 @@
                     <button class="add-color-btn" onclick="addColorInput()">+ 색상 추가</button>
                 </div>
                 <div class="color-input-group">
-                    <input type="text" class="hex-input" value="#292f56" oninput="updateColor(this)">
+                    <input type="text" class="hex-input" value="#292f56">
                     <div class="color-picker-container"></div>
                 </div>
             </div>
@@ -547,7 +159,7 @@
                     <button class="remove-color-btn" onclick="removeColorInput(this)">×</button>
                 </div>
                 <div class="color-input-group">
-                    <input type="text" class="hex-input" value="#acfa70" oninput="updateColor(this)">
+                    <input type="text" class="hex-input" value="#acfa70">
                     <div class="color-picker-container"></div>
                 </div>
             </div>
@@ -561,44 +173,58 @@
         <div class="pro-mode-container">
             <div class="pro-mode-header" id="proModeHeader">
                 <span>Pro Mode</span>
-                <span class="arrow">▶</span>
+                <span class="arrow"></span>
             </div>
             <div class="pro-mode-content" id="proModeContent">
-                <div class="color-label">보간 방식</div>
-                <div class="interpolation-modes">
-                    <label>
-                        <input type="radio" name="interpolation-mode" value="rgb" checked> RGB
-                    </label>
-                    <label>
-                        <input type="radio" name="interpolation-mode" value="hsl"> HSL
-                    </label>
-                    <label>
-                        <input type="radio" name="interpolation-mode" value="oklch"> OKLCH
-                    </label>
+                <div class="pro-mode-section">
+                    <div class="color-label">보간 방식</div>
+                    <div class="interpolation-modes">
+                        <label><input type="radio" name="interpolation-mode" value="rgb" checked> RGB</label>
+                        <label><input type="radio" name="interpolation-mode" value="hsl"> HSL</label>
+                        <label><input type="radio" name="interpolation-mode" value="oklch"> OKLCH</label>
+                    </div>
                 </div>
-                 <div class="color-label">도구</div>
-                <div class="pro-buttons">
-                    <button class="btn secondary-button" id="reverseBtn">색상 반전</button>
-                    <button class="btn secondary-button" id="randomBtn">랜덤 색상</button>
+
+                <div class="pro-mode-section">
+                    <div class="color-label">Easing (가속도)</div>
+                    <div class="easing-control">
+                        <input type="range" id="easingSlider" min="0.2" max="5" step="0.01" value="1.0">
+                        <span id="easingValue">1.00</span>
+                    </div>
+                </div>
+
+                <div class="pro-mode-section">
+                     <div class="color-label">도구</div>
+                     <div class="pro-buttons">
+                        <button class="btn secondary-button" id="reverseBtn">색상 반전</button>
+                        <button class="btn secondary-button" id="randomBtn">랜덤 색상</button>
+                    </div>
+                </div>
+                <div class="pro-mode-section">
+                    <div class="color-label">이미지에서 색상 추출</div>
+                    <label for="imageUploadInput" class="btn secondary-button image-upload-btn">
+                        이미지 업로드
+                    </label>
+                    <input type="file" id="imageUploadInput" accept="image/png, image/jpeg, image/gif">
+                    <img id="imagePreview" alt="Image Preview">
                 </div>
             </div>
         </div>
 
         <div class="button-group">
-            <button class="btn primary-button" id="generateBtn" onclick="generateColors()">색상 생성하기</button>
-            <button class="btn secondary-button" id="toDecimalBtn" onclick="showDecimalColors()" style="display: none;">10진수 변환</button>
+            <button class="btn primary-button" id="toDecimalBtn" onclick="showDecimalColors()" style="display: none;">10진수 변환 보기</button>
+            <button class="btn copy-btn" id="copyBtn" onclick="copyColors()" style="display: none;">모든 16진수 코드 복사</button>
         </div>
 
         <div class="result-area">
             <div class="gradient-bar" id="colorBox"></div>
             <div class="code-box" id="codeBox"></div>
-            <button class="btn copy-btn" id="copyBtn" onclick="copyColors()" style="display: none;">모든 코드 복사</button>
         </div>
         
         <div class="decimal-view" id="decimalView">
             <div class="color-label">10진수 변환 결과</div>
             <div class="decimal-colors" id="decimalColors"></div>
-            <button class="btn copy-btn" onclick="copyDecimalColors()" style="margin-top: 16px;">10진수 코드 복사</button>
+            <button class="btn copy-btn" onclick="copyDecimalColors()" style="margin-top: 16px;">모든 10진수 코드 복사</button>
         </div>
     </div>
 
@@ -606,102 +232,57 @@
         <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode">
             Made by 여뉴
         </button>
-        <!-- NEW FEATURE: Easter Egg Character -->
         <div id="easterEggCharacter">🐾</div>
     </div>
     
     <div class="tooltip" id="tooltip"></div>
 
     <script>
-        // Global map to store Pickr instances, mapping the color-block element to its instance.
         const pickrInstances = new Map();
-
-        // --- PICKR INITIALIZATION FUNCTION ---
-        function initializePickrForBlock(colorBlock) {
-            colorBlock.setAttribute('draggable', 'true'); // NEW FEATURE: Make new blocks draggable
-            const pickerContainer = colorBlock.querySelector('.color-picker-container');
-            const hexInput = colorBlock.querySelector('.hex-input');
-
-            const pickr = Pickr.create({
-                el: pickerContainer,
-                theme: 'classic',
-                default: hexInput.value,
-                swatches: [
-                    '#f44336', '#e91e63', '#9c27b0', '#673ab7',
-                    '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4',
-                    '#009688', '#4caf50', '#8bc34a', '#cddc39',
-                    '#ffeb3b', '#ffc107', '#ff9800', '#ff5722'
-                ],
-                components: {
-                    preview: true,
-                    opacity: false,
-                    hue: true,
-                    interaction: {
-                        hex: true,
-                        input: true,
-                        clear: false,
-                        save: true
-                    }
-                }
-            });
-
-            pickrInstances.set(colorBlock, pickr);
-            
-            pickr.on('save', (color, instance) => {
-                const hexColor = `#${color.toHEXA().slice(0, 3).join('').toLowerCase()}`;
-                hexInput.value = hexColor;
-                instance.hide();
-            });
-        }
+        let debounceTimer;
 
         // --- CORE APP LOGIC ---
 
-        function hexToDecimal(hex) {
-            return parseInt(hex.slice(1), 16);
+        function hexToDecimal(hex) { return parseInt(hex.slice(1), 16); }
+
+        function debouncedGenerate() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(generateColors, 250);
         }
 
-        function interpolateWithCulori(colorList, totalSteps, mode) {
+        function interpolateWithCulori(colorList, totalSteps, mode, easingFactor) {
             if (colorList.length < 2) return [];
             const totalPoints = totalSteps + colorList.length;
             let result = [];
             try {
                 const interpolator = culori.interpolate(colorList, mode);
                 for (let i = 0; i < totalPoints; i++) {
-                    const t = i / (totalPoints - 1);
+                    let t_linear = i / (totalPoints - 1);
+                    let t = Math.pow(t_linear, easingFactor);
                     const colorObject = interpolator(t);
                     result.push(culori.formatHex(colorObject));
                 }
             } catch (error) {
                 console.error("Color interpolation failed:", error);
-                alert("유효하지 않은 색상 코드가 포함되어 있어 그라데이션을 생성할 수 없습니다. HEX 형식인지 확인해주세요.");
+                showTooltip(document.body, "유효하지 않은 색상 코드가 포함되었습니다.");
                 return null;
             }
             return [...new Set(result)];
         }
-
 
         function generateColors() {
             let hexInputs = document.querySelectorAll('.hex-input');
             let colorList = Array.from(hexInputs).map(input => input.value);
             let steps = parseInt(document.getElementById("steps").value);
             const interpolationMode = document.querySelector('input[name="interpolation-mode"]:checked').value;
+            const easingFactor = parseFloat(document.getElementById('easingSlider').value);
 
-            let isValid = true;
             for (let color of colorList) {
-                if (!/^#([0-9a-f]{6})$/i.test(color)) {
-                    alert("올바른 HEX 코드를 입력하세요. (예: #FAFAFA)");
-                    isValid = false;
-                    break;
-                }
+                if (!/^#([0-9a-f]{6})$/i.test(color)) { return; }
             }
-            if (!isValid) return;
-
-            if (steps < 3 || steps > 50) {
-                alert("중간 색상 개수는 3~50 사이여야 합니다.");
-                return;
-            }
+            if (isNaN(steps) || steps < 3 || steps > 50) { return; }
             
-            let colors = interpolateWithCulori(colorList, steps, interpolationMode);
+            let colors = interpolateWithCulori(colorList, steps, interpolationMode, easingFactor);
             if (colors === null) return;
             
             let colorBox = document.getElementById("colorBox");
@@ -735,7 +316,7 @@
             colorBox.appendChild(colorFragment);
             codeBox.appendChild(codeFragment);
 
-            document.getElementById("copyBtn").style.display = "inline-flex";
+            document.getElementById("copyBtn").style.display = "flex";
             document.getElementById("toDecimalBtn").style.display = "flex";
         }
         
@@ -754,7 +335,6 @@
                 colorSpan.className = "decimal-color";
                 colorSpan.innerHTML = `<span style="color:${hexColor}">█</span> ${decimal}`;
                 colorSpan.setAttribute("data-decimal", decimal);
-                colorSpan.setAttribute("data-hex", hexColor);
                 colorSpan.addEventListener("click", function() {
                     let decimalCode = this.getAttribute("data-decimal");
                     navigator.clipboard.writeText(`<font color=${decimalCode}>█</font>`);
@@ -768,113 +348,99 @@
             decimalView.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
         
-        function copyDecimalColors() {
-            let decimalColors = document.getElementById("decimalColors");
-            let decimalElements = [...decimalColors.getElementsByClassName("decimal-color")];
-            let text = decimalElements.map(span => `<font color=${span.getAttribute("data-decimal")}>█</font>`).join("");
-            navigator.clipboard.writeText(text).then(() => {
-                showTooltip(document.querySelector("#decimalView .copy-btn"), "모든 10진수 코드가 복사되었습니다!");
-            });
-        }
+        // --- UI & DYNAMIC ELEMENT FUNCTIONS ---
 
-        function copyColors() {
-            let codeBox = document.getElementById("codeBox");
-            let text = [...codeBox.getElementsByClassName("code")].map(div => div.textContent).join("\n");
-            navigator.clipboard.writeText(text).then(() => {
-                showTooltip(document.getElementById("copyBtn"), "모든 16진수 코드가 복사되었습니다!");
-            });
-        }
+        function initializePickrForBlock(colorBlock) {
+            colorBlock.setAttribute('draggable', 'true');
+            const pickerContainer = colorBlock.querySelector('.color-picker-container');
+            const hexInput = colorBlock.querySelector('.hex-input');
 
-        function updateColor(input) {
-            let colorBlock = input.closest('.color-block');
+            const pickr = Pickr.create({
+                el: pickerContainer, theme: 'classic', default: hexInput.value,
+                swatches: ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800', '#ff5722'],
+                components: { preview: true, opacity: false, hue: true, interaction: { hex: true, input: true, clear: false, save: true } }
+            });
+
+            pickrInstances.set(colorBlock, pickr);
             
+            pickr.on('save', (color, instance) => {
+                const hexColor = color.toHEXA().toString(0);
+                hexInput.value = hexColor;
+                instance.hide();
+                generateColors();
+            });
+        }
+        
+        function updateColorOnInput(input) {
+            let colorBlock = input.closest('.color-block');
             let value = input.value;
-            if (value.length > 0 && value.charAt(0) !== '#') {
-                value = '#' + value;
-            }
+            if (value.length > 0 && value.charAt(0) !== '#') { value = '#' + value; }
             value = value.substring(0, 7).toLowerCase();
             input.value = value;
             
             if (/^#([0-9a-f]{6})$/i.test(value)) {
                 const pickr = pickrInstances.get(colorBlock);
-                if (pickr) {
-                    pickr.setColor(value, true);
-                }
+                if (pickr) { pickr.setColor(value, true); }
+                debouncedGenerate();
             }
         }
         
         function addColorInput() {
             let colorArea = document.getElementById("colorInputArea");
-            if (colorArea.children.length >= 10) {
-                alert("최대 10개까지 색상을 추가할 수 있습니다.");
-                return;
-            }
+            if (colorArea.children.length >= 10) { alert("최대 10개까지 색상을 추가할 수 있습니다."); return; }
             
             let newColorBlock = document.createElement('div');
             newColorBlock.className = 'color-block';
-            const randomHex = culori.formatHex(culori.random());
-            
             newColorBlock.innerHTML = `
-                <div class="color-label">
-                    <span>색상</span>
-                    <button class="remove-color-btn" onclick="removeColorInput(this)">×</button>
-                </div>
-                <div class="color-input-group">
-                    <input type="text" class="hex-input" value="${randomHex}" oninput="updateColor(this)">
-                    <div class="color-picker-container"></div>
-                </div>
+                <div class="color-label"><span>색상</span><button class="remove-color-btn" onclick="removeColorInput(this)">×</button></div>
+                <div class="color-input-group"><input type="text" class="hex-input" value="${culori.formatHex(culori.random())}"><div class="color-picker-container"></div></div>
             `;
             colorArea.appendChild(newColorBlock);
             initializePickrForBlock(newColorBlock);
             updateColorLabels();
+            generateColors();
         }
         
         function removeColorInput(button) {
             let colorArea = document.getElementById("colorInputArea");
-            if (colorArea.children.length <= 2) {
-                alert("최소 2개의 색상이 필요합니다.");
-                return;
-            }
-            
+            if (colorArea.children.length <= 2) { alert("최소 2개의 색상이 필요합니다."); return; }
             let colorBlock = button.closest('.color-block');
-            
             const pickr = pickrInstances.get(colorBlock);
-            if (pickr) {
-                pickr.destroyAndRemove();
-                pickrInstances.delete(colorBlock);
-            }
-            
+            if (pickr) { pickr.destroyAndRemove(); pickrInstances.delete(colorBlock); }
             colorArea.removeChild(colorBlock);
             updateColorLabels();
+            generateColors();
         }
 
         function updateColorLabels() {
             let colorBlocks = document.querySelectorAll('#colorInputArea .color-block');
             colorBlocks.forEach((block, index) => {
                 block.setAttribute('data-index', index);
-                let label = block.querySelector('.color-label span');
-                label.textContent = `색상 ${index + 1}`;
-                
+                block.querySelector('.color-label span').textContent = `색상 ${index + 1}`;
                 let addBtn = block.querySelector('.add-color-btn');
                 let removeBtn = block.querySelector('.remove-color-btn');
-                
                 if (addBtn) addBtn.style.display = 'none';
                 if (removeBtn) removeBtn.style.display = 'block';
-
                 if (index === 0) {
-                    if(!addBtn) {
-                        const labelDiv = block.querySelector('.color-label');
-                        labelDiv.insertAdjacentHTML('beforeend', '<button class="add-color-btn" onclick="addColorInput()">+ 색상 추가</button>');
-                    } else {
-                        addBtn.style.display = 'flex';
-                    }
+                    if(!addBtn) { block.querySelector('.color-label').insertAdjacentHTML('beforeend', '<button class="add-color-btn" onclick="addColorInput()">+ 색상 추가</button>'); } 
+                    else { addBtn.style.display = 'flex'; }
                 }
-                 if (index <= 1) { 
-                    if(removeBtn) removeBtn.style.display = 'none';
-                 }
+                 if (index <= 1) { if(removeBtn) removeBtn.style.display = 'none'; }
             });
         }
+        
+        // --- UTILITY & HELPER FUNCTIONS ---
 
+        function copyColors() {
+            let text = [...document.querySelectorAll("#codeBox .code")].map(div => div.textContent).join("\n");
+            navigator.clipboard.writeText(text).then(() => showTooltip(document.getElementById("copyBtn"), "모든 16진수 코드가 복사되었습니다!"));
+        }
+
+        function copyDecimalColors() {
+            let text = [...document.querySelectorAll("#decimalColors .decimal-color")].map(span => `<font color=${span.getAttribute("data-decimal")}>█</font>`).join("");
+            navigator.clipboard.writeText(text).then(() => showTooltip(document.querySelector("#decimalView .copy-btn"), "모든 10진수 코드가 복사되었습니다!"));
+        }
+        
         function showTooltip(element, message) {
             const tooltip = document.getElementById("tooltip");
             tooltip.textContent = message;
@@ -890,12 +456,13 @@
             const colorBlocks = Array.from(document.querySelectorAll('#colorInputArea .color-block'));
             const colorValues = colorBlocks.map(block => block.querySelector('.hex-input').value);
             colorValues.reverse();
-            
             colorBlocks.forEach((block, index) => {
                 const hexInput = block.querySelector('.hex-input');
                 hexInput.value = colorValues[index];
-                updateColor(hexInput);
+                const pickr = pickrInstances.get(block);
+                if (pickr) pickr.setColor(colorValues[index], true);
             });
+            generateColors();
         }
         
         function generateRandomColors() {
@@ -903,16 +470,18 @@
                 const randomHex = culori.formatHex(culori.random());
                 const hexInput = block.querySelector('.hex-input');
                 hexInput.value = randomHex;
-                updateColor(hexInput);
+                const pickr = pickrInstances.get(block);
+                if (pickr) pickr.setColor(randomHex, true);
             });
+            generateColors();
         }
 
-        // --- UI INITIALIZATION AND EVENT LISTENERS ---
+        // --- DOM INITIALIZATION AND EVENT LISTENERS ---
         
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.color-block').forEach(initializePickrForBlock);
             updateColorLabels();
-            generateColors();
+            generateColors(); 
             
             const proModeHeader = document.getElementById('proModeHeader');
             proModeHeader.addEventListener('click', () => {
@@ -923,89 +492,105 @@
             document.getElementById('reverseBtn').addEventListener('click', reverseColors);
             document.getElementById('randomBtn').addEventListener('click', generateRandomColors);
 
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            const htmlEl = document.documentElement;
-            const setTheme = (theme) => {
-                htmlEl.setAttribute('data-theme', theme);
-                localStorage.setItem('theme', theme);
-            };
-            const savedTheme = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (savedTheme) setTheme(savedTheme);
-            else if (prefersDark) setTheme('dark');
-            else setTheme('light');
-            darkModeToggle.addEventListener('click', () => {
-                const currentTheme = htmlEl.getAttribute('data-theme');
-                setTheme(currentTheme === 'light' ? 'dark' : 'light');
-            });
-
-            /* NEW FEATURE: Easter Egg Logic */
-            let clickCount = 0;
-            let clickTimer = null;
-            const meowSound = new Audio("data:audio/mp3;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YUIAAAB//+MYRqOkyc4pSIiJg4KAmwIDAQ0NDgYJBQMBAwQCAgEABgYIBAMCBAQCAQIEAgQCAgYBAgYEAwQCBQQEBgYIBgIEAgIEAwYCAgEBAQEBAQEDAgICAgYDBQQEBQYCAgEBAQECAgICAwQFBggKCgoKCgoKCgoKCgoKCQgICAgIBwYFBAMDAgIBAQECAgECAgEBAQABAQEBAgEBAgECAgECAgECAgEBAQMBAQEBAQEBAQICAQEBAQEBAQEBAQEDAgECAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgECAgIBAQECAgEBAgICAgICAgECAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgECAgECAgECAgECAgEBAQEBAgECAgECAgEBAQEBAQECAgECAgECAgECAgECAgECAgECAgECAgEBAQEB//8YpoKKgYIHBw==");
-            darkModeToggle.addEventListener('click', (e) => {
-                // Prevent theme toggle from interfering with fast clicks
-                if (e.detail > 1) e.preventDefault(); 
-
-                clickCount++;
-                clearTimeout(clickTimer);
-                clickTimer = setTimeout(() => {
-                    clickCount = 0;
-                }, 1000);
-
-                if (clickCount >= 5) {
-                    const character = document.getElementById('easterEggCharacter');
-                    character.classList.add('show');
-                    meowSound.play();
-                    setTimeout(() => {
-                        character.classList.remove('show');
-                    }, 2000);
-                    clickCount = 0;
+            document.getElementById('steps').addEventListener('input', generateColors);
+            document.querySelectorAll('input[name="interpolation-mode"]').forEach(radio => radio.addEventListener('change', generateColors));
+            
+            document.getElementById('colorInputArea').addEventListener('input', (e) => {
+                if(e.target && e.target.classList.contains('hex-input')) {
+                    updateColorOnInput(e.target);
                 }
             });
 
-            /* NEW FEATURE: Draggable Color Inputs Logic */
+            const easingSlider = document.getElementById('easingSlider');
+            const easingValue = document.getElementById('easingValue');
+            easingSlider.addEventListener('input', () => {
+                easingValue.textContent = parseFloat(easingSlider.value).toFixed(2);
+                debouncedGenerate();
+            });
+
+            const imageUploadInput = document.getElementById('imageUploadInput');
+            const imagePreview = document.getElementById('imagePreview');
+            imageUploadInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file || !file.type.startsWith('image/')) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    imagePreview.src = event.target.result;
+                    imagePreview.style.display = 'block';
+
+                    const img = new Image();
+                    img.onload = () => {
+                        const colorThief = new ColorThief();
+                        const colorBlocks = document.querySelectorAll('#colorInputArea .color-block');
+                        const palette = colorThief.getPalette(img, colorBlocks.length);
+                        
+                        colorBlocks.forEach((block, index) => {
+                            if (palette[index]) {
+                                const rgb = palette[index];
+                                const hex = `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`;
+                                const hexInput = block.querySelector('.hex-input');
+                                hexInput.value = hex;
+                                const pickr = pickrInstances.get(block);
+                                if (pickr) pickr.setColor(hex, true);
+                            }
+                        });
+                        generateColors();
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+
             const colorArea = document.getElementById('colorInputArea');
             let draggedItem = null;
-
             colorArea.addEventListener('dragstart', (e) => {
                 draggedItem = e.target.closest('.color-block');
                 if (!draggedItem) return;
-                // Use a timeout to avoid the element disappearing before the drag image is created
-                setTimeout(() => {
-                    draggedItem.classList.add('dragging');
-                }, 0);
+                setTimeout(() => { draggedItem.classList.add('dragging'); }, 0);
             });
-
             colorArea.addEventListener('dragend', () => {
                 if (!draggedItem) return;
                 draggedItem.classList.remove('dragging');
                 draggedItem = null;
-                updateColorLabels(); // Update labels after drop is complete
+                updateColorLabels();
+                generateColors();
             });
-
             colorArea.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 const targetItem = e.target.closest('.color-block');
-                if (!targetItem || targetItem === draggedItem) {
-                    return;
-                }
-
-                const containerRect = colorArea.getBoundingClientRect();
+                if (!targetItem || targetItem === draggedItem) return;
                 const targetRect = targetItem.getBoundingClientRect();
-                // Determine if dragging above or below the vertical midpoint of the target
                 const isAfter = (e.clientY - targetRect.top) > (targetRect.height / 2);
-
-                if (isAfter) {
-                    // Insert after the target
-                    targetItem.parentNode.insertBefore(draggedItem, targetItem.nextSibling);
-                } else {
-                    // Insert before the target
-                    targetItem.parentNode.insertBefore(draggedItem, targetItem);
+                if (isAfter) { targetItem.parentNode.insertBefore(draggedItem, targetItem.nextSibling); } 
+                else { targetItem.parentNode.insertBefore(draggedItem, targetItem); }
+            });
+            
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const htmlEl = document.documentElement;
+            const setTheme = (theme) => { htmlEl.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); };
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme) setTheme(savedTheme); else if (prefersDark) setTheme('dark'); else setTheme('light');
+            
+            let clickCount = 0, clickTimer = null;
+            const meowSound = new Audio("data:audio/mp3;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YUIAAAB//+MYRqOkyc4pSIiJg4KAmwIDAQ0NDgYJBQMBAwQCAgEABgYIBAMCBAQCAQIEAgQCAgYBAgYEAwQCBQQEBgYIBgIEAgIEAwYCAgEBAQEBAQEDAgICAgYDBQQEBQYCAgEBAQECAgICAwQFBggKCgoKCgoKCgoKCgoKCQgICAgIBwYFBAMDAgIBAQECAgECAgEBAQABAQEBAgEBAgECAgECAgECAgEBAQMBAQEBAQEBAQICAQEBAQEBAQEBAQEBAQEDAgECAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgECAgIBAQECAgEBAgICAgICAgECAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgECAgECAgECAgECAgEBAQEBAgECAgECAgEBAQEBAQECAgECAgECAgECAgECAgECAgECAgECAgEBAQEB//8YpoKKgYIHBw==");
+            darkModeToggle.addEventListener('click', (e) => {
+                const currentTheme = htmlEl.getAttribute('data-theme');
+                setTheme(currentTheme === 'light' ? 'dark' : 'light');
+                if (e.detail > 1) e.preventDefault(); 
+                clickCount++;
+                clearTimeout(clickTimer);
+                clickTimer = setTimeout(() => { clickCount = 0; }, 1000);
+                if (clickCount >= 5) {
+                    const character = document.getElementById('easterEggCharacter');
+                    character.classList.add('show');
+                    meowSound.play();
+                    setTimeout(() => character.classList.remove('show'), 2000);
+                    clickCount = 0;
                 }
             });
         });
-        
     </script>
 </body>
 </html>
