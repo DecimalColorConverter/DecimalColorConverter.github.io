@@ -3,18 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>픽셀 아트 에디터</title>
+  <title>헬로펫 픽셀아트 에디터</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css"/>
+  <script src="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js"></script>
+
   <style>
     :root {
       --grid-cols: 16;
       --grid-rows: 16;
-      --pixel-size: 20px;
-      --primary-color: #000000;
-      --text-color: #444;
-      --bg-color: #f5f5f5;
-      --canvas-bg: #ffffff;
+      --pixel-size: 25px;
+      --default-pixel-size: 25px;
+      --mobile-pixel-size: 20px;
+      
+      --accent-color: #275efe;
+      --text-color: #333;
+      --bg-color: #f4f7fa;
       --tool-bg: #ffffff;
-      --border-color: #ddd;
+      --border-color: #e0e5ec;
+      --grid-line-color: #ddd;
+      --shadow-color: rgba(0, 0, 0, 0.05);
     }
     
     * {
@@ -23,77 +31,87 @@
       padding: 0;
     }
     
- @import url('https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css'); 
+    @import url('https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css'); 
 
-body {
-    font-family: 'Pretendard', sans-serif; 
-    padding: 15px;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    touch-action: manipulation;
-}
+    body {
+        font-family: 'Pretendard', sans-serif; 
+        padding: 15px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        transition: background-color 0.3s, color 0.3s;
+    }
     
     .container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 15px;
+      gap: 20px;
       width: 100%;
-      max-width: 800px;
+      max-width: 1000px;
       margin: 0 auto;
       flex: 1;
     }
     
     h1 {
-      margin: 8px 0;
-      text-align: center;
-      font-size: 24px;
-      color: var(--primary-color);
+      font-size: 28px;
+      color: var(--text-color);
+      cursor: pointer;
+      user-select: none;
+      font-weight: 700;
     }
     
     .tools {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 10px;
       justify-content: center;
       width: 100%;
       padding: 10px;
-      border-radius: 8px;
+      border-radius: 12px;
       background: var(--tool-bg);
       border: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px var(--shadow-color);
+      transition: background-color 0.3s, border-color 0.3s;
     }
     
     .tool-group {
       display: flex;
       align-items: center;
-      gap: 4px;
-      margin: 2px;
+      gap: 5px;
+      padding: 5px;
+      border-right: 1px solid var(--border-color);
+    }
+    .tool-group:last-child {
+        border-right: none;
     }
     
     .tool-button {
       width: 40px;
       height: 40px;
       border: 1px solid var(--border-color);
-      border-radius: 6px;
+      border-radius: 8px;
       background: var(--tool-bg);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease-out;
       color: var(--text-color);
     }
     
     .tool-button:hover {
-      background-color: #f0f0f0;
+      background-color: #f0f3f6;
+      transform: translateY(-2px);
     }
     
     .tool-button:active, .tool-button.active {
-      background-color: #e0e0e0;
-      color: var(--primary-color);
+      background-color: var(--accent-color);
+      color: white;
+      border-color: var(--accent-color);
+      transform: translateY(1px);
     }
 
     .tool-button svg {
@@ -104,38 +122,33 @@ body {
     .color-picker {
       display: flex;
       align-items: center;
-      background: var(--tool-bg);
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-      padding: 2px 6px;
     }
     
-    input[type="color"] {
-      -webkit-appearance: none;
-      width: 26px;
-      height: 26px;
-      border: none;
-      background: none;
-      cursor: pointer;
-    }
-    
-    input[type="color"]::-webkit-color-swatch-wrapper {
-      padding: 0;
-    }
-    
-    input[type="color"]::-webkit-color-swatch {
-      border: none;
+    #color-input {
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      border: 1px solid var(--border-color);
+      cursor: pointer;
+      border: 2px solid var(--border-color);
+      transition: border-color 0.2s;
+      padding: 0;
+      text-indent: 40px;
+      overflow: hidden;
+    }
+    #color-input:hover {
+      border-color: var(--accent-color);
     }
     
-    input[type="text"] {
-      width: 60px;
+    #color-hex {
+      width: 65px;
+      height: 32px;
       border: 1px solid var(--border-color);
-      border-radius: 4px;
-      padding: 4px;
-      font-size: 11px;
-      margin-left: 6px;
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-size: 12px;
+      margin-left: 8px;
+      text-align: center;
+      transition: background-color 0.3s, color 0.3s, border-color 0.3s;
     }
     
     .canvas-size {
@@ -145,237 +158,173 @@ body {
     }
     
     .canvas-size input {
-     width: 40px;
-  text-align: center;
-  border: none;
-  background: transparent;
-  font-family: 'Pretendard', sans-serif;
-  font-size: 14px;
-  color: var(--text-color);
-  outline: none;
-  padding: 4px 0;
-  border-bottom: 1px solid var(--border-color);
-  transition: border-color 0.2s ease;
-    }
-    
-    .canvas-size input:focus {
-  border-bottom: 1px solid #275efe;
-}
-    
-    .size-separator {
-      font-weight: bold;
+      width: 40px;
+      height: 32px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-family: 'Pretendard', sans-serif;
+      font-size: 14px;
       color: var(--text-color);
-  margin: 0 2px;
+      background-color: #fff;
+      transition: background-color 0.3s, color 0.3s, border-color 0.3s;
     }
     
+    .canvas-container {
+      width: 100%;
+      overflow: auto;
+      background-color: var(--tool-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 12px var(--shadow-color);
+    }
+
     .pixel-grid {
       display: grid;
       grid-template-columns: repeat(var(--grid-cols), var(--pixel-size));
       grid-template-rows: repeat(var(--grid-rows), var(--pixel-size));
-      gap: 1px;
-      background-color: var(--border-color);
-      border-radius: 4px;
-      padding: 1px;
       user-select: none;
       -webkit-user-select: none;
+      border: 1px solid var(--grid-line-color);
+      border-right: none;
+      border-bottom: none;
     }
     
     .pixel {
       width: var(--pixel-size);
       height: var(--pixel-size);
-      background-color: white;
+      background-color: #ffffff;
       cursor: pointer;
+      border-right: 1px solid var(--grid-line-color);
+      border-bottom: 1px solid var(--grid-line-color);
+      transition: border-color 0.3s;
     }
     
-    .footer {
-      margin-top: 20px;
-      text-align: center;
-      font-size: 14px;
-      color: var(--text-color);
-      width: 100%;
+    .pixel-grid.grid-off .pixel {
+      border-color: transparent;
+    }
+
+    /* Modern Download Button */
+    .download-button {
+        --background: var(--accent-color);
+        --text: #fff;
+        padding: 12px 24px;
+        font-family: 'Pretendard', sans-serif;
+        font-weight: 600;
+        border-radius: 8px;
+        outline: none;
+        border: none;
+        text-decoration: none;
+        font-size: 16px;
+        background: var(--background);
+        color: var(--text);
+        box-shadow: 0 4px 12px -2px rgba(39, 94, 254, 0.45);
+        transform: translateY(0);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+    }
+    .download-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px -2px rgba(39, 94, 254, 0.5);
+    }
+
+    /* Modal Styles */
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    .modal-backdrop.visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .modal-content {
+        background: var(--tool-bg);
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        width: 90%;
+        max-width: 320px;
+        text-align: center;
+        transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    }
+    .modal-content h3 { margin-bottom: 15px; }
+    .modal-content input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 15px;
+        font-size: 16px;
+        text-align: center;
+    }
+    .modal-buttons { display: flex; gap: 10px; }
+    .modal-buttons button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    #modal-confirm { background-color: var(--accent-color); color: white; }
+    #modal-confirm:hover { background-color: #1a4cdb; }
+    #modal-cancel { background-color: var(--border-color); color: var(--text-color); }
+    #modal-cancel:hover { background-color: #d0d5dc; }
+    
+    .clr-field button {
+      border-radius: 50% !important;
+      width: 34px !important;
+      height: 34px !important;
+      min-width: 34px !important;
     }
     
-    .tooltip {
-      position: absolute;
-      background: var(--tool-bg);
-      border: 1px solid var(--border-color);
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      z-index: 10;
-      opacity: 0;
-      transition: opacity 0.3s;
-      pointer-events: none;
+    /* Dark Mode */
+    body.dark-mode {
+      --text-color: #e0e0e0;
+      --bg-color: #1a1b1e;
+      --tool-bg: #2a2c30;
+      --border-color: #404247;
+      --grid-line-color: #404247;
+      --shadow-color: rgba(0, 0, 0, 0.2);
+    }
+    body.dark-mode .tool-button:hover { background-color: #383a3f; }
+    body.dark-mode .tool-button.active { color: #fff; }
+    body.dark-mode #modal-cancel { background-color: #404247; }
+    body.dark-mode #modal-cancel:hover { background-color: #55585e; }
+    body.dark-mode .canvas-size input {
+      background-color: var(--bg-color);
+      color: #fff;
+    }
+    body.dark-mode #color-hex {
+      background-color: var(--bg-color);
+      color: #fff;
+    }
+    body.dark-mode .modal-content input {
+  background-color: var(--bg-color);
+  color: #fff;
     }
     
-    @media (max-width: 600px) {
-  :root {
-    --pixel-size: 16px; /* 기본 픽셀 크기 */
-  }
-  .canvas-size
-  .tools {
-    padding: 6px;
-  }
-  
-  .tool-button {
-    width: 32px;
-    height: 32px;
-  }
-  
-  h1 {
-    font-size: 18px;
-  }
-  
-   input {
-    width: 36px;
-  }
-
-  /* 캔버스가 커질 때 픽셀 크기를 동적으로 조정 */
-  .canvas-container {
-    overflow-x: auto; /* 가로 스크롤 추가 */
-    max-width: 100%;
-  }
-      {
-  .canvas-size {
-    padding: 3px 6px;
-  }
-  
-  .canvas-size input {
-    width: 30px;
-    font-size: 12px;
-  }
-}
-:root {
-  /* 기존 변수 유지 */
-  --grid-cols: 16;
-  --grid-rows: 16;
-  --pixel-size: 20px;
-  --primary-color: #000000;
-  --text-color: #444;
-  --bg-color: #f5f5f5;
-  --canvas-bg: #ffffff;
-  --tool-bg: #ffffff;
-  --border-color: #ddd;
-  
-  /* 다크모드 변수 추가 */
-  --dark-text-color: #e0e0e0;
-  --dark-bg-color: #222222;
-  --dark-canvas-bg: #333333;
-  --dark-tool-bg: #333333;
-  --dark-border-color: #555;
-}
-
-/* 다크모드 클래스 추가 */
-body.dark-mode {
-  background-color: var(--dark-bg-color);
-  color: var(--dark-text-color);
-}
-
-body.dark-mode h1 {
-  color: var(--dark-text-color);
-}
-
-body.dark-mode .tools {
-  background: var(--dark-tool-bg);
-  border-color: var(--dark-border-color);
-}
-
-body.dark-mode .tool-button {
-  background: var(--dark-tool-bg);
-  border-color: var(--dark-border-color);
-  color: var(--dark-text-color);
-}
-
-body.dark-mode .tool-button:hover {
-  background-color: #444;
-}
-
-body.dark-mode .tool-button:active, 
-body.dark-mode .tool-button.active {
-  background-color: #555;
-  color: var(--dark-text-color);
-}
-
-body.dark-mode .canvas-container {
-  background: var(--dark-canvas-bg);
-  border-color: var(--dark-border-color);
-}
-
-body.dark-mode .color-picker {
-  background: var(--dark-tool-bg);
-  border-color: var(--dark-border-color);
-}
-
-body.dark-mode input[type="text"],
-body.dark-mode input[type="number"] {
-  background: var(--dark-tool-bg);
-  border-color: var(--dark-border-color);
-  color: var(--dark-text-color);
-}
-
-body.dark-mode .tooltip {
-  background: var(--dark-tool-bg);
-  border-color: var(--dark-border-color);
-  color: var(--dark-text-color);
-}
-    body.dark-mode .canvas-size {
-  background: var(--dark-tool-bg);
-  border-color: var(--dark-border-color);
-}
-
-body.dark-mode .canvas-size input {
-  color: var(--dark-text-color);
-  border-bottom-color: var(--dark-border-color);
-  background: transparent;
-}
-
-body.dark-mode .canvas-size input:focus {
-  border-bottom-color: #4d8eff;
-}
-
-body.dark-mode .size-separator {
-  color: var(--dark-text-color);
-}
-    body.dark-mode .size-input-container {
-  background: var(--dark-tool-bg);
-  border-color: var(--dark-border-color);
+    @media (max-width: 768px) {
+      :root { --pixel-size: var(--mobile-pixel-size); --default-pixel-size: var(--mobile-pixel-size); }
+      .tool-group { border-right: none; padding: 2px; }
+      .tool-button { width: 36px; height: 36px; }
     }
-
-.download-button {
- --background: #275efe;
-    --text: #fff; 
-    --font-size: 14px; 
-    --duration: .44s;
-    --move-hover: -3px;
-    --shadow: 0 2px 6px -1px rgba(39, 94, 254, 0.3);
-    --shadow-hover: 0 4px 16px -2px rgba(39, 94, 254, 0.45);
-    --font-shadow: var(--font-size);
-
-    padding: 12px 24px;
-    font-family: 'Pretendard', sans-serif;
-    font-weight: 500;
-    line-height: var(--font-size);
-    border-radius: 18px; 
-    display: block;
-    outline: none;
-    appearance: none;
-    border: none;
-    text-decoration: none;
-    font-size: var(--font-size);
-    letter-spacing: .4px;
-    background: var(--background);
-    color: var(--text);
-    box-shadow: var(--shadow);
-    transform: translateY(var(--y)) translateZ(0);
-    transition: transform var(--duration) ease, box-shadow var(--duration) ease;
-
-    margin: 0 auto;
-    text-align: center;
-}
-.download-button:hover {
- --y: var(--move-hover);
-    --shadow: var(--shadow-hover);
-}
   </style>
 </head>
 <body>
@@ -384,83 +333,78 @@ body.dark-mode .size-separator {
     
     <div class="tools">
       <div class="tool-group">
-        <button id="pen-tool" class="tool-button active" title="펜">
-         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-line"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/><path d="m15 5 3 3"/></svg>
-        <button id="eraser-tool" class="tool-button" title="지우개">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
-  </svg>
-</button>
-        <button id="eyedropper-tool" class="tool-button" title="스포이트">
- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pipette"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg>
-        <button id="clear-canvas" class="tool-button" title="모두 지우기">
-         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-        </button>
+        <button id="pen-tool" class="tool-button active" title="펜 (P)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/><path d="m15 5 3 3"/></svg></button>
+        <button id="eraser-tool" class="tool-button" title="지우개 (E)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg></button>
+        <button id="fill-tool" class="tool-button" title="채우기 (F)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.2277 18.7323L20.9955 16.9645L22.7632 18.7323C23.7395 19.7086 23.7395 21.2915 22.7632 22.2678C21.7869 23.2441 20.204 23.2441 19.2277 22.2678C18.2514 21.2915 18.2514 19.7086 19.2277 18.7323ZM8.87861 1.07971L20.1923 12.3934C20.5828 12.7839 20.5828 13.4171 20.1923 13.8076L11.707 22.2929C11.3165 22.6834 10.6833 22.6834 10.2928 22.2929L1.80754 13.8076C1.41702 13.4171 1.41702 12.7839 1.80754 12.3934L9.58572 4.61525L7.4644 2.49393L8.87861 1.07971ZM10.9999 6.02946L3.92886 13.1005H18.071L10.9999 6.02946Z"></path></svg></button>
+        
+        <button id="eyedropper-tool" class="tool-button" title="스포이트 (I)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></button>
       </div>
-      
       <div class="tool-group">
         <div class="color-picker">
-          <input type="color" id="color-input" value="#000000">
+          <input type="text" id="color-input" data-coloris value="#000000">
           <input type="text" id="color-hex" value="0x000000">
         </div>
       </div>
-      
       <div class="tool-group">
         <div class="canvas-size">
           <input type="number" id="width-input" min="3" max="64" value="16">
           <span class="size-separator">×</span>
           <input type="number" id="height-input" min="3" max="64" value="16">
-          <button id="apply-size" class="tool-button" title="적용">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
-          </button>
+          <button id="apply-size" class="tool-button" title="크기 적용"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
         </div>
       </div>
-
       <div class="tool-group">
-  <label for="image-upload" class="tool-button" title="이미지 업로드">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-image"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-    <input type="file" id="image-upload" accept="image/*" style="display: none;">
-  </label>
-</div>
-      
-      <div class="tool-group">
-        <button id="undo" class="tool-button" title="실행 취소">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-corner-up-left"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></path>
-        <button id="redo" class="tool-button" title="다시 실행">
-     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-corner-up-right"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg></path>
-        </button>
-        <button id="copy-all" class="tool-button" title="전체 복사">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-        </button>
+        <button id="undo" class="tool-button" title="실행 취소 (Ctrl+Z)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></button>
+        <button id="redo" class="tool-button" title="다시 실행 (Ctrl+Y)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg></button>
+        <button id="copy-all" class="tool-button" title="전체 복사"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
       </div>
+      <div class="tool-group">
+        <button id="clear-canvas" class="tool-button" title="모두 지우기"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg></button>
+        <button id="grid-toggle" class="tool-button active" title="그리드 보기 (G)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg></button>
+      </div>
+      <div class="tool-group">
+        <label for="image-upload" class="tool-button" title="이미지 불러오기"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg><input type="file" id="image-upload" accept="image/*" style="display: none;"></label>
+        <label for="project-upload" class="tool-button" title="프로젝트 열기"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/><path d="M2 10h20"/></svg><input type="file" id="project-upload" accept=".json,application/json" style="display: none;"></label>
+        <button id="save-project" class="tool-button" title="프로젝트 저장"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></button>
+      </div>
+    </div>
 
-    <div class="canvas-container">
+    <div class="canvas-container" id="canvas-container">
       <div class="pixel-grid" id="pixel-grid"></div>
     </div>
     
-    <div id="tooltip" class="tooltip"></div>
+    <button id="download-image" class="download-button">Made by 여뉴</button>
   </div>
   
-  <div class="footer">
-  <button id="download-image" class="download-button">Made by 여뉴</button>
-</div>
+  <div class="modal-backdrop" id="export-modal">
+    <div class="modal-content">
+        <h3>이미지로 저장</h3>
+        <p style="font-size: 14px; color: #888; margin-bottom: 15px;">이미지 크기 배율을 입력하세요. (권장 : 100)</p>
+        <input type="number" id="export-scale" value="100" min="1" max="100">
+        <div class="modal-buttons">
+            <button id="modal-cancel">취소</button>
+            <button id="modal-confirm">다운로드</button>
+        </div>
+    </div>
+  </div>
           
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // 기본 변수 설정
       const state = {
         gridCols: 16,
         gridRows: 16,
-        currentColor: '0x000000',
+        currentColor: '#000000',
         isDrawing: false,
         activeTool: 'pen',
         history: [],
         redoStack: [],
-        currentState: []
+        currentState: [],
+        isDarkMode: false
       };
       
-      // DOM 요소
       const elements = {
         pixelGrid: document.getElementById('pixel-grid'),
+        canvasContainer: document.getElementById('canvas-container'),
         colorInput: document.getElementById('color-input'),
         colorHex: document.getElementById('color-hex'),
         widthInput: document.getElementById('width-input'),
@@ -468,646 +412,376 @@ body.dark-mode .size-separator {
         applySizeButton: document.getElementById('apply-size'),
         penTool: document.getElementById('pen-tool'),
         eraserTool: document.getElementById('eraser-tool'),
+        fillTool: document.getElementById('fill-tool'),
+        eyedropperTool: document.getElementById('eyedropper-tool'),
         clearCanvas: document.getElementById('clear-canvas'),
         undoButton: document.getElementById('undo'),
         redoButton: document.getElementById('redo'),
         copyAllButton: document.getElementById('copy-all'),
-        tooltip: document.getElementById('tooltip')
+        gridToggle: document.getElementById('grid-toggle'),
+        saveProject: document.getElementById('save-project'),
+        projectUpload: document.getElementById('project-upload'),
+        imageUpload: document.getElementById('image-upload'),
+        downloadButton: document.getElementById('download-image'),
+        title: document.querySelector('h1'),
+        exportModal: document.getElementById('export-modal'),
+        exportScaleInput: document.getElementById('export-scale'),
+        modalConfirm: document.getElementById('modal-confirm'),
+        modalCancel: document.getElementById('modal-cancel')
       };
       
-      // 툴팁 표시 기능
-      function showTooltip(element, text) {
-        const rect = element.getBoundingClientRect();
-        elements.tooltip.style.left = `${rect.left + rect.width / 2 - 50}px`;
-        elements.tooltip.style.top = `${rect.bottom + 10}px`;
-        elements.tooltip.textContent = text;
-        elements.tooltip.style.opacity = '1';
-        
-        setTimeout(() => {
-          elements.tooltip.style.opacity = '0';
-        }, 1500);
-      }
-      
-      // 그리드 초기화
-      function initGrid(cols, rows) {
-        // CSS 변수 업데이트
+      function createGrid(cols, rows) {
         document.documentElement.style.setProperty('--grid-cols', cols);
         document.documentElement.style.setProperty('--grid-rows', rows);
+        adjustPixelSize(cols);
         
-        // 그리드 초기화
         elements.pixelGrid.innerHTML = '';
-        
-        // 픽셀 생성
+        const fragment = document.createDocumentFragment();
         for (let i = 0; i < rows * cols; i++) {
           const pixel = document.createElement('div');
           pixel.classList.add('pixel');
           pixel.dataset.index = i;
-          pixel.style.backgroundColor = 'white';
-          
-          // 이벤트 리스너
-          pixel.addEventListener('mousedown', startDrawing);
-          pixel.addEventListener('mouseover', draw);
-          pixel.addEventListener('touchstart', handleTouch, { passive: false });
+          pixel.addEventListener('mousedown', handleMouseDown);
+          pixel.addEventListener('mouseover', handleMouseOver);
+          pixel.addEventListener('touchstart', handleTouchStart, { passive: false });
           pixel.addEventListener('touchmove', handleTouchMove, { passive: false });
-          
-          elements.pixelGrid.appendChild(pixel);
+          fragment.appendChild(pixel);
         }
-        
-        // 현재 상태 초기화
-        state.currentState = Array(rows * cols).fill('white');
-        saveState();
+        elements.pixelGrid.appendChild(fragment);
       }
       
-      // 현재 상태 저장
+      function adjustPixelSize(cols) {
+          const containerWidth = elements.canvasContainer.clientWidth - 24; // account for padding
+          const defaultSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--default-pixel-size'));
+          const maxPixelSize = Math.floor(containerWidth / cols) - 1; // account for borders
+          const newSize = Math.min(defaultSize, maxPixelSize);
+          document.documentElement.style.setProperty('--pixel-size', `${Math.max(4, newSize)}px`);
+      }
+
+      function resetCanvas(cols, rows) {
+          state.gridCols = cols;
+          state.gridRows = rows;
+          createGrid(cols, rows);
+          state.currentState = Array(rows * cols).fill('#ffffff');
+          updateCanvasFromState();
+          state.history = [[...state.currentState]];
+          state.redoStack = [];
+          updateUndoRedoButtons();
+      }
+      
       function saveState() {
+        if (state.history.length > 0 && JSON.stringify(state.history[state.history.length - 1]) === JSON.stringify(state.currentState)) return;
         state.history.push([...state.currentState]);
+        if (state.history.length > 50) state.history.shift();
         state.redoStack = [];
-        updateButtons();
+        updateUndoRedoButtons();
       }
       
-      // 버튼 상태 업데이트
-      function updateButtons() {
+      function updateUndoRedoButtons() {
         elements.undoButton.disabled = state.history.length <= 1;
         elements.redoButton.disabled = state.redoStack.length === 0;
-        
-        elements.undoButton.style.opacity = state.history.length <= 1 ? '0.5' : '1';
-        elements.redoButton.style.opacity = state.redoStack.length === 0 ? '0.5' : '1';
+        elements.undoButton.style.opacity = elements.undoButton.disabled ? '0.5' : '1';
+        elements.redoButton.style.opacity = elements.redoButton.disabled ? '0.5' : '1';
+      }
+
+      function rgbToHex(rgb) {
+        if (!rgb || rgb === 'white') return '#ffffff';
+        if (rgb.startsWith('#')) return rgb;
+        const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        if (!match) return '#000000';
+        return "#" + ((1 << 24) + (parseInt(match[1]) << 16) + (parseInt(match[2]) << 8) + parseInt(match[3])).toString(16).slice(1);
+      }
+
+      function updateColor(color) {
+          state.currentColor = color;
+          elements.colorHex.value = '0x' + color.substring(1);
+          elements.colorInput.value = color;
+          elements.colorInput.style.backgroundColor = color;
       }
       
-      // 색상 설정
-      function setColor() {
-        const hexColor = elements.colorInput.value;
-        // #RRGGBB를 0xRRGGBB로 변환
-        state.currentColor = '0x' + hexColor.substring(1);
-        elements.colorHex.value = state.currentColor;
-      }
-      
-      // 수동 HEX 입력 처리
-      function handleHexInput() {
-        let hexValue = elements.colorHex.value;
-        
-        // 0x로 시작하는지 확인
-        if (!hexValue.startsWith('0x')) {
-          hexValue = '0x' + hexValue.replace(/^#/, '');
-        }
-        
-        // 유효한 16진수 형식인지 확인
-        const validHex = /^0x[0-9A-Fa-f]{6}$/.test(hexValue);
-        
-        if (validHex) {
-          // #RRGGBB 형식으로 변환하여 colorInput 업데이트
-          const colorValue = '#' + hexValue.substring(2);
-          elements.colorInput.value = colorValue;
-          state.currentColor = hexValue;
-        } else {
-          // 유효하지 않은 경우 기존 색상으로 되돌림
-          elements.colorHex.value = state.currentColor;
-        }
-      }
-      
-      // 그리기 시작
-      function startDrawing(e) {
-        state.isDrawing = true;
-        draw(e);
-      }
-      
-      // 그리기 처리
-      function draw(e) {
-        if (!state.isDrawing) return;
-        
+      function handleMouseDown(e) {
+        if (e.button !== 0) return;
         const pixel = e.target;
-        const index = parseInt(pixel.dataset.index);
-        
-        if (state.activeTool === 'pen') {
-          pixel.style.backgroundColor = elements.colorInput.value;
-          state.currentState[index] = elements.colorInput.value;
-        } else if (state.activeTool === 'eraser') {
-          pixel.style.backgroundColor = 'white';
-          state.currentState[index] = 'white';
+        switch (state.activeTool) {
+            case 'pen': case 'eraser':
+                state.isDrawing = true;
+                drawOnPixel(pixel);
+                break;
+            case 'fill':
+                floodFill(pixel);
+                saveState();
+                break;
+            case 'eyedropper':
+                pickColor(pixel);
+                break;
         }
       }
+
+      function handleMouseOver(e) {
+          if (state.isDrawing && (state.activeTool === 'pen' || state.activeTool === 'eraser')) {
+              drawOnPixel(e.target);
+          }
+      }
+
+      function drawOnPixel(pixel) {
+          if (!pixel || !pixel.dataset.index) return;
+          const index = parseInt(pixel.dataset.index);
+          const newColor = state.activeTool === 'eraser' ? '#ffffff' : state.currentColor;
+          if (state.currentState[index] !== newColor) {
+              pixel.style.backgroundColor = newColor;
+              state.currentState[index] = newColor;
+          }
+      }
+
+      function pickColor(pixel) {
+        updateColor(rgbToHex(pixel.style.backgroundColor));
+        setActiveTool('pen');
+      }
       
-      // 터치 이벤트 처리
-      function handleTouch(e) {
+      function floodFill(startPixel) {
+        const startIndex = parseInt(startPixel.dataset.index);
+        const targetColor = state.currentState[startIndex];
+        const replacementColor = state.currentColor;
+        if (targetColor === replacementColor) return;
+        const queue = [startIndex];
+        const processed = new Set([startIndex]);
+        state.currentState[startIndex] = replacementColor;
+        while (queue.length > 0) {
+            const currentIndex = queue.shift();
+            const x = currentIndex % state.gridCols;
+            const y = Math.floor(currentIndex / state.gridCols);
+            [[x+1,y], [x-1,y], [x,y+1], [x,y-1]].forEach(([nx, ny]) => {
+                if (nx >= 0 && nx < state.gridCols && ny >= 0 && ny < state.gridRows) {
+                    const neighborIndex = ny * state.gridCols + nx;
+                    if (!processed.has(neighborIndex) && state.currentState[neighborIndex] === targetColor) {
+                        processed.add(neighborIndex);
+                        state.currentState[neighborIndex] = replacementColor;
+                        queue.push(neighborIndex);
+                    }
+                }
+            });
+        }
+        updateCanvasFromState();
+      }
+
+      function handleTouch(e, isMove) {
         e.preventDefault();
-        state.isDrawing = true;
         const touch = e.touches[0];
         const pixel = document.elementFromPoint(touch.clientX, touch.clientY);
-        if (pixel && pixel.classList.contains('pixel')) {
-          const index = parseInt(pixel.dataset.index);
-          if (state.activeTool === 'pen') {
-            pixel.style.backgroundColor = elements.colorInput.value;
-            state.currentState[index] = elements.colorInput.value;
-          } else if (state.activeTool === 'eraser') {
-            pixel.style.backgroundColor = 'white';
-            state.currentState[index] = 'white';
-          }
+        if (!pixel || !pixel.classList.contains('pixel')) return;
+        switch (state.activeTool) {
+            case 'pen': case 'eraser':
+                if (!isMove) state.isDrawing = true;
+                if (state.isDrawing) drawOnPixel(pixel);
+                break;
+            case 'fill': if (!isMove) { floodFill(pixel); saveState(); } break;
+            case 'eyedropper': if (!isMove) pickColor(pixel); break;
         }
       }
+      const handleTouchStart = (e) => handleTouch(e, false);
+      const handleTouchMove = (e) => handleTouch(e, true);
       
-      // 터치 이동 처리
-      function handleTouchMove(e) {
-        if (!state.isDrawing) return;
-        e.preventDefault();
-        
-        const touch = e.touches[0];
-        const pixel = document.elementFromPoint(touch.clientX, touch.clientY);
-        if (pixel && pixel.classList.contains('pixel')) {
-          const index = parseInt(pixel.dataset.index);
-          if (state.activeTool === 'pen') {
-            pixel.style.backgroundColor = elements.colorInput.value;
-            state.currentState[index] = elements.colorInput.value;
-          } else if (state.activeTool === 'eraser') {
-            pixel.style.backgroundColor = 'white';
-            state.currentState[index] = 'white';
-          }
-        }
+      function changeCanvasSize() {
+        let newWidth = parseInt(elements.widthInput.value, 10) || 16;
+        let newHeight = parseInt(elements.heightInput.value, 10) || 16;
+        newWidth = Math.max(3, Math.min(64, newWidth));
+        newHeight = Math.max(3, Math.min(64, newHeight));
+        elements.widthInput.value = newWidth;
+        elements.heightInput.value = newHeight;
+        resetCanvas(newWidth, newHeight);
       }
       
-      // 캔버스 크기 변경
-function changeCanvasSize() {
-  let newWidth = parseInt(elements.widthInput.value);
-  let newHeight = parseInt(elements.heightInput.value);
-  
-  // 유효성 검사
-  newWidth = Math.max(3, Math.min(64, newWidth));
-  newHeight = Math.max(3, Math.min(64, newHeight));
-  
-  // 입력값 업데이트
-  elements.widthInput.value = newWidth;
-  elements.heightInput.value = newHeight;
-  
-  // 모바일에서 픽셀 크기 자동 조정
-  if (window.innerWidth <= 600 && newWidth > 18) {
-    // 화면 너비에 맞게 픽셀 크기 계산 (여백 고려)
-    const containerWidth = document.querySelector('.canvas-container').clientWidth - 20; // 패딩 고려
-    const newPixelSize = Math.floor(containerWidth / (newWidth + 1)); // 픽셀 간 간격 고려
-    
-    if (newPixelSize < 16) { // 최소 픽셀 크기 보장
-      document.documentElement.style.setProperty('--pixel-size', `${newPixelSize}px`);
-    }
-  } else {
-    // 기본 픽셀 크기로 복원 (모바일이면 16px, 아니면 20px)
-    const defaultSize = window.innerWidth <= 600 ? '16px' : '20px';
-    document.documentElement.style.setProperty('--pixel-size', defaultSize);
-  }
-  
-  // 상태 업데이트
-  state.gridCols = newWidth;
-  state.gridRows = newHeight;
-  
-  // 그리드 초기화
-  initGrid(newWidth, newHeight);
-  showTooltip(elements.applySizeButton, '캔버스 크기 변경');
-}
-      
-      // 실행 취소
       function undo() {
         if (state.history.length <= 1) return;
-        
-        state.redoStack.push([...state.currentState]);
-        state.history.pop();
+        state.redoStack.push(state.history.pop());
         state.currentState = [...state.history[state.history.length - 1]];
-        updateCanvas();
-        updateButtons();
-        showTooltip(elements.undoButton, '실행 취소');
+        updateCanvasFromState();
+        updateUndoRedoButtons();
       }
       
-      // 다시 실행
       function redo() {
         if (state.redoStack.length === 0) return;
-        
         const redoState = state.redoStack.pop();
-        state.history.push([...state.currentState]);
+        state.history.push(redoState);
         state.currentState = [...redoState];
-        updateCanvas();
-        updateButtons();
-        showTooltip(elements.redoButton, '다시 실행');
+        updateCanvasFromState();
+        updateUndoRedoButtons();
       }
       
-      // 캔버스 업데이트
-      function updateCanvas() {
-        const pixels = elements.pixelGrid.querySelectorAll('.pixel');
-        pixels.forEach((pixel, index) => {
-          pixel.style.backgroundColor = state.currentState[index];
-        });
+      function updateCanvasFromState() {
+        const pixels = elements.pixelGrid.children;
+        for(let i=0; i < pixels.length; i++) {
+            pixels[i].style.backgroundColor = state.currentState[i];
+        }
       }
       
-      // 전체 픽셀 복사
       function copyAll() {
-        const pixels = elements.pixelGrid.querySelectorAll('.pixel');
-        let result = '';
-        
-        for (let i = 0; i < pixels.length; i++) {
-          const color = pixels[i].style.backgroundColor;
-          let hexColor = rgbToHex(color);
-          
-          // 흰색이나 비어있는 경우 흰색 사용
-          if (!color || color === 'white') {
-            hexColor = '0xffffff';
-          }
-          
-          // 형식화된 span 생성
-          result += `<span style="background-color:${hexColor}; color:${hexColor}">█</span>`;
-          
-          // 각 행 뒤에 줄바꿈 추가
-          if ((i + 1) % state.gridCols === 0 && i < pixels.length - 1) {
-            result += '\n';
-          }
-        }
-        
-        // 클립보드에 복사
-        navigator.clipboard.writeText(result)
-          .then(() => {
-            showTooltip(elements.copyAllButton, '클립보드에 복사되었습니다!');
-          })
-          .catch(err => {
-            console.error('클립보드 복사 실패:', err);
-            // 폴백 방법
-            const textarea = document.createElement('textarea');
-            textarea.value = result;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            showTooltip(elements.copyAllButton, '클립보드에 복사되었습니다!');
-          });
+        const result = state.currentState.map((hexColor, i) => {
+            let line = `<span style="background-color:${hexColor}; color:${hexColor}">█</span>`;
+            if ((i + 1) % state.gridCols === 0 && i < state.currentState.length - 1) {
+                line += '\n';
+            }
+            return line;
+        }).join('');
+        navigator.clipboard.writeText(result);
       }
       
-      // RGB를 Hex로 변환
-      function rgbToHex(rgb) {
-        // 이미 hex이거나 흰색인 경우 변환된 형식 반환
-        if (!rgb || rgb === 'white') return '0xffffff';
-        if (rgb.startsWith('#')) return '0x' + rgb.substring(1);
-        
-        // RGB 형식 파싱: rgb(r, g, b)
-        const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-        if (!match) return '0x000000';
-        
-        const r = parseInt(match[1]).toString(16).padStart(2, '0');
-        const g = parseInt(match[2]).toString(16).padStart(2, '0');
-        const b = parseInt(match[3]).toString(16).padStart(2, '0');
-        
-        return `0x${r}${g}${b}`;
+      function handleImageUpload(e) {
+        const file = e.target.files[0];
+        if (!file || !file.type.match('image.*')) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const tempCanvas = document.createElement('canvas');
+            const ctx = tempCanvas.getContext('2d');
+            tempCanvas.width = state.gridCols; tempCanvas.height = state.gridRows;
+            ctx.drawImage(img, 0, 0, state.gridCols, state.gridRows);
+            const imageData = ctx.getImageData(0, 0, state.gridCols, state.gridRows).data;
+            state.currentState = Array.from({ length: state.gridCols * state.gridRows }, (_, i) => 
+                imageData[i*4+3] > 128 ? rgbToHex(`rgb(${imageData[i*4]}, ${imageData[i*4+1]}, ${imageData[i*4+2]})`) : '#ffffff'
+            );
+            updateCanvasFromState();
+            saveState();
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+        e.target.value = '';
+      }
+
+      function toggleGrid() {
+        elements.pixelGrid.classList.toggle('grid-off');
+        elements.gridToggle.classList.toggle('active');
+      }
+
+      function saveProject() {
+          const projectData = { width: state.gridCols, height: state.gridRows, pixels: state.currentState };
+          const blob = new Blob([JSON.stringify(projectData)], { type: 'application/json' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `pixel-art-${Date.now()}.json`;
+          a.click();
+          URL.revokeObjectURL(a.href);
+      }
+
+      function loadProject(e) {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (event) => {
+              try {
+                  const data = JSON.parse(event.target.result);
+                  if (data.width && data.height && Array.isArray(data.pixels)) {
+                      elements.widthInput.value = data.width;
+                      elements.heightInput.value = data.height;
+                      resetCanvas(data.width, data.height);
+                      state.currentState = data.pixels;
+                      updateCanvasFromState();
+                      state.history = [[...state.currentState]]; // Reset history with loaded state
+                  }
+              } catch (error) { console.error("Failed to load project:", error); }
+          };
+          reader.readAsText(file);
+          e.target.value = '';
       }
       
-      // 마우스 버튼을 뗐을 때 그리기 중지
-      document.addEventListener('mouseup', function() {
-        if (state.isDrawing) {
-          saveState();
+      function showExportModal() { elements.exportModal.classList.add('visible'); }
+      function hideExportModal() { elements.exportModal.classList.remove('visible'); }
+
+      function performDownload(scale = 10) {
+        const canvas = document.createElement('canvas');
+        canvas.width = state.gridCols * scale;
+        canvas.height = state.gridRows * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+        for (let y = 0; y < state.gridRows; y++) {
+            for (let x = 0; x < state.gridCols; x++) {
+                ctx.fillStyle = state.currentState[y * state.gridCols + x];
+                ctx.fillRect(x * scale, y * scale, scale, scale);
+            }
         }
-        state.isDrawing = false;
-      });
-      
-      // 터치가 끝났을 때 그리기 중지
-      document.addEventListener('touchend', function() {
-        if (state.isDrawing) {
-          saveState();
+        const link = document.createElement('a');
+        link.download = `pixelart_${state.gridCols}x${state.gridRows}_@${scale}x.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        hideExportModal();
+      }
+
+      function toggleDarkMode() {
+        state.isDarkMode = !state.isDarkMode;
+        document.body.classList.toggle('dark-mode', state.isDarkMode);
+        localStorage.setItem('pixelArtEditorDarkMode', state.isDarkMode);
+      }
+
+      function initDarkMode() {
+        if (localStorage.getItem('pixelArtEditorDarkMode') === 'true') {
+          state.isDarkMode = true;
+          document.body.classList.add('dark-mode');
         }
-        state.isDrawing = false;
-      });
-      
-      // 이벤트 리스너 설정
-      elements.colorInput.addEventListener('input', setColor);
-      elements.colorHex.addEventListener('blur', handleHexInput);
-      elements.colorHex.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-          handleHexInput();
-          e.target.blur();
-        }
-      });
-      
-      elements.applySizeButton.addEventListener('click', changeCanvasSize);
-      
-      elements.penTool.addEventListener('click', function() {
-        state.activeTool = 'pen';
-        elements.penTool.classList.add('active');
-        elements.eraserTool.classList.remove('active');
-        showTooltip(elements.penTool, '펜');
-      });
-      
-      elements.eraserTool.addEventListener('click', function() {
-        state.activeTool = 'eraser';
-        elements.eraserTool.classList.add('active');
-        elements.penTool.classList.remove('active');
-        showTooltip(elements.eraserTool, '지우개');
-      });
-      
-      elements.clearCanvas.addEventListener('click', function() {
-        // 확인 창 없이 바로 지우기
-        const pixels = elements.pixelGrid.querySelectorAll('.pixel');
-        pixels.forEach(pixel => {
-          pixel.style.backgroundColor = 'white';
+      }
+
+      function setActiveTool(tool) {
+          state.activeTool = tool;
+          [elements.penTool, elements.eraserTool, elements.fillTool, elements.eyedropperTool]
+            .forEach(button => button.classList.remove('active'));
+          document.getElementById(`${tool}-tool`)?.classList.add('active');
+      }
+
+      function setupEventListeners() {
+        const endDrawing = () => { if (state.isDrawing) { saveState(); state.isDrawing = false; }};
+        document.addEventListener('mouseup', endDrawing);
+        document.addEventListener('touchend', endDrawing);
+        
+        elements.colorHex.addEventListener('change', (e) => {
+            let hex = e.target.value;
+            if (!hex.startsWith('#')) hex = '#' + hex.replace('0x', '');
+            updateColor(hex);
         });
-        state.currentState = Array(state.gridRows * state.gridCols).fill('white');
-        saveState();
-        showTooltip(elements.clearCanvas, '캔버스 초기화');
-      });
-      
-      elements.undoButton.addEventListener('click', undo);
-      elements.redoButton.addEventListener('click', redo);
-      elements.copyAllButton.addEventListener('click', copyAll);
-      
-      // 초기화
-      initGrid(state.gridCols, state.gridRows);
-      setColor();
-      updateButtons();
-
-      // 이미지 업로드 이벤트 리스너 추가
-const imageUpload = document.getElementById('image-upload');
-imageUpload.addEventListener('change', handleImageUpload);
-
-// 이미지 업로드 처리 함수
-function handleImageUpload(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  
-  if (!file.type.match('image.*')) {
-    showTooltip(imageUpload.parentElement, '이미지 파일만 업로드 가능합니다.');
-    return;
-  }
-  
-  const reader = new FileReader();
-  
-  reader.onload = function(event) {
-    const img = new Image();
-    img.onload = function() {
-      convertToPixelArt(img);
-    };
-    img.src = event.target.result;
-  };
-  
-  reader.readAsDataURL(file);
-  // 파일 입력 필드 초기화 (같은 파일 다시 선택 가능하도록)
-  e.target.value = '';
-}
-
-// 이미지를 픽셀아트로 변환하는 함수
-function convertToPixelArt(img) {
-  // 캔버스 그리드 크기 가져오기
-  const gridCols = state.gridCols;
-  const gridRows = state.gridRows;
-  
-  // 임시 캔버스 생성
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  
-  // 캔버스 크기를 그리드 크기에 맞게 설정
-  canvas.width = gridCols;
-  canvas.height = gridRows;
-  
-  // 이미지를 캔버스에 그리드 크기로 리사이징하여 그림
-  ctx.drawImage(img, 0, 0, gridCols, gridRows);
-  
-  // 픽셀 데이터 추출
-  const imageData = ctx.getImageData(0, 0, gridCols, gridRows);
-  const pixels = imageData.data;
-  
-  // 현재 상태 저장 (실행 취소를 위해)
-  saveState();
-  
-  // 픽셀 그리드 업데이트
-  const gridPixels = elements.pixelGrid.querySelectorAll('.pixel');
-  
-  for (let y = 0; y < gridRows; y++) {
-    for (let x = 0; x < gridCols; x++) {
-      const index = (y * gridCols + x);
-      const dataIndex = (y * gridCols + x) * 4; // RGBA 데이터 인덱스
-      
-      // RGBA 값 가져오기
-      const r = pixels[dataIndex];
-      const g = pixels[dataIndex + 1];
-      const b = pixels[dataIndex + 2];
-      const a = pixels[dataIndex + 3];
-      
-      // 완전 투명이 아닌 경우에만 색상 적용
-      if (a > 0) {
-        // RGB를 HEX 색상으로 변환
-        const hexColor = rgbToHex(`rgb(${r}, ${g}, ${b})`);
-        const colorValue = '#' + hexColor.substring(2); // 0xRRGGBB -> #RRGGBB로 변환
-        
-        // 픽셀에 색상 적용
-        gridPixels[index].style.backgroundColor = colorValue;
-        state.currentState[index] = colorValue;
+        elements.applySizeButton.addEventListener('click', changeCanvasSize);
+        elements.clearCanvas.addEventListener('click', () => resetCanvas(state.gridCols, state.gridRows));
+        elements.penTool.addEventListener('click', () => setActiveTool('pen'));
+        elements.eraserTool.addEventListener('click', () => setActiveTool('eraser'));
+        elements.fillTool.addEventListener('click', () => setActiveTool('fill'));
+        elements.eyedropperTool.addEventListener('click', () => setActiveTool('eyedropper'));
+        elements.undoButton.addEventListener('click', undo);
+        elements.redoButton.addEventListener('click', redo);
+        elements.copyAllButton.addEventListener('click', copyAll);
+        elements.imageUpload.addEventListener('change', handleImageUpload);
+        elements.projectUpload.addEventListener('change', loadProject);
+        elements.saveProject.addEventListener('click', saveProject);
+        elements.gridToggle.addEventListener('click', toggleGrid);
+        elements.title.addEventListener('dblclick', toggleDarkMode);
+        elements.downloadButton.addEventListener('click', showExportModal);
+        elements.modalConfirm.addEventListener('click', () => performDownload(parseInt(elements.exportScaleInput.value) || 10));
+        elements.modalCancel.addEventListener('click', hideExportModal);
+        window.addEventListener('resize', () => adjustPixelSize(state.gridCols));
+        document.addEventListener('keydown', (e) => {
+            if (document.activeElement.tagName === 'INPUT' || elements.exportModal.classList.contains('visible')) {
+                if(e.key === 'Escape') hideExportModal();
+                if(e.key === 'Enter') elements.modalConfirm.click();
+                return;
+            }
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); }
+                if (e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
+            } else {
+                const keyMap = { p: 'pen', e: 'eraser', f: 'fill', i: 'eyedropper', g: toggleGrid };
+                const action = keyMap[e.key.toLowerCase()];
+                if (typeof action === 'function') action();
+                else if (action) setActiveTool(action);
+            }
+        });
       }
-    }
-  }
-  
-  // 변환 완료 알림
-  showTooltip(imageUpload.parentElement, '이미지가 픽셀아트로 변환되었습니다.');
-}
-      // DOM 요소에 스포이트 도구 추가
-elements.eyedropperTool = document.getElementById('eyedropper-tool');
-
-// 상태에 스포이트 도구 추가 (activeTool에 'eyedropper' 상태 추가)
-// state 객체 내부에는 이미 정의되어 있으므로 수정할 필요 없음
-
-// 스포이트 이벤트 리스너 설정
-elements.eyedropperTool.addEventListener('click', function() {
-  state.activeTool = 'eyedropper';
-  elements.penTool.classList.remove('active');
-  elements.eraserTool.classList.remove('active');
-  elements.eyedropperTool.classList.add('active');
-  showTooltip(elements.eyedropperTool, '스포이트');
-});
-
-// 기존 펜 툴과 지우개 툴 이벤트 리스너 수정
-elements.penTool.addEventListener('click', function() {
-  state.activeTool = 'pen';
-  elements.penTool.classList.add('active');
-  elements.eraserTool.classList.remove('active');
-  elements.eyedropperTool.classList.remove('active');
-  showTooltip(elements.penTool, '펜');
-});
-
-elements.eraserTool.addEventListener('click', function() {
-  state.activeTool = 'eraser';
-  elements.eraserTool.classList.add('active');
-  elements.penTool.classList.remove('active');
-  elements.eyedropperTool.classList.remove('active');
-  showTooltip(elements.eraserTool, '지우개');
-});
-
-// 픽셀 클릭/터치 이벤트 핸들러 수정
-// draw 함수 수정
-function draw(e) {
-  if (!state.isDrawing) return;
-  
-  const pixel = e.target;
-  const index = parseInt(pixel.dataset.index);
-  
-  if (state.activeTool === 'pen') {
-    pixel.style.backgroundColor = elements.colorInput.value;
-    state.currentState[index] = elements.colorInput.value;
-  } else if (state.activeTool === 'eraser') {
-    pixel.style.backgroundColor = 'white';
-    state.currentState[index] = 'white';
-  } else if (state.activeTool === 'eyedropper') {
-    // 스포이트 기능은 색상을 변경하지 않음
-  }
-}
-
-// 스포이트 기능을 위한 새로운 이벤트 핸들러 추가
-function handleEyedropper(pixel) {
-  if (pixel && pixel.classList.contains('pixel')) {
-    const color = pixel.style.backgroundColor;
-    if (color && color !== 'white') {
-      // RGB to Hex 변환
-      const hexColor = rgbToHex(color);
-      // 0xRRGGBB 형식에서 #RRGGBB 형식으로 변환
-      const colorValue = '#' + hexColor.substring(2);
       
-      // 색상 입력 필드 업데이트
-      elements.colorInput.value = colorValue;
-      state.currentColor = hexColor;
-      elements.colorHex.value = hexColor;
+      Coloris({ themeMode: 'auto' });
+      document.addEventListener('coloris:pick', event => updateColor(event.detail.color));
       
-      // 툴을 다시 펜으로 돌려놓음
-      state.activeTool = 'pen';
-      elements.penTool.classList.add('active');
-      elements.eyedropperTool.classList.remove('active');
-      elements.eraserTool.classList.remove('active');
-      
-      showTooltip(elements.eyedropperTool, '색상 선택됨: ' + hexColor);
-    }
-  }
-}
-
-// 픽셀에 대한 마우스다운 이벤트 핸들러를 수정
-function startDrawing(e) {
-  if (state.activeTool === 'eyedropper') {
-    handleEyedropper(e.target);
-    return;
-  }
-  
-  state.isDrawing = true;
-  draw(e);
-}
-
-// 터치 이벤트 핸들러 수정
-function handleTouch(e) {
-  e.preventDefault();
-  const touch = e.touches[0];
-  const pixel = document.elementFromPoint(touch.clientX, touch.clientY);
-  
-  if (state.activeTool === 'eyedropper') {
-    handleEyedropper(pixel);
-    return;
-  }
-  
-  state.isDrawing = true;
-  if (pixel && pixel.classList.contains('pixel')) {
-    const index = parseInt(pixel.dataset.index);
-    if (state.activeTool === 'pen') {
-      pixel.style.backgroundColor = elements.colorInput.value;
-      state.currentState[index] = elements.colorInput.value;
-    } else if (state.activeTool === 'eraser') {
-      pixel.style.backgroundColor = 'white';
-      state.currentState[index] = 'white';
-    }
-  }
-}
-state.isDarkMode = false;
-
-// 제목에 더블클릭 이벤트 리스너 추가
-const title = document.querySelector('h1');
-title.addEventListener('dblclick', toggleDarkMode);
-title.style.cursor = 'pointer'; // 커서를 포인터로 변경하여 클릭 가능함을 표시
-
-// 다크모드 토글 함수
-function toggleDarkMode() {
-  state.isDarkMode = !state.isDarkMode;
-  document.body.classList.toggle('dark-mode', state.isDarkMode);
-  
-  // 현재 모드를 툴팁으로 표시
-  const modeText = state.isDarkMode ? '다크모드 활성화' : '라이트모드 활성화';
-  showTooltip(title, modeText);
-  
-  // 다크모드 상태를 로컬 스토리지에 저장
-  localStorage.setItem('pixelArtEditorDarkMode', state.isDarkMode);
-}
-
-// 페이지 로드 시 다크모드 상태 복원
-function initDarkMode() {
-  const savedDarkMode = localStorage.getItem('pixelArtEditorDarkMode');
-  if (savedDarkMode === 'true') {
-    state.isDarkMode = true;
-    document.body.classList.add('dark-mode');
-  }
-}
-
-// 초기화 함수 호출 부분에 다크모드 초기화 추가
-// initGrid(state.gridCols, state.gridRows); 
-// setColor();
-// updateButtons();
-// 이 코드 바로 밑에 다음 코드 추가:
-initDarkMode();
-// 이미지 다운로드 기능
-const downloadButton = document.getElementById('download-image');
-downloadButton.addEventListener('click', downloadPixelArtAsImage);
-
-// 픽셀아트를 이미지로 변환하여 다운로드하는 함수
-function downloadPixelArtAsImage() {
-  // 이미지 크기 계산 (픽셀 크기 + 간격)
-  const pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
-  const canvasWidth = state.gridCols * pixelSize + (state.gridCols - 1);
-  const canvasHeight = state.gridRows * pixelSize + (state.gridRows - 1);
-  
-  // 캔버스 생성
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = canvasWidth;
-  canvas.height = canvasHeight;
-  
-  // 배경 색상 (흰색)
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-  
-  // 모든 픽셀 그리기
-  const pixels = elements.pixelGrid.querySelectorAll('.pixel');
-  pixels.forEach((pixel, index) => {
-    const row = Math.floor(index / state.gridCols);
-    const col = index % state.gridCols;
-    
-    // 픽셀의 색상 가져오기
-    const color = pixel.style.backgroundColor || 'white';
-    
-    // 픽셀 그리기
-    ctx.fillStyle = color;
-    ctx.fillRect(
-      col * (pixelSize + 1), 
-      row * (pixelSize + 1), 
-      pixelSize, 
-      pixelSize
-    );
-  });
-  
-  // 이미지로 변환하여 다운로드
-  const link = document.createElement('a');
-  link.download = `pixelart_${state.gridCols}x${state.gridRows}.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-  
-  // 다운로드 알림
-  showTooltip(downloadButton, '이미지가 다운로드되었습니다!');
-}
+      initDarkMode();
+      resetCanvas(state.gridCols, state.gridRows);
+      updateColor('#000000');
+      setupEventListeners();
     });
-    // 화면 크기 변경 감지
-window.addEventListener('resize', function() {
-  if (window.innerWidth <= 600 && state.gridCols > 18) {
-    const containerWidth = document.querySelector('.canvas-container').clientWidth - 20;
-    const newPixelSize = Math.floor(containerWidth / (state.gridCols + 1));
-    
-    if (newPixelSize < 16) {
-      document.documentElement.style.setProperty('--pixel-size', `${newPixelSize}px`);
-    } else {
-      document.documentElement.style.setProperty('--pixel-size', '16px');
-    }
-  } else {
-    const defaultSize = window.innerWidth <= 600 ? '16px' : '20px';
-    document.documentElement.style.setProperty('--pixel-size', defaultSize);
-  }
-});
   </script>
 </body>
-        </html>
+</html>
