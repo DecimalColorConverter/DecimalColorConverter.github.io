@@ -617,7 +617,8 @@
       
       function copyAll() {
         const result = state.currentState.map((hexColor, i) => {
-            let line = `<span style="background-color:${hexColor}; color:${hexColor}">█</span>`;
+            const newHexColor = '0x' + hexColor.substring(1);
+            let line = `<span style="background-color:${newHexColor}; color:${newHexColor}">█</span>`;
             if ((i + 1) % state.gridCols === 0 && i < state.currentState.length - 1) {
                 line += '\n';
             }
@@ -784,4 +785,4 @@
     });
   </script>
 </body>
-</html>
+  </html>
