@@ -97,6 +97,27 @@
             padding: 0;
         }
 
+        /* ============================================
+           MOBILE PERFORMANCE OPTIMIZATIONS
+           ============================================ */
+        @media (max-width: 768px) {
+
+            /* Reduce shadow complexity on mobile for better performance */
+            :root {
+                --shadow-soft: 0 2px 4px rgba(0, 0, 0, 0.05);
+                --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.08);
+                --shadow-large: 0 8px 16px rgba(0, 0, 0, 0.1);
+                --shadow-glow: none;
+            }
+
+            html[data-theme="dark"] {
+                --shadow-soft: 0 2px 4px rgba(0, 0, 0, 0.2);
+                --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.3);
+                --shadow-large: 0 8px 16px rgba(0, 0, 0, 0.4);
+                --shadow-glow: none;
+            }
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg-gradient);
@@ -108,7 +129,7 @@
             align-items: center;
             justify-content: center;
             line-height: 1.6;
-            transition: background 0.4s ease, color 0.3s ease;
+            transition: background-color 0.4s ease, color 0.3s ease;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
@@ -139,7 +160,7 @@
             border-radius: var(--radius-xl);
             border: 1px solid var(--border-color);
             box-shadow: var(--shadow-large), var(--shadow-glow);
-            transition: background 0.3s ease, box-shadow 0.3s ease;
+            transition: background-color 0.3s ease;
         }
 
         /* ============================================
@@ -158,20 +179,34 @@
             border-radius: var(--radius-m);
             padding: 16px;
             position: relative;
-            transition: all 0.25s ease;
+            transition: transform 0.2s ease, border-color 0.15s ease, opacity 0.15s ease;
             cursor: grab;
+            will-change: transform;
+            transform: translateZ(0);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
         }
 
         .color-block:hover {
             border-color: var(--primary);
-            box-shadow: var(--shadow-soft);
+        }
+
+        @media (min-width: 769px) {
+            .color-block:hover {
+                box-shadow: var(--shadow-soft);
+            }
         }
 
         .color-block.dragging {
             opacity: 0.6;
             cursor: grabbing;
-            transform: scale(0.98);
-            box-shadow: var(--shadow-medium);
+            transform: scale(0.98) translateZ(0);
+        }
+
+        @media (min-width: 769px) {
+            .color-block.dragging {
+                box-shadow: var(--shadow-medium);
+            }
         }
 
 
@@ -203,7 +238,7 @@
             font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
             font-weight: 500;
             outline: none;
-            transition: all var(--transition-fast);
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
             background: var(--card-bg);
             color: var(--text-color);
             min-width: 0;
@@ -229,7 +264,7 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            transition: all var(--transition-fast);
+            transition: background-color var(--transition-fast);
         }
 
         .add-color-btn:hover {
@@ -252,8 +287,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all var(--transition-fast);
+            transition: transform var(--transition-fast), background-color var(--transition-fast), color var(--transition-fast);
             line-height: 1;
+            will-change: transform;
         }
 
         .remove-color-btn:hover {
@@ -276,7 +312,7 @@
             height: 44px;
             border-radius: var(--radius-m);
             border: 2px solid var(--border-color-strong);
-            transition: all var(--transition-fast);
+            transition: transform var(--transition-fast);
             box-shadow: var(--shadow-soft);
         }
 
@@ -340,7 +376,7 @@
             border: 1px solid var(--border-color-strong);
             border-radius: var(--radius-m);
             outline: none;
-            transition: all var(--transition-fast);
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
             background: var(--card-bg);
             color: var(--text-color);
             font-weight: 500;
@@ -369,13 +405,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.25s ease;
+            transition: border-color 0.2s ease;
             user-select: none;
         }
 
         .pro-mode-header:hover {
             border-color: var(--primary);
-            box-shadow: var(--shadow-soft);
+        }
+
+        @media (min-width: 769px) {
+            .pro-mode-header:hover {
+                box-shadow: var(--shadow-soft);
+            }
         }
 
         .pro-mode-header .arrow {
@@ -395,12 +436,13 @@
             max-height: 0;
             overflow: hidden;
             opacity: 0;
-            transition: all var(--transition-slow);
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, padding 0.25s ease;
             background: var(--card-inner-bg);
             border: 1px solid var(--border-color);
             border-top: none;
             border-radius: 0 0 var(--radius-l) var(--radius-l);
             padding: 0 18px;
+            will-change: max-height, opacity;
         }
 
         .pro-mode-content.show {
@@ -439,7 +481,7 @@
             border-radius: var(--radius-pill);
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            transition: all var(--transition-fast);
+            transition: border-color var(--transition-fast), background-color var(--transition-fast), color var(--transition-fast);
         }
 
         .interpolation-modes label:hover {
@@ -472,11 +514,12 @@
             border: none;
             border-radius: var(--radius-m);
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            will-change: transform;
         }
 
         .btn:hover {
@@ -526,25 +569,31 @@
 
         .gradient-bar {
             width: 100%;
-            height: 45px;
+            height: 50px;
             border-radius: var(--radius-l);
             overflow: hidden;
             margin-bottom: 24px;
             display: flex;
             border: none;
             box-shadow: var(--shadow-medium), inset 0 0 0 1px var(--border-color);
-            transition: all var(--transition-medium);
+            transition: transform var(--transition-medium);
+            will-change: transform;
+            transform: translateZ(0);
         }
 
         .gradient-bar:hover {
-            transform: scale(1.01);
-            box-shadow: var(--shadow-large);
+            transform: scale(1.01) translateZ(0);
+        }
+
+        @media (min-width: 769px) {
+            .gradient-bar:hover {
+                box-shadow: var(--shadow-large);
+            }
         }
 
         .color {
             height: 100%;
             flex: 1;
-            transition: flex var(--transition-fast);
         }
 
         /* ============================================
@@ -565,11 +614,12 @@
             background: var(--card-inner-bg);
             padding: 8px 14px;
             border-radius: var(--radius-pill);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
             cursor: pointer;
             border: 1px solid var(--border-color);
             color: var(--text-color);
             box-shadow: var(--shadow-soft);
+            will-change: transform;
         }
 
         .code:hover {
@@ -577,7 +627,12 @@
             border-color: var(--primary);
             color: var(--primary);
             transform: translateY(-3px) scale(1.02);
-            box-shadow: var(--shadow-medium);
+        }
+
+        @media (min-width: 769px) {
+            .code:hover {
+                box-shadow: var(--shadow-medium);
+            }
         }
 
         .code:active {
@@ -595,7 +650,6 @@
             border-radius: var(--radius-l);
             border: 1px solid var(--border-color);
             display: none;
-            transition: all var(--transition-medium);
         }
 
         .decimal-colors {
@@ -608,17 +662,17 @@
         .decimal-color {
             font-family: 'SF Mono', Consolas, monospace;
             cursor: pointer;
-            transition: all var(--transition-fast);
+            transition: transform var(--transition-fast), border-color var(--transition-fast);
             padding: 6px 12px;
             border-radius: var(--radius-pill);
             font-size: 13px;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
+            will-change: transform;
         }
 
         .decimal-color:hover {
             transform: scale(1.05) translateY(-2px);
-            box-shadow: var(--shadow-soft);
             border-color: var(--border-color-strong);
         }
 
@@ -646,7 +700,6 @@
             background: var(--card-inner-bg);
             border-radius: var(--radius-l);
             border: 1px solid var(--border-color);
-            transition: all var(--transition-medium);
         }
 
         .history-section .color-label {
@@ -657,7 +710,7 @@
         }
 
         .history-section .color-label::before {
-            content: '기록 보기';
+            content: '최근 기록';
             font-size: 14px;
         }
 
@@ -685,14 +738,21 @@
             cursor: pointer;
             overflow: hidden;
             border: 2px solid transparent;
-            transition: all var(--transition-fast);
+            transition: transform var(--transition-fast), border-color var(--transition-fast);
             box-shadow: var(--shadow-soft);
+            will-change: transform;
+            transform: translateZ(0);
         }
 
         .history-item:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: var(--shadow-medium);
+            transform: translateY(-3px) scale(1.02) translateZ(0);
             border-color: var(--primary);
+        }
+
+        @media (min-width: 769px) {
+            .history-item:hover {
+                box-shadow: var(--shadow-medium);
+            }
         }
 
         .history-item:active {
@@ -756,15 +816,21 @@
             font-weight: 600;
             color: var(--text-color-light);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
             box-shadow: var(--shadow-medium);
+            will-change: transform;
         }
 
         .dark-mode-toggle:hover {
             border-color: var(--primary);
             color: var(--primary);
             transform: translateY(-2px);
-            box-shadow: var(--shadow-large);
+        }
+
+        @media (min-width: 769px) {
+            .dark-mode-toggle:hover {
+                box-shadow: var(--shadow-large);
+            }
         }
 
         #easterEggCharacter {
@@ -832,17 +898,32 @@
             box-shadow: 0 2px 8px var(--primary-glow);
         }
 
-        .easing-control span {
+        .easing-control input[type="number"] {
             font-family: 'SF Mono', 'Consolas', monospace;
             font-size: 13px;
             font-weight: 600;
-            min-width: 42px;
+            width: 65px;
             text-align: center;
             color: var(--text-color);
             background: var(--card-bg);
-            padding: 6px 10px;
+            padding: 6px 8px;
             border-radius: var(--radius-s);
             border: 1px solid var(--border-color);
+            outline: none;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        .easing-control input[type="number"]::-webkit-outer-spin-button,
+        .easing-control input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .easing-control input[type="number"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
         }
 
         /* ============================================
@@ -856,7 +937,6 @@
             margin-top: 14px;
             border: 2px solid var(--border-color);
             display: none;
-            transition: all var(--transition-medium);
         }
 
         .image-upload-btn {
@@ -967,7 +1047,7 @@
                     <div class="color-label">Easing (가속도)</div>
                     <div class="easing-control">
                         <input type="range" id="easingSlider" min="0.2" max="5" step="0.01" value="1.0">
-                        <span id="easingValue">1.00</span>
+                        <input type="number" id="easingInput" min="0.2" max="5" step="0.01" value="1.00">
                     </div>
                 </div>
 
@@ -1027,6 +1107,20 @@
     <script>
         const pickrInstances = new Map();
         let debounceTimer;
+        let rafPending = false;
+        let dragRafPending = false;
+
+        // --- PERFORMANCE UTILITIES ---
+
+        // RAF-throttled debounce for smoother mobile performance
+        function throttledRAF(callback) {
+            if (rafPending) return;
+            rafPending = true;
+            requestAnimationFrame(() => {
+                callback();
+                rafPending = false;
+            });
+        }
 
         // --- CORE APP LOGIC ---
 
@@ -1034,7 +1128,9 @@
 
         function debouncedGenerate() {
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(generateColors, 250);
+            debounceTimer = setTimeout(() => {
+                throttledRAF(generateColors);
+            }, 200);
         }
 
         function interpolateWithCulori(colorList, totalSteps, mode, easingFactor) {
@@ -1292,12 +1388,34 @@
             });
 
             const easingSlider = document.getElementById('easingSlider');
-            const easingValueSpan = document.getElementById('easingValue');
+            const easingInput = document.getElementById('easingInput');
 
-            // Slider -> Span Update
+            // Two-way binding: Slider -> Input
             easingSlider.addEventListener('input', () => {
-                easingValueSpan.textContent = parseFloat(easingSlider.value).toFixed(2);
+                easingInput.value = parseFloat(easingSlider.value).toFixed(2);
                 debouncedGenerate();
+            });
+
+            // Two-way binding: Input -> Slider
+            easingInput.addEventListener('input', () => {
+                let value = parseFloat(easingInput.value);
+                if (isNaN(value)) return;
+
+                // Clamp value within valid range
+                value = Math.max(0.2, Math.min(5, value));
+
+                // Update slider if within range
+                easingSlider.value = value;
+                debouncedGenerate();
+            });
+
+            // Format on blur for clean display
+            easingInput.addEventListener('blur', () => {
+                let value = parseFloat(easingInput.value);
+                if (isNaN(value)) value = 1.0;
+                value = Math.max(0.2, Math.min(5, value));
+                easingInput.value = value.toFixed(2);
+                easingSlider.value = value;
             });
 
             const imageUploadInput = document.getElementById('imageUploadInput');
@@ -1350,12 +1468,20 @@
             });
             colorArea.addEventListener('dragover', (e) => {
                 e.preventDefault();
-                const targetItem = e.target.closest('.color-block');
-                if (!targetItem || targetItem === draggedItem) return;
-                const targetRect = targetItem.getBoundingClientRect();
-                const isAfter = (e.clientY - targetRect.top) > (targetRect.height / 2);
-                if (isAfter) { targetItem.parentNode.insertBefore(draggedItem, targetItem.nextSibling); }
-                else { targetItem.parentNode.insertBefore(draggedItem, targetItem); }
+                if (dragRafPending) return;
+                dragRafPending = true;
+                requestAnimationFrame(() => {
+                    const targetItem = e.target.closest('.color-block');
+                    if (!targetItem || targetItem === draggedItem) {
+                        dragRafPending = false;
+                        return;
+                    }
+                    const targetRect = targetItem.getBoundingClientRect();
+                    const isAfter = (e.clientY - targetRect.top) > (targetRect.height / 2);
+                    if (isAfter) { targetItem.parentNode.insertBefore(draggedItem, targetItem.nextSibling); }
+                    else { targetItem.parentNode.insertBefore(draggedItem, targetItem); }
+                    dragRafPending = false;
+                });
             });
 
             const darkModeToggle = document.getElementById('darkModeToggle');
@@ -1522,9 +1648,9 @@
 
             // Update easing
             const easingSlider = document.getElementById('easingSlider');
-            const easingValueSpan = document.getElementById('easingValue');
+            const easingInput = document.getElementById('easingInput');
             easingSlider.value = item.easing;
-            easingValueSpan.textContent = parseFloat(item.easing).toFixed(2);
+            easingInput.value = parseFloat(item.easing).toFixed(2);
 
             // Update color labels and regenerate
             updateColorLabels();
