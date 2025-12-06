@@ -1,141 +1,919 @@
 <!DOCTYPE html>
 <html lang="ko" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>헬로펫 그라데이션 생성기</title>
     <!-- CULORI LIBRARY -->
     <script src="https://cdn.jsdelivr.net/npm/culori@4"></script>
-    
+
     <!-- PICKR: USING THE 'CLASSIC' THEME NOW -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
 
     <!-- NEW FEATURE: COLOR THIEF for Image Color Extraction -->
     <script src="https://cdn.jsdelivr.net/npm/colorthief@2.4.0/dist/color-thief.umd.js"></script>
 
     <style>
+        /* ============================================
+           MODERN CLEAN UI/UX REDESIGN
+           ============================================ */
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
         :root {
-            /* Light Theme */
-            --bg-color: #f0f2f5;
+            /* Light Theme - Refined Palette */
+            --bg-color: #f4f6f9;
+            --bg-gradient: linear-gradient(135deg, #f4f6f9 0%, #e8ecf2 100%);
             --card-bg: #ffffff;
-            --card-inner-bg: #f0f2f5;
-            --text-color: #1c1e21;
-            --text-color-light: #606770;
-            --border-color: #dce1e7;
-            --shadow-outer: 0 12px 28px 0 rgba(0, 0, 0, 0.06), 0 2px 4px 0 rgba(0, 0, 0, 0.05);
-            --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+            --card-bg-glass: rgba(255, 255, 255, 0.85);
+            --card-inner-bg: #f8fafc;
+            --text-color: #1a1d26;
+            --text-color-light: #6b7280;
+            --text-color-muted: #9ca3af;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --border-color-strong: rgba(0, 0, 0, 0.12);
+            --border-color-light: #f1f5f9;
+            --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+            --shadow-medium: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            --shadow-large: 0 25px 50px -12px rgba(0, 0, 0, 0.12);
+            --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.12);
+            --shadow-inner: inset 0 1px 2px rgba(0, 0, 0, 0.04);
 
-            /* --- REFINED COLOR PALETTE --- */
-            --primary: #5E5DF0;
-            --primary-dark: #4F4CE1;
-            --primary-light: rgba(94, 93, 240, 0.2);
-            --success: #28A745;
-            --success-dark: #218838;
-            --danger: #f44336;
+            /* Vibrant Color Palette */
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: rgba(99, 102, 241, 0.12);
+            --primary-glow: rgba(99, 102, 241, 0.25);
+            --success: #10b981;
+            --success-dark: #059669;
+            --success-light: rgba(16, 185, 129, 0.12);
+            --danger: #ef4444;
+            --danger-light: rgba(239, 68, 68, 0.12);
+            --warning: #f59e0b;
 
-            --radius-l: 16px;
+            /* Spacing & Radius */
+            --radius-xl: 20px;
+            --radius-l: 14px;
             --radius-m: 10px;
-            --radius-s: 8px;
+            --radius-s: 6px;
+            --radius-pill: 100px;
+
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-medium: 0.25s ease;
+            --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         html[data-theme="dark"] {
-            --bg-color: #18191a;
-            --card-bg: #242526;
-            --card-inner-bg: #3a3b3c;
-            --text-color: #e4e6eb;
-            --text-color-light: #b0b3b8;
-            --border-color: #3e4042;
-            --shadow-outer: 0 12px 28px 0 rgba(0, 0, 0, 0.25), 0 2px 4px 0 rgba(0, 0, 0, 0.15);
-            --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2);
-            
-            --primary-light: #3a3b3c;
-        }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; }
-        body { background: var(--bg-color); color: var(--text-color); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.6; transition: background-color 0.3s ease, color 0.3s ease; }
-        h2 { font-size: 26px; margin-bottom: 24px; font-weight: 700; text-align: center; }
-        .container { width: 100%; max-width: 580px; background: var(--card-bg); padding: 24px; border-radius: var(--radius-l); box-shadow: var(--shadow-outer); transition: background-color 0.3s ease; }
-        .color-area { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
-        .color-block { background: var(--card-inner-bg); border: 1px solid var(--border-color); border-radius: var(--radius-m); padding: 16px; position: relative; transition: background-color 0.3s ease, border-color 0.3s ease, opacity 0.2s ease; cursor: grab; }
-        .color-block.dragging { opacity: 0.5; cursor: grabbing; }
-        .color-label { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--text-color-light); display: flex; justify-content: space-between; align-items: center; transition: color 0.3s ease; }
-        .color-input-group { display: flex; align-items: center; gap: 12px; width: 100%; }
-        .color-input-group input[type="text"] { flex: 1; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: var(--radius-s); font-size: 16px; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; outline: none; transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s ease; background: var(--card-bg); color: var(--text-color); min-width: 0; box-shadow: var(--shadow-inner); }
-        .color-input-group input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
-        .color-picker-container { width: 44px; height: 44px; flex-shrink: 0; }
-        .pickr .pcr-button { width: 44px; height: 44px; border-radius: var(--radius-s); border: 1px solid var(--border-color); transition: border-color 0.3s ease; }
-        .pickr .pcr-button::before, .pickr .pcr-button::after { border-radius: var(--radius-s); }
-        .pcr-app { background: var(--card-bg); border: 1px solid var(--border-color); box-shadow: var(--shadow-outer); border-radius: var(--radius-m); width: 280px; }
-        .pcr-app .pcr-selection .pcr-color-preview, .pcr-app .pcr-selection .pcr-color-palette, .pcr-app .pcr-selection .pcr-color-chooser { border-radius: var(--radius-s); }
-        .pcr-app .pcr-interaction input { border: 1px solid var(--border-color) !important; border-radius: var(--radius-s) !important; color: var(--text-color) !important; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; background: var(--card-inner-bg) !important; box-shadow: var(--shadow-inner); }
-        .pcr-app .pcr-interaction input:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 3px var(--primary-light) !important; }
-        .pcr-app .pcr-interaction .pcr-save { background: var(--primary) !important; border-radius: var(--radius-s) !important; }
-        .pcr-app .pcr-interaction .pcr-save:hover { background: var(--primary-dark) !important; }
-        .steps-area { margin-bottom: 16px; }
-        .steps-input { width: 100%; padding: 12px 14px; font-size: 16px; border: 1px solid var(--border-color); border-radius: var(--radius-s); outline: none; transition: all 0.2s ease; background: var(--card-bg); color: var(--text-color); box-shadow: var(--shadow-inner); }
-        .steps-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
-        .pro-mode-container { margin-bottom: 24px; }
-        .pro-mode-header { padding: 12px 16px; background: var(--card-inner-bg); border: 1px solid var(--border-color); border-radius: var(--radius-m); cursor: pointer; font-weight: 600; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease; user-select: none; }
-        .pro-mode-header:hover { border-color: var(--text-color-light); }
-        /* --- OPTIMIZED: Refined Pro Mode Arrow --- */
-        .pro-mode-header .arrow { width: 8px; height: 8px; border-right: 2px solid var(--text-color-light); border-bottom: 2px solid var(--text-color-light); transform: rotate(-45deg); transition: transform 0.3s ease-in-out; }
-        .pro-mode-header.active .arrow { transform: rotate(45deg); }
-        .pro-mode-content { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out, padding-top 0.4s, padding-bottom 0.4s; background: var(--card-inner-bg); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 var(--radius-m) var(--radius-m); padding: 0 16px; }
-        .pro-mode-content.show { max-height: 700px; opacity: 1; padding: 16px; }
-        .pro-mode-content .color-label { margin-bottom: 8px; }
-        .pro-mode-section { margin-bottom: 16px; }
-        .interpolation-modes { display: flex; gap: 16px; }
-        .interpolation-modes label { display: flex; align-items: center; gap: 6px; font-size: 15px; cursor: pointer; }
-        .pro-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .btn { padding: 14px; font-size: 16px; font-weight: 600; border: none; border-radius: var(--radius-s); cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn:active { transform: translateY(1px) scale(0.98); }
-        .primary-button { background: var(--primary); color: white; }
-        .primary-button:hover { background: var(--primary-dark); box-shadow: 0 4px 12px rgba(94, 93, 240, 0.3); }
-        .secondary-button { background: var(--card-inner-bg); color: var(--text-color); border: 1px solid var(--border-color); }
-        .secondary-button:hover { border-color: var(--text-color-light); background: var(--bg-color); }
-        
-        /* --- OPTIMIZED: Button Group Layout --- */
-        .button-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
-        
-        .result-area { text-align: center; }
-        .gradient-bar { width: 100%; height: 60px; border-radius: var(--radius-m); overflow: hidden; margin-bottom: 20px; display: flex; border: 1px solid var(--border-color); transition: border-color 0.3s ease; }
-        .color { height: 100%; flex: 1; }
-        .code-box { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
-        .code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; background: var(--card-inner-bg); padding: 8px 12px; border-radius: var(--radius-s); font-size: 14px; transition: all 0.2s ease; cursor: pointer; border: 1px solid transparent; color: var(--text-color-light); }
-        .code:hover { background: var(--bg-color); border-color: var(--border-color); color: var(--text-color); transform: translateY(-2px); }
-        .decimal-view { margin-top: 24px; margin-bottom: 20px; padding: 20px; background: var(--card-inner-bg); border-radius: var(--radius-m); border: 1px solid var(--border-color); display: none; transition: all 0.3s ease; }
-        .decimal-colors { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
-        .decimal-color { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; cursor: pointer; transition: transform 0.1s; padding: 4px 8px; border-radius: var(--radius-s); font-size: 14px; }
-        .decimal-color:hover { background: var(--bg-color); transform: scale(1.05); }
-        .add-color-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
-        .add-color-btn:hover { text-decoration: underline; }
-        .remove-color-btn { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 20px; position: absolute; top: 12px; right: 12px; opacity: 0.6; transition: opacity 0.2s; line-height: 1; }
-        .remove-color-btn:hover { opacity: 1; }
-        .copy-btn { background: var(--success); color: white; display: inline-flex; }
-        .copy-btn:hover { background: var(--success-dark); box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3); }
-        .tooltip { position: fixed; background: #222; color: white; padding: 8px 14px; border-radius: var(--radius-s); font-size: 14px; pointer-events: none; opacity: 0; transition: opacity 0.2s, transform 0.2s; z-index: 1000; transform: translateY(10px); }
-        .tooltip.show { opacity: 1; transform: translateY(0); }
-        .footer { margin-top: 32px; text-align: center; position: relative; }
-        .dark-mode-toggle { background: var(--card-bg); border: 1px solid var(--border-color); padding: 10px 20px; border-radius: var(--radius-s); font-size: 14px; font-weight: 600; color: var(--text-color-light); cursor: pointer; transition: all 0.3s ease; box-shadow: var(--shadow-outer); }
-        .dark-mode-toggle:hover { border-color: var(--primary); color: var(--text-color); transform: translateY(-2px); }
-        #easterEggCharacter { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); font-size: 32px; opacity: 0; pointer-events: none; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease; }
-        #easterEggCharacter.show { transform: translateX(-50%) translateY(-110%); opacity: 1; }
-        
-        .easing-control { display: flex; align-items: center; gap: 12px; }
-        .easing-control input[type="range"] { flex-grow: 1; accent-color: var(--primary); }
-        .easing-control span { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 14px; min-width: 40px; text-align: right; }
-        #imagePreview { width: 100%; max-height: 150px; object-fit: cover; border-radius: var(--radius-m); margin-top: 12px; border: 1px solid var(--border-color); display: none; }
-        .image-upload-btn { width: 100%; }
-        input[type="file"] { display: none; }
+            /* Dark Theme - Deep Charcoal/Slate */
+            --bg-color: #0f1117;
+            --bg-gradient: linear-gradient(135deg, #0f1117 0%, #151820 100%);
+            --card-bg: #1a1d27;
+            --card-bg-glass: rgba(26, 29, 39, 0.9);
+            --card-inner-bg: #232836;
+            --text-color: #f1f5f9;
+            --text-color-light: #94a3b8;
+            --text-color-muted: #64748b;
+            --border-color: rgba(255, 255, 255, 0.06);
+            --border-color-strong: rgba(255, 255, 255, 0.1);
+            --border-color-light: #1e293b;
+            --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+            --shadow-medium: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            --shadow-large: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 60px rgba(99, 102, 241, 0.2);
+            --shadow-inner: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 
+            --primary-light: rgba(99, 102, 241, 0.2);
+            --primary-glow: rgba(99, 102, 241, 0.35);
+            --success-light: rgba(16, 185, 129, 0.2);
+            --danger-light: rgba(239, 68, 68, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.6;
+            transition: background 0.4s ease, color 0.3s ease;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Typography */
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            margin-bottom: 28px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--text-color) 0%, var(--text-color-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ============================================
+           FLOATING CARD CONTAINER
+           ============================================ */
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 28px;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-large), var(--shadow-glow);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* ============================================
+           COLOR INPUT BLOCKS / CARDS
+           ============================================ */
+        .color-area {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .color-block {
+            background: var(--card-inner-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-m);
+            padding: 16px;
+            position: relative;
+            transition: all 0.25s ease;
+            cursor: grab;
+        }
+
+        .color-block:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .color-block.dragging {
+            opacity: 0.6;
+            cursor: grabbing;
+            transform: scale(0.98);
+            box-shadow: var(--shadow-medium);
+        }
+
+
+        .color-label {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            margin-bottom: 10px;
+            color: var(--text-color-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: color var(--transition-fast);
+        }
+
+        .color-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .color-input-group input[type="text"] {
+            flex: 1;
+            padding: 11px 14px;
+            border: 1px solid var(--border-color-strong);
+            border-radius: var(--radius-m);
+            font-size: 15px;
+            font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
+            font-weight: 500;
+            outline: none;
+            transition: all var(--transition-fast);
+            background: var(--card-bg);
+            color: var(--text-color);
+            min-width: 0;
+        }
+
+        .color-input-group input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light), 0 0 20px var(--primary-glow);
+        }
+
+        /* ============================================
+           ADD / REMOVE BUTTONS (Pill Style)
+           ============================================ */
+        .add-color-btn {
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: var(--radius-pill);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all var(--transition-fast);
+        }
+
+        .add-color-btn:hover {
+            background: var(--primary-light);
+        }
+
+        .remove-color-btn {
+            background: var(--danger-light);
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+            line-height: 1;
+        }
+
+        .remove-color-btn:hover {
+            background: var(--danger);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* ============================================
+           COLOR PICKER
+           ============================================ */
+        .color-picker-container {
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+        }
+
+        .pickr .pcr-button {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-m);
+            border: 2px solid var(--border-color-strong);
+            transition: all var(--transition-fast);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .pickr .pcr-button:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .pickr .pcr-button::before,
+        .pickr .pcr-button::after {
+            border-radius: var(--radius-m);
+        }
+
+        .pcr-app {
+            background: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            box-shadow: var(--shadow-large) !important;
+            border-radius: var(--radius-l) !important;
+        }
+
+        .pcr-app .pcr-selection .pcr-color-preview,
+        .pcr-app .pcr-selection .pcr-color-palette,
+        .pcr-app .pcr-selection .pcr-color-chooser {
+            border-radius: var(--radius-s);
+        }
+
+        .pcr-app .pcr-interaction input {
+            border: 1px solid var(--border-color-strong) !important;
+            border-radius: var(--radius-s) !important;
+            color: var(--text-color) !important;
+            font-family: 'SF Mono', Consolas, monospace;
+            background: var(--card-inner-bg) !important;
+        }
+
+        .pcr-app .pcr-interaction input:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px var(--primary-light) !important;
+        }
+
+        .pcr-app .pcr-interaction .pcr-save {
+            background: var(--primary) !important;
+            border-radius: var(--radius-s) !important;
+            font-weight: 600 !important;
+        }
+
+        .pcr-app .pcr-interaction .pcr-save:hover {
+            background: var(--primary-dark) !important;
+        }
+
+        /* ============================================
+           STEPS INPUT
+           ============================================ */
+        .steps-area {
+            margin-bottom: 20px;
+        }
+
+        .steps-input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 15px;
+            border: 1px solid var(--border-color-strong);
+            border-radius: var(--radius-m);
+            outline: none;
+            transition: all var(--transition-fast);
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .steps-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* ============================================
+           PRO MODE ACCORDION
+           ============================================ */
+        .pro-mode-container {
+            margin-bottom: 24px;
+        }
+
+        .pro-mode-header {
+            padding: 14px 18px;
+            background: linear-gradient(135deg, var(--card-inner-bg) 0%, var(--border-color-light) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-l);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.25s ease;
+            user-select: none;
+        }
+
+        .pro-mode-header:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .pro-mode-header .arrow {
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid var(--text-color-light);
+            border-bottom: 2px solid var(--text-color-light);
+            transform: rotate(-45deg);
+            transition: transform 0.3s ease;
+        }
+
+        .pro-mode-header.active .arrow {
+            transform: rotate(45deg);
+        }
+
+        .pro-mode-content {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: all var(--transition-slow);
+            background: var(--card-inner-bg);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 var(--radius-l) var(--radius-l);
+            padding: 0 18px;
+        }
+
+        .pro-mode-content.show {
+            max-height: 800px;
+            opacity: 1;
+            padding: 18px;
+        }
+
+        .pro-mode-content .color-label {
+            margin-bottom: 10px;
+        }
+
+        .pro-mode-section {
+            margin-bottom: 18px;
+        }
+
+        .pro-mode-section:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Custom Radio Buttons */
+        .interpolation-modes {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .interpolation-modes label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 8px 14px;
+            border-radius: var(--radius-pill);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-fast);
+        }
+
+        .interpolation-modes label:hover {
+            border-color: var(--primary);
+        }
+
+        .interpolation-modes label:has(input:checked) {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .interpolation-modes input[type="radio"] {
+            display: none;
+        }
+
+        .pro-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* ============================================
+           BUTTONS
+           ============================================ */
+        .btn {
+            padding: 14px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-m);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .primary-button {
+            background: var(--primary);
+            color: white;
+            border: 1px solid transparent;
+        }
+
+        .primary-button:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 2px 8px var(--primary-glow);
+        }
+
+        .secondary-button {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .secondary-button:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        /* ============================================
+           RESULT AREA - HERO GRADIENT BAR
+           ============================================ */
+        .result-area {
+            text-align: center;
+        }
+
+        .gradient-bar {
+            width: 100%;
+            height: 45px;
+            border-radius: var(--radius-l);
+            overflow: hidden;
+            margin-bottom: 24px;
+            display: flex;
+            border: none;
+            box-shadow: var(--shadow-medium), inset 0 0 0 1px var(--border-color);
+            transition: all var(--transition-medium);
+        }
+
+        .gradient-bar:hover {
+            transform: scale(1.01);
+            box-shadow: var(--shadow-large);
+        }
+
+        .color {
+            height: 100%;
+            flex: 1;
+            transition: flex var(--transition-fast);
+        }
+
+        /* ============================================
+           CODE BOX - CHIP/TAG STYLE
+           ============================================ */
+        .code-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .code {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            background: var(--card-inner-bg);
+            padding: 8px 14px;
+            border-radius: var(--radius-pill);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .code:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .code:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        /* ============================================
+           DECIMAL VIEW
+           ============================================ */
+        .decimal-view {
+            margin-top: 24px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: var(--card-inner-bg);
+            border-radius: var(--radius-l);
+            border: 1px solid var(--border-color);
+            display: none;
+            transition: all var(--transition-medium);
+        }
+
+        .decimal-colors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .decimal-color {
+            font-family: 'SF Mono', Consolas, monospace;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            padding: 6px 12px;
+            border-radius: var(--radius-pill);
+            font-size: 13px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+        }
+
+        .decimal-color:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: var(--shadow-soft);
+            border-color: var(--border-color-strong);
+        }
+
+        /* ============================================
+           COPY BUTTONS
+           ============================================ */
+        .copy-btn {
+            background: var(--success);
+            color: white;
+            display: inline-flex;
+            border: 1px solid transparent;
+        }
+
+        .copy-btn:hover {
+            background: var(--success-dark);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+        }
+
+        /* ============================================
+           HISTORY SECTION - GRID PILLS
+           ============================================ */
+        .history-section {
+            margin-top: 24px;
+            padding: 18px;
+            background: var(--card-inner-bg);
+            border-radius: var(--radius-l);
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-medium);
+        }
+
+        .history-section .color-label {
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-section .color-label::before {
+            content: '기록 보기';
+            font-size: 14px;
+        }
+
+        .clear-history-btn {
+            cursor: pointer;
+            color: var(--text-color-light);
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .clear-history-btn:hover {
+            color: var(--danger);
+        }
+
+        .history-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+            gap: 10px;
+        }
+
+        .history-item {
+            display: flex;
+            border-radius: var(--radius-pill);
+            height: 36px;
+            cursor: pointer;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: all var(--transition-fast);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .history-item:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: var(--shadow-medium);
+            border-color: var(--primary);
+        }
+
+        .history-item:active {
+            transform: scale(0.98);
+        }
+
+        .history-item .history-color {
+            flex: 1;
+            height: 100%;
+        }
+
+        .history-empty {
+            color: var(--text-color-muted);
+            font-size: 13px;
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        /* ============================================
+           TOOLTIP
+           ============================================ */
+        .tooltip {
+            position: fixed;
+            background: var(--text-color);
+            color: var(--card-bg);
+            padding: 10px 16px;
+            border-radius: var(--radius-m);
+            font-size: 13px;
+            font-weight: 500;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+            z-index: 1000;
+            transform: translateY(8px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ============================================
+           FOOTER & DARK MODE TOGGLE
+           ============================================ */
+        .footer {
+            margin-top: 32px;
+            text-align: center;
+            position: relative;
+        }
+
+        .dark-mode-toggle {
+            background: var(--card-bg-glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            padding: 12px 24px;
+            border-radius: var(--radius-pill);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-color-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .dark-mode-toggle:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-large);
+        }
+
+        #easterEggCharacter {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(100%);
+            font-size: 36px;
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
+
+        #easterEggCharacter.show {
+            transform: translateX(-50%) translateY(-120%);
+            opacity: 1;
+        }
+
+        /* ============================================
+           EASING CONTROL
+           ============================================ */
+        .easing-control {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* Custom Range Slider */
+        .easing-control input[type="range"] {
+            flex-grow: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: var(--border-color-strong);
+            border-radius: var(--radius-pill);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .easing-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px var(--primary-glow);
+            transition: all var(--transition-fast);
+        }
+
+        .easing-control input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .easing-control input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px var(--primary-glow);
+        }
+
+        .easing-control span {
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            min-width: 42px;
+            text-align: center;
+            color: var(--text-color);
+            background: var(--card-bg);
+            padding: 6px 10px;
+            border-radius: var(--radius-s);
+            border: 1px solid var(--border-color);
+        }
+
+        /* ============================================
+           IMAGE UPLOAD
+           ============================================ */
+        #imagePreview {
+            width: 100%;
+            max-height: 160px;
+            object-fit: cover;
+            border-radius: var(--radius-l);
+            margin-top: 14px;
+            border: 2px solid var(--border-color);
+            display: none;
+            transition: all var(--transition-medium);
+        }
+
+        .image-upload-btn {
+            width: 100%;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
         @media (min-width: 600px) {
-            .container { padding: 32px; }
-            h2 { font-size: 28px; }
-            body { padding: 40px 20px; }
+            .container {
+                padding: 36px;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            body {
+                padding: 48px 24px;
+            }
+
+            .gradient-bar {
+                height: 120px;
+            }
+
+            .history-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .history-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Smooth scrollbar for history */
+        .history-list::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: var(--border-color-strong);
+            border-radius: var(--radius-pill);
         }
     </style>
 </head>
+
 <body>
 
     <div class="container">
@@ -152,7 +930,7 @@
                     <div class="color-picker-container"></div>
                 </div>
             </div>
-            
+
             <div class="color-block" data-index="1" draggable="true">
                 <div class="color-label">
                     <span>색상 2</span>
@@ -169,7 +947,7 @@
             <div class="color-label">중간 색상 개수 (3-50)</div>
             <input type="number" id="steps" class="steps-input" value="5" min="3" max="50">
         </div>
-        
+
         <div class="pro-mode-container">
             <div class="pro-mode-header" id="proModeHeader">
                 <span>Pro Mode</span>
@@ -194,8 +972,8 @@
                 </div>
 
                 <div class="pro-mode-section">
-                     <div class="color-label">도구</div>
-                     <div class="pro-buttons">
+                    <div class="color-label">도구</div>
+                    <div class="pro-buttons">
                         <button class="btn secondary-button" id="reverseBtn">색상 반전</button>
                         <button class="btn secondary-button" id="randomBtn">랜덤 색상</button>
                     </div>
@@ -212,19 +990,28 @@
         </div>
 
         <div class="button-group">
-            <button class="btn primary-button" id="toDecimalBtn" onclick="showDecimalColors()" style="display: none;">10진수 변환 보기</button>
-            <button class="btn copy-btn" id="copyBtn" onclick="copyColors()" style="display: none;">모든 16진수 코드 복사</button>
+            <button class="btn primary-button" id="toDecimalBtn" onclick="showDecimalColors()"
+                style="display: none;">10진수 변환 보기</button>
+            <button class="btn copy-btn" id="copyBtn" onclick="copyColors()" style="display: none;">모든 16진수 코드
+                복사</button>
         </div>
 
         <div class="result-area">
             <div class="gradient-bar" id="colorBox"></div>
             <div class="code-box" id="codeBox"></div>
         </div>
-        
+
         <div class="decimal-view" id="decimalView">
             <div class="color-label">10진수 변환 결과</div>
             <div class="decimal-colors" id="decimalColors"></div>
             <button class="btn copy-btn" onclick="copyDecimalColors()" style="margin-top: 16px;">모든 10진수 코드 복사</button>
+        </div>
+
+        <div class="history-section" id="historySection">
+            <div class="color-label"><span class="clear-history-btn" onclick="clearHistory()">모두 지우기</span></div>
+            <div class="history-list" id="historyList">
+                <div class="history-empty">저장된 기록이 없습니다.</div>
+            </div>
         </div>
     </div>
 
@@ -234,7 +1021,7 @@
         </button>
         <div id="easterEggCharacter">🐾</div>
     </div>
-    
+
     <div class="tooltip" id="tooltip"></div>
 
     <script>
@@ -281,21 +1068,21 @@
                 if (!/^#([0-9a-f]{6})$/i.test(color)) { return; }
             }
             if (isNaN(steps) || steps < 3 || steps > 50) { return; }
-            
+
             let colors = interpolateWithCulori(colorList, steps, interpolationMode, easingFactor);
             if (colors === null) return;
-            
+
             let colorBox = document.getElementById("colorBox");
             let codeBox = document.getElementById("codeBox");
             let decimalView = document.getElementById("decimalView");
 
-            colorBox.innerHTML = ""; 
+            colorBox.innerHTML = "";
             codeBox.innerHTML = "";
             decimalView.style.display = "none";
 
             let colorFragment = document.createDocumentFragment();
             let codeFragment = document.createDocumentFragment();
-            
+
             colors.forEach(color => {
                 let div = document.createElement("div");
                 div.className = "color";
@@ -306,48 +1093,51 @@
                 codeDiv.className = "code";
                 codeDiv.textContent = color;
                 codeDiv.setAttribute("data-color", color);
-                codeDiv.addEventListener("click", function() {
+                codeDiv.addEventListener("click", function () {
                     navigator.clipboard.writeText(this.textContent);
                     showTooltip(this, "복사되었습니다!");
                 });
                 codeFragment.appendChild(codeDiv);
             });
-            
+
             colorBox.appendChild(colorFragment);
             codeBox.appendChild(codeFragment);
 
             document.getElementById("copyBtn").style.display = "flex";
             document.getElementById("toDecimalBtn").style.display = "flex";
+
+            // Save to history after successful generation
+            saveToHistory(colorList, steps, interpolationMode, easingFactor, colors);
         }
-        
+
         function showDecimalColors() {
             let codeBox = document.getElementById("codeBox");
             let decimalView = document.getElementById("decimalView");
             let decimalColors = document.getElementById("decimalColors");
             let hexColors = [...codeBox.getElementsByClassName("code")].map(div => div.textContent);
-            
+
             decimalColors.innerHTML = "";
             let fragment = document.createDocumentFragment();
-            
+
             hexColors.forEach(hexColor => {
                 let decimal = hexToDecimal(hexColor);
                 let colorSpan = document.createElement("span");
                 colorSpan.className = "decimal-color";
                 colorSpan.innerHTML = `<span style="color:${hexColor}">█</span> ${decimal}`;
                 colorSpan.setAttribute("data-decimal", decimal);
-                colorSpan.addEventListener("click", function() {
+                colorSpan.addEventListener("click", function () {
                     let decimalCode = this.getAttribute("data-decimal");
                     navigator.clipboard.writeText(`<font color=${decimalCode}>█</font>`);
                     showTooltip(this, "복사되었습니다!");
                 });
                 fragment.appendChild(colorSpan);
             });
-            
+
             decimalColors.appendChild(fragment);
             decimalView.style.display = "block";
             decimalView.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
-        
+
         // --- UI & DYNAMIC ELEMENT FUNCTIONS ---
 
         function initializePickrForBlock(colorBlock) {
@@ -362,7 +1152,7 @@
             });
 
             pickrInstances.set(colorBlock, pickr);
-            
+
             pickr.on('save', (color, instance) => {
                 const hexColor = color.toHEXA().toString(0);
                 hexInput.value = hexColor;
@@ -370,25 +1160,25 @@
                 generateColors();
             });
         }
-        
+
         function updateColorOnInput(input) {
             let colorBlock = input.closest('.color-block');
             let value = input.value;
             if (value.length > 0 && value.charAt(0) !== '#') { value = '#' + value; }
             value = value.substring(0, 7).toLowerCase();
             input.value = value;
-            
+
             if (/^#([0-9a-f]{6})$/i.test(value)) {
                 const pickr = pickrInstances.get(colorBlock);
                 if (pickr) { pickr.setColor(value, true); }
                 debouncedGenerate();
             }
         }
-        
+
         function addColorInput() {
             let colorArea = document.getElementById("colorInputArea");
             if (colorArea.children.length >= 10) { alert("최대 10개까지 색상을 추가할 수 있습니다."); return; }
-            
+
             let newColorBlock = document.createElement('div');
             newColorBlock.className = 'color-block';
             newColorBlock.innerHTML = `
@@ -400,7 +1190,7 @@
             updateColorLabels();
             generateColors();
         }
-        
+
         function removeColorInput(button) {
             let colorArea = document.getElementById("colorInputArea");
             if (colorArea.children.length <= 2) { alert("최소 2개의 색상이 필요합니다."); return; }
@@ -422,13 +1212,13 @@
                 if (addBtn) addBtn.style.display = 'none';
                 if (removeBtn) removeBtn.style.display = 'block';
                 if (index === 0) {
-                    if(!addBtn) { block.querySelector('.color-label').insertAdjacentHTML('beforeend', '<button class="add-color-btn" onclick="addColorInput()">+ 색상 추가</button>'); } 
+                    if (!addBtn) { block.querySelector('.color-label').insertAdjacentHTML('beforeend', '<button class="add-color-btn" onclick="addColorInput()">+ 색상 추가</button>'); }
                     else { addBtn.style.display = 'flex'; }
                 }
-                 if (index <= 1) { if(removeBtn) removeBtn.style.display = 'none'; }
+                if (index <= 1) { if (removeBtn) removeBtn.style.display = 'none'; }
             });
         }
-        
+
         // --- UTILITY & HELPER FUNCTIONS ---
 
         function copyColors() {
@@ -440,7 +1230,7 @@
             let text = [...document.querySelectorAll("#decimalColors .decimal-color")].map(span => `<font color=${span.getAttribute("data-decimal")}>█</font>`).join("");
             navigator.clipboard.writeText(text).then(() => showTooltip(document.querySelector("#decimalView .copy-btn"), "모든 10진수 코드가 복사되었습니다!"));
         }
-        
+
         function showTooltip(element, message) {
             const tooltip = document.getElementById("tooltip");
             tooltip.textContent = message;
@@ -451,7 +1241,7 @@
             tooltip.classList.add('show');
             setTimeout(() => tooltip.classList.remove('show'), 1500);
         }
-        
+
         function reverseColors() {
             const colorBlocks = Array.from(document.querySelectorAll('#colorInputArea .color-block'));
             const colorValues = colorBlocks.map(block => block.querySelector('.hex-input').value);
@@ -464,7 +1254,7 @@
             });
             generateColors();
         }
-        
+
         function generateRandomColors() {
             document.querySelectorAll('#colorInputArea .color-block').forEach(block => {
                 const randomHex = culori.formatHex(culori.random());
@@ -477,34 +1267,36 @@
         }
 
         // --- DOM INITIALIZATION AND EVENT LISTENERS ---
-        
+
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.color-block').forEach(initializePickrForBlock);
             updateColorLabels();
-            generateColors(); 
-            
+            generateColors();
+
             const proModeHeader = document.getElementById('proModeHeader');
             proModeHeader.addEventListener('click', () => {
                 proModeHeader.classList.toggle('active');
                 document.getElementById('proModeContent').classList.toggle('show');
             });
-            
+
             document.getElementById('reverseBtn').addEventListener('click', reverseColors);
             document.getElementById('randomBtn').addEventListener('click', generateRandomColors);
 
             document.getElementById('steps').addEventListener('input', generateColors);
             document.querySelectorAll('input[name="interpolation-mode"]').forEach(radio => radio.addEventListener('change', generateColors));
-            
+
             document.getElementById('colorInputArea').addEventListener('input', (e) => {
-                if(e.target && e.target.classList.contains('hex-input')) {
+                if (e.target && e.target.classList.contains('hex-input')) {
                     updateColorOnInput(e.target);
                 }
             });
 
             const easingSlider = document.getElementById('easingSlider');
-            const easingValue = document.getElementById('easingValue');
+            const easingValueSpan = document.getElementById('easingValue');
+
+            // Slider -> Span Update
             easingSlider.addEventListener('input', () => {
-                easingValue.textContent = parseFloat(easingSlider.value).toFixed(2);
+                easingValueSpan.textContent = parseFloat(easingSlider.value).toFixed(2);
                 debouncedGenerate();
             });
 
@@ -524,7 +1316,7 @@
                         const colorThief = new ColorThief();
                         const colorBlocks = document.querySelectorAll('#colorInputArea .color-block');
                         const palette = colorThief.getPalette(img, colorBlocks.length);
-                        
+
                         colorBlocks.forEach((block, index) => {
                             if (palette[index]) {
                                 const rgb = palette[index];
@@ -562,23 +1354,23 @@
                 if (!targetItem || targetItem === draggedItem) return;
                 const targetRect = targetItem.getBoundingClientRect();
                 const isAfter = (e.clientY - targetRect.top) > (targetRect.height / 2);
-                if (isAfter) { targetItem.parentNode.insertBefore(draggedItem, targetItem.nextSibling); } 
+                if (isAfter) { targetItem.parentNode.insertBefore(draggedItem, targetItem.nextSibling); }
                 else { targetItem.parentNode.insertBefore(draggedItem, targetItem); }
             });
-            
+
             const darkModeToggle = document.getElementById('darkModeToggle');
             const htmlEl = document.documentElement;
             const setTheme = (theme) => { htmlEl.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); };
             const savedTheme = localStorage.getItem('theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (savedTheme) setTheme(savedTheme); else if (prefersDark) setTheme('dark'); else setTheme('light');
-            
+
             let clickCount = 0, clickTimer = null;
             const meowSound = new Audio("data:audio/mp3;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YUIAAAB//+MYRqOkyc4pSIiJg4KAmwIDAQ0NDgYJBQMBAwQCAgEABgYIBAMCBAQCAQIEAgQCAgYBAgYEAwQCBQQEBgYIBgIEAgIEAwYCAgEBAQEBAQEDAgICAgYDBQQEBQYCAgEBAQECAgICAwQFBggKCgoKCgoKCgoKCgoKCQgICAgIBwYFBAMDAgIBAQECAgECAgEBAQABAQEBAgEBAgECAgECAgECAgEBAQMBAQEBAQEBAQICAQEBAQEBAQEBAQEBAQEDAgECAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgECAgIBAQECAgEBAgICAgICAgECAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgECAgECAgECAgECAgEBAQEBAgECAgECAgEBAQEBAQECAgECAgECAgECAgECAgECAgECAgECAgEBAQEB//8YpoKKgYIHBw==");
             darkModeToggle.addEventListener('click', (e) => {
                 const currentTheme = htmlEl.getAttribute('data-theme');
                 setTheme(currentTheme === 'light' ? 'dark' : 'light');
-                if (e.detail > 1) e.preventDefault(); 
+                if (e.detail > 1) e.preventDefault();
                 clickCount++;
                 clearTimeout(clickTimer);
                 clickTimer = setTimeout(() => { clickCount = 0; }, 1000);
@@ -590,7 +1382,164 @@
                     clickCount = 0;
                 }
             });
+
+            // Load and render history on page load
+            renderHistory();
         });
+
+        // --- HISTORY MANAGEMENT ---
+        const HISTORY_KEY = 'gradient_history';
+        const MAX_HISTORY = 10;
+
+        function getStateKey(colors, steps, mode, easing) {
+            // Create a unique key for the state to detect duplicates
+            return JSON.stringify({ colors, steps, mode, easing: parseFloat(easing).toFixed(2) });
+        }
+
+        function saveToHistory(colors, steps, mode, easing, generatedColors) {
+            try {
+                let history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+                const stateKey = getStateKey(colors, steps, mode, easing);
+
+                // Check if this exact state already exists
+                const existingIndex = history.findIndex(item => getStateKey(item.colors, item.steps, item.mode, item.easing) === stateKey);
+
+                if (existingIndex !== -1) {
+                    // Move existing entry to the front (most recent)
+                    const existing = history.splice(existingIndex, 1)[0];
+                    history.unshift(existing);
+                } else {
+                    // Add new entry at the beginning
+                    history.unshift({
+                        colors: colors,
+                        steps: steps,
+                        mode: mode,
+                        easing: easing,
+                        generatedColors: generatedColors,
+                        timestamp: Date.now()
+                    });
+                }
+
+                // Keep only the last MAX_HISTORY entries
+                if (history.length > MAX_HISTORY) {
+                    history = history.slice(0, MAX_HISTORY);
+                }
+
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+                renderHistory();
+            } catch (e) {
+                console.error('Failed to save history:', e);
+            }
+        }
+
+        function renderHistory() {
+            const historyList = document.getElementById('historyList');
+            let history = [];
+
+            try {
+                history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+            } catch (e) {
+                console.error('Failed to load history:', e);
+            }
+
+            if (history.length === 0) {
+                historyList.innerHTML = '<div class="history-empty">저장된 기록이 없습니다.</div>';
+                return;
+            }
+
+            historyList.innerHTML = '';
+            const fragment = document.createDocumentFragment();
+
+            history.forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.setAttribute('data-index', index);
+                historyItem.title = `${item.colors.join(' → ')}\nSteps: ${item.steps} | Mode: ${item.mode.toUpperCase()} | Easing: ${parseFloat(item.easing).toFixed(2)}`;
+
+                // Create gradient preview using generated colors
+                const previewColors = item.generatedColors || item.colors;
+                previewColors.forEach(color => {
+                    const colorDiv = document.createElement('div');
+                    colorDiv.className = 'history-color';
+                    colorDiv.style.backgroundColor = color;
+                    historyItem.appendChild(colorDiv);
+                });
+
+                historyItem.addEventListener('click', () => restoreFromHistory(index));
+                fragment.appendChild(historyItem);
+            });
+
+            historyList.appendChild(fragment);
+        }
+
+        function restoreFromHistory(index) {
+            let history = [];
+
+            try {
+                history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+            } catch (e) {
+                console.error('Failed to load history:', e);
+                return;
+            }
+
+            if (index < 0 || index >= history.length) return;
+
+            const item = history[index];
+            const colorArea = document.getElementById('colorInputArea');
+            const currentBlocks = Array.from(colorArea.querySelectorAll('.color-block'));
+            const targetColorCount = item.colors.length;
+
+            // Adjust number of color blocks
+            while (currentBlocks.length < targetColorCount) {
+                addColorInput();
+                currentBlocks.push(colorArea.querySelector('.color-block:last-child'));
+            }
+            while (currentBlocks.length > targetColorCount && currentBlocks.length > 2) {
+                const block = colorArea.querySelector('.color-block:last-child');
+                const pickr = pickrInstances.get(block);
+                if (pickr) { pickr.destroyAndRemove(); pickrInstances.delete(block); }
+                colorArea.removeChild(block);
+                currentBlocks.pop();
+            }
+
+            // Update color values in each block
+            const updatedBlocks = colorArea.querySelectorAll('.color-block');
+            updatedBlocks.forEach((block, i) => {
+                if (i < item.colors.length) {
+                    const hexInput = block.querySelector('.hex-input');
+                    hexInput.value = item.colors[i];
+                    const pickr = pickrInstances.get(block);
+                    if (pickr) pickr.setColor(item.colors[i], true);
+                }
+            });
+
+            // Update steps
+            document.getElementById('steps').value = item.steps;
+
+            // Update interpolation mode
+            const modeRadio = document.querySelector(`input[name="interpolation-mode"][value="${item.mode}"]`);
+            if (modeRadio) modeRadio.checked = true;
+
+            // Update easing
+            const easingSlider = document.getElementById('easingSlider');
+            const easingValueSpan = document.getElementById('easingValue');
+            easingSlider.value = item.easing;
+            easingValueSpan.textContent = parseFloat(item.easing).toFixed(2);
+
+            // Update color labels and regenerate
+            updateColorLabels();
+            generateColors();
+
+            // Show tooltip
+            showTooltip(document.getElementById('historySection'), '기록이 복원되었습니다!');
+        }
+
+        function clearHistory() {
+            localStorage.removeItem(HISTORY_KEY);
+            renderHistory();
+            showTooltip(document.getElementById('historySection'), '모든 기록이 삭제되었습니다!');
+        }
     </script>
 </body>
+
 </html>
