@@ -4,6 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="헬로펫 그라데이션 생성기">
+    <meta property="og:description" content="Made by 여뉴">
+    <meta property="og:image"
+        content="https://github.com/DecimalColorConverter/DecimalColorConverter.github.io/blob/main/Assets/Preview2.png?raw=true">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="헬로펫 그라데이션 생성기">
+    <meta name="twitter:description" content="Made by 여뉴
+    <meta name=" twitter:image"
+        content="https://github.com/DecimalColorConverter/DecimalColorConverter.github.io/blob/main/Assets/Preview2.png?raw=true"
+        <!-- Additional Meta Tags -->
+    <meta name=" description" content="Made by 여뉴">
+
     <title>헬로펫 그라데이션 생성기</title>
     <!-- CULORI LIBRARY -->
     <script src="https://cdn.jsdelivr.net/npm/culori@4"></script>
@@ -16,11 +30,7 @@
     <script src="https://cdn.jsdelivr.net/npm/colorthief@2.4.0/dist/color-thief.umd.js"></script>
 
     <style>
-        /* ============================================
-           MODERN CLEAN UI/UX REDESIGN
-           ============================================ */
-
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
 
         :root {
             /* Light Theme - Refined Palette */
@@ -119,7 +129,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg-gradient);
             color: var(--text-color);
             min-height: 100vh;
@@ -141,7 +151,7 @@
             letter-spacing: -0.025em;
             margin-bottom: 28px;
             text-align: center;
-            background: linear-gradient(135deg, var(--text-color) 0%, var(--text-color-light) 100%);
+            background: linear-gradient(135deg, var(--text-color) 0%, var(--text-color) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -272,9 +282,9 @@
         }
 
         .remove-color-btn {
-            background: var(--danger-light);
+            background: transparent;
             border: none;
-            color: var(--danger);
+            color: var(--text-color-light);
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
@@ -293,8 +303,8 @@
         }
 
         .remove-color-btn:hover {
-            background: var(--danger);
-            color: white;
+            background: var(--danger-light);
+            color: var(--danger);
             transform: scale(1.1);
         }
 
@@ -991,6 +1001,57 @@
             background: var(--border-color-strong);
             border-radius: var(--radius-pill);
         }
+
+        /* ============================================
+           SETTINGS TOGGLE (DECIMAL MODE)
+           ============================================ */
+        .settings-toggle {
+            background: var(--card-bg-glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            padding: 12px 24px;
+            border-radius: var(--radius-pill);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-color-light);
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+            box-shadow: var(--shadow-medium);
+            will-change: transform;
+            margin-left: 4px;
+        }
+
+        .settings-toggle:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .settings-toggle.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .settings-toggle.active:hover {
+            background: var(--primary-dark);
+            color: white;
+        }
+
+        @media (min-width: 769px) {
+            .settings-toggle:hover {
+                box-shadow: var(--shadow-large);
+            }
+        }
+
+        .footer-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
     </style>
 </head>
 
@@ -1006,7 +1067,7 @@
                     <button class="add-color-btn" onclick="addColorInput()">+ 색상 추가</button>
                 </div>
                 <div class="color-input-group">
-                    <input type="text" class="hex-input" value="#292f56">
+                    <input type="text" class="hex-input" value="#00D2FF">
                     <div class="color-picker-container"></div>
                 </div>
             </div>
@@ -1017,7 +1078,7 @@
                     <button class="remove-color-btn" onclick="removeColorInput(this)">×</button>
                 </div>
                 <div class="color-input-group">
-                    <input type="text" class="hex-input" value="#acfa70">
+                    <input type="text" class="hex-input" value="#3A7BD5">
                     <div class="color-picker-container"></div>
                 </div>
             </div>
@@ -1096,9 +1157,14 @@
     </div>
 
     <div class="footer">
-        <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode">
-            Made by 여뉴
-        </button>
+        <div class="footer-buttons">
+            <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode">
+                Made by 여뉴
+            </button>
+            <button id="decimalModeToggle" class="settings-toggle" aria-label="Toggle decimal mode">
+                10진수 모드
+            </button>
+        </div>
         <div id="easterEggCharacter">🐾</div>
     </div>
 
@@ -1108,6 +1174,7 @@
         const pickrInstances = new Map();
         let debounceTimer;
         let rafPending = false;
+        let isDecimalMode = false; // 10진수 모드 상태
         let dragRafPending = false;
 
         // --- PERFORMANCE UTILITIES ---
@@ -1125,6 +1192,38 @@
         // --- CORE APP LOGIC ---
 
         function hexToDecimal(hex) { return parseInt(hex.slice(1), 16); }
+
+        // 코드 칩 표시 업데이트 (16진수 또는 10진수)
+        function updateCodeChipDisplay(codeDiv, hexColor) {
+            if (isDecimalMode) {
+                const decimal = hexToDecimal(hexColor);
+                codeDiv.textContent = decimal;
+            } else {
+                codeDiv.textContent = hexColor;
+            }
+        }
+
+        // 전체 코드 칩 표시 모드 업데이트
+        function updateAllCodeChipsDisplay() {
+            document.querySelectorAll('#codeBox .code').forEach(codeDiv => {
+                const hexColor = codeDiv.getAttribute('data-color');
+                updateCodeChipDisplay(codeDiv, hexColor);
+            });
+            // 복사 버튼 텍스트 업데이트
+            const copyBtn = document.getElementById('copyBtn');
+            if (copyBtn) {
+                copyBtn.innerHTML = isDecimalMode ? '모든 10진수 코드 복사' : '모든 16진수 코드 복사';
+            }
+        }
+
+        // 10진수 모드 토글
+        function toggleDecimalMode() {
+            isDecimalMode = !isDecimalMode;
+            localStorage.setItem('decimalMode', isDecimalMode);
+            updateAllCodeChipsDisplay();
+            const toggleBtn = document.getElementById('decimalModeToggle');
+            toggleBtn.classList.toggle('active', isDecimalMode);
+        }
 
         function debouncedGenerate() {
             clearTimeout(debounceTimer);
@@ -1187,10 +1286,16 @@
 
                 let codeDiv = document.createElement("span");
                 codeDiv.className = "code";
-                codeDiv.textContent = color;
                 codeDiv.setAttribute("data-color", color);
+                updateCodeChipDisplay(codeDiv, color);
                 codeDiv.addEventListener("click", function () {
-                    navigator.clipboard.writeText(this.textContent);
+                    const hexColor = this.getAttribute('data-color');
+                    if (isDecimalMode) {
+                        const decimal = hexToDecimal(hexColor);
+                        navigator.clipboard.writeText(`<font color=${decimal}>█</font>`);
+                    } else {
+                        navigator.clipboard.writeText(hexColor);
+                    }
                     showTooltip(this, "복사되었습니다!");
                 });
                 codeFragment.appendChild(codeDiv);
@@ -1210,7 +1315,8 @@
             let codeBox = document.getElementById("codeBox");
             let decimalView = document.getElementById("decimalView");
             let decimalColors = document.getElementById("decimalColors");
-            let hexColors = [...codeBox.getElementsByClassName("code")].map(div => div.textContent);
+            // data-color 속성에서 원래 16진수 색상 값을 가져옴 (textContent는 10진수 모드일 때 10진수 값일 수 있음)
+            let hexColors = [...codeBox.getElementsByClassName("code")].map(div => div.getAttribute('data-color'));
 
             decimalColors.innerHTML = "";
             let fragment = document.createDocumentFragment();
@@ -1318,8 +1424,19 @@
         // --- UTILITY & HELPER FUNCTIONS ---
 
         function copyColors() {
-            let text = [...document.querySelectorAll("#codeBox .code")].map(div => div.textContent).join("\n");
-            navigator.clipboard.writeText(text).then(() => showTooltip(document.getElementById("copyBtn"), "모든 16진수 코드가 복사되었습니다!"));
+            if (isDecimalMode) {
+                // 10진수 모드: 10진수 코드 복사
+                let text = [...document.querySelectorAll("#codeBox .code")].map(div => {
+                    const hexColor = div.getAttribute('data-color');
+                    const decimal = hexToDecimal(hexColor);
+                    return `<font color=${decimal}>█</font>`;
+                }).join("");
+                navigator.clipboard.writeText(text).then(() => showTooltip(document.getElementById("copyBtn"), "모든 10진수 코드가 복사되었습니다!"));
+            } else {
+                // 16진수 모드: 기존 동작
+                let text = [...document.querySelectorAll("#codeBox .code")].map(div => div.textContent).join("\n");
+                navigator.clipboard.writeText(text).then(() => showTooltip(document.getElementById("copyBtn"), "모든 16진수 코드가 복사되었습니다!"));
+            }
         }
 
         function copyDecimalColors() {
@@ -1511,6 +1628,17 @@
 
             // Load and render history on page load
             renderHistory();
+
+            // 10진수 모드 초기화
+            const savedDecimalMode = localStorage.getItem('decimalMode');
+            if (savedDecimalMode === 'true') {
+                isDecimalMode = true;
+                document.getElementById('decimalModeToggle').classList.add('active');
+                updateAllCodeChipsDisplay();
+            }
+
+            // 10진수 모드 토글 버튼 이벤트
+            document.getElementById('decimalModeToggle').addEventListener('click', toggleDecimalMode);
         });
 
         // --- HISTORY MANAGEMENT ---
