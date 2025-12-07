@@ -6,7 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>헬로펫 픽셀아트 에디터</title>
 
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="헬로펫 픽셀아트 에디터">
+    <meta property="og:description" content="Made by 여뉴">
+    <meta property="og:image"
+        content="https://github.com/DecimalColorConverter/DecimalColorConverter.github.io/blob/main/Assets/Preview1.png?raw=true">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="1200">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="헬로펫 픽셀아트 에디터">
+    <meta name="twitter:description" content="Made by 여뉴">
+    <meta name="twitter:image"
+        content="https://github.com/DecimalColorConverter/DecimalColorConverter.github.io/blob/main/Assets/Preview1.png?raw=true">
+
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
     <script src="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js"></script>
 
     <style>
@@ -31,8 +46,6 @@
             margin: 0;
             padding: 0;
         }
-
-        @import url('https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css');
 
         body {
             font-family: 'Pretendard', sans-serif;
@@ -605,7 +618,7 @@
 
 <body>
     <div class="container">
-        <h1>픽셀 아트 에디터</h1>
+        <h1>헬로펫 픽셀아트 에디터</h1>
 
         <div class="tools">
             <div class="tool-group">
@@ -808,8 +821,8 @@
 
                 <h4 style="margin-top: 18px; margin-bottom: 10px; color: var(--accent-color);">2. 캔버스 크기</h4>
                 <p>최소 4×4부터 최대 64×64까지 설정 가능합니다.</p>
-                <p style="color: #e74c3c; font-size: 0.9em; margin-top: 5px;">※ 펫카페 내 글자 수 제한으로 인해 가급적 <b>32×32
-                        이하</b>로 설정을 권장합니다.</p>
+                <p style="color: #e74c3c; font-size: 0.9em; margin-top: 5px;">※ 펫카페 내 글자수 제한으로 인해 가급적 <b>32×32
+                        이하</b> 설정을 권장합니다.</p>
 
                 <h4 style="margin-top: 18px; margin-bottom: 10px; color: var(--accent-color);">3. 이미지 변환</h4>
                 <p>사진 아이콘 클릭 후 이미지를 불러오면 픽셀아트로 자동 변환됩니다.</p>
@@ -822,7 +835,7 @@
                         복사됨. 업로드 시 납작하게 보일 수 있음.</li>
                     <li><b>정사각형 복사 모드:</b> 픽셀이 납작해 보일 때 사용. <code
                             style="background: var(--border-color); padding: 2px 6px; border-radius: 4px;">█</code> 대신
-                        <code style="background: var(--border-color); padding: 2px 6px; border-radius: 4px;">█..</code>를
+                        <code style="background: var(--border-color); padding: 2px 6px; border-radius: 4px;">█*</code>를
                         사용하여 1:1 비율로 보이게 합니다.<br><span style="font-size: 0.9em; color: #888;">(더보기(⋮) 메뉴에서 설정 가능)</span>
                     </li>
                 </ul>
@@ -832,7 +845,7 @@
 
                 <div
                     style="margin-top: 20px; padding: 15px; background: rgba(231, 76, 60, 0.1); border-radius: 8px; border-left: 3px solid #e74c3c;">
-                    <h4 style="margin-bottom: 10px; color: #e74c3c; font-size: 14px;">⚠️ 주의사항 및 안내</h4>
+                    <h4 style="margin-bottom: 10px; color: #e74c3c; font-size: 14px;">⚠️ 유의사항</h4>
                     <p style="font-size: 0.95em;">이 사이트로 제작된 창작물의 저작권은 사용자에게 있으며, 출처 기재는 자유입니다.</p>
                     <p style="font-size: 0.95em; margin-top: 8px;">단, 다른 유저가 제작 방법을 문의할 경우 본 사이트 링크 혹은
                         <b>#헬로펫픽셀아트에디터</b><b>, #여뉴만의색</b> 태그를 공유해 주세요. 더 많은 헬로펫 유저가 창작 활동을 즐기길 바랍니다.
@@ -1103,7 +1116,7 @@
             }
 
             function copyAll() {
-                const charOutput = state.isSquareCopyMode ? '█..' : '█';
+                const charOutput = state.isSquareCopyMode ? '█*' : '█';
                 const result = state.currentState.map((hexColor, i) => {
                     const colorWith0x = hexColor.replace('#', '0x');
                     let line = `<span style="background-color:${colorWith0x}; color:${colorWith0x}">${charOutput}</span>`;
