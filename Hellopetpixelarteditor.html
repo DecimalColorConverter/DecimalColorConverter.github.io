@@ -975,6 +975,41 @@
                 if (state.history.length > 50) state.history.shift();
                 state.redoStack = [];
                 updateUndoRedoButtons();
+                saveToLocalStorage();
+            }
+
+            function saveToLocalStorage() {
+                const projectData = {
+                    width: state.gridCols,
+                    height: state.gridRows,
+                    pixels: state.currentState
+                };
+                localStorage.setItem('pixelArtEditorProject', JSON.stringify(projectData));
+            }
+
+            function loadFromLocalStorage() {
+                const savedData = localStorage.getItem('pixelArtEditorProject');
+                if (savedData) {
+                    try {
+                        const data = JSON.parse(savedData);
+                        if (data.width && data.height && Array.isArray(data.pixels)) {
+                            elements.widthInput.value = data.width;
+                            elements.heightInput.value = data.height;
+                            state.gridCols = data.width;
+                            state.gridRows = data.height;
+                            createGrid(data.width, data.height);
+                            state.currentState = data.pixels;
+                            updateCanvasFromState();
+                            state.history = [[...state.currentState]];
+                            state.redoStack = [];
+                            updateUndoRedoButtons();
+                            return true;
+                        }
+                    } catch (error) {
+                        console.error('Failed to load from localStorage:', error);
+                    }
+                }
+                return false;
             }
 
             function updateUndoRedoButtons() {
@@ -1345,7 +1380,10 @@
 
             initDarkMode();
             initSquareCopyMode();
-            resetCanvas(state.gridCols, state.gridRows);
+            // Load from localStorage if available, otherwise reset canvas
+            if (!loadFromLocalStorage()) {
+                resetCanvas(state.gridCols, state.gridRows);
+            }
             updateColor('#000000');
             setupEventListeners();
         });
