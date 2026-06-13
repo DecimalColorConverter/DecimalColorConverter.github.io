@@ -9,16 +9,19 @@
         @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
 
         :root {
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --machine-bg: #f0e8ff;
-            --window-bg: rgba(255, 255, 255, 0.5);
-            --text-color: #333;
-            --lever-bg: #ff7e5f;
-            --lever-shadow: #c85a40;
-            --chute-bg: #d1c4e9;
-            --capsule-border: #a89bbd;
-            --input-bg: #fff;
-            --error-color: #d9534f;
+            --bg-gradient: linear-gradient(135deg, #fff0f3 0%, #ffccd5 100%);
+            --machine-bg: #ffffff;
+            --window-bg: rgba(255, 240, 243, 0.6);
+            --text-color: #4a3b40;
+            --accent-pink: #ff7597;
+            --accent-hover: #ff4d75;
+            --accent-light: #ffe5ec;
+            --lever-bg: #ff5c8a;
+            --lever-shadow: #d93d6a;
+            --chute-bg: #fff5f7;
+            --capsule-border: #ffb3c6;
+            --input-bg: #ffffff;
+            --error-color: #ff4d6d;
         }
 
         * {
@@ -35,40 +38,70 @@
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            overflow-x: hidden;
         }
 
+        /* 캡슐 머신 메인 프레임 */
         .gacha-machine {
             background-color: var(--machine-bg);
-            border-radius: 30px;
-            padding: 25px;
+            border-radius: 32px;
+            padding: 30px;
             width: 100%;
-            max-width: 420px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(255,255,255,0.8);
-            border: 5px solid #fff;
+            max-width: 430px;
+            box-shadow: 0 20px 40px rgba(255, 117, 151, 0.15), 
+                        inset 0 0 20px rgba(255, 255, 255, 0.6);
+            border: 6px solid #fff;
+            position: relative;
+        }
+
+        /* 머신 상단 귀여운 장식 */
+        .gacha-machine::before {
+            content: '🍒';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2.5rem;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
         }
 
         h1 {
             text-align: center;
             color: var(--text-color);
-            margin-bottom: 20px;
-            font-size: 2.2rem;
+            margin-bottom: 24px;
+            font-size: 2.3rem;
+            line-height: 1.2;
+            text-shadow: 2px 2px 0px #fff, 3px 3px 0px rgba(255, 117, 151, 0.2);
         }
         
-        /* 캡슐이 들어있는 창 */
+        /* 캡슐 보관 유리창 스타일 */
         .machine-window {
             background: var(--window-bg);
-            border-radius: 20px;
-            min-height: 150px;
-            padding: 15px;
+            backdrop-filter: blur(4px);
+            border-radius: 24px;
+            min-height: 160px;
+            padding: 16px;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
             align-content: flex-start;
             border: 3px solid var(--capsule-border);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: inset 0 4px 10px rgba(255, 117, 151, 0.1);
             margin-bottom: 20px;
             overflow-y: auto;
             max-height: 200px;
+        }
+
+        /* 스크롤바 커스텀 */
+        .machine-window::-webkit-scrollbar {
+            width: 6px;
+        }
+        .machine-window::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .machine-window::-webkit-scrollbar-thumb {
+            background: var(--capsule-border);
+            border-radius: 10px;
         }
 
         .machine-window.shake {
@@ -76,124 +109,167 @@
         }
 
         @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(3px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+            40%, 60% { transform: translate3d(5px, 0, 0); }
         }
 
         /* 참가자 캡슐 스타일 */
         .participant-capsule {
-            background-color: #fff;
+            background: linear-gradient(135deg, #ffffff 0%, #fff2f5 100%);
             border: 2px solid var(--capsule-border);
             color: var(--text-color);
-            padding: 5px 15px;
-            border-radius: 20px;
+            padding: 6px 14px;
+            border-radius: 25px;
             display: flex;
             align-items: center;
-            font-size: 1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: all 0.2s ease-in-out;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px rgba(255, 117, 151, 0.08);
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .participant-capsule:hover {
-            transform: scale(1.05);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 12px rgba(255, 117, 151, 0.15);
+            border-color: var(--accent-pink);
         }
         
         .remove-btn {
-            background: none; border: none; color: #999;
-            cursor: pointer; margin-left: 8px; font-size: 1.2rem;
-            padding: 0; line-height: 1;
+            background: none; 
+            border: none; 
+            color: #ffa6c9;
+            cursor: pointer; 
+            margin-left: 8px; 
+            font-size: 1.2rem;
+            padding: 0; 
+            line-height: 1;
+            transition: color 0.2s;
         }
-        .remove-btn:hover { color: var(--error-color); }
+        .remove-btn:hover { 
+            color: var(--error-color); 
+        }
 
+        /* 조작 패널 스타일 */
         .control-panel {
-            background-color: #e3d9f5;
-            padding: 20px;
-            border-radius: 20px;
-            margin-bottom: 20px;
+            background-color: var(--accent-light);
+            padding: 18px;
+            border-radius: 24px;
+            margin-bottom: 24px;
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.8);
         }
 
         .input-group {
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
         .input-group:last-child { margin-bottom: 0; }
 
         input[type="text"] {
             flex-grow: 1;
-            padding: 10px 15px;
+            padding: 12px 16px;
             background-color: var(--input-bg);
             color: var(--text-color);
             border: 2px solid var(--capsule-border);
-            border-radius: 10px;
-            font-size: 1rem;
+            border-radius: 14px;
+            font-size: 0.95rem;
             font-family: 'Jua', sans-serif;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.2s ease-in-out;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
-        input[type="text"]:focus { border-color: var(--lever-bg); }
+        input[type="text"]::placeholder {
+            color: #d1b2ba;
+        }
+        input[type="text"]:focus { 
+            border-color: var(--accent-pink); 
+            box-shadow: 0 0 0 3px rgba(255, 117, 151, 0.2);
+        }
 
-        button {
-            padding: 10px 15px;
-            background-color: #9076c4;
+        /* 버튼 스타일 */
+        .control-panel button {
+            padding: 12px 18px;
+            background-color: var(--accent-pink);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 14px;
             font-size: 1rem;
             font-family: 'Jua', sans-serif;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #e05377;
             white-space: nowrap;
         }
-        button:hover { background-color: #765aae; }
+        .control-panel button:hover { 
+            background-color: var(--accent-hover); 
+            transform: translateY(-1px);
+        }
+        .control-panel button:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #e05377;
+        }
         
-        /* 뽑기 레버(버튼) */
-        .pull-lever-section { text-align: center; margin-bottom: 25px; }
+        /* 메인 뽑기 레버(버튼) 영역 */
+        .pull-lever-section { 
+            text-align: center; 
+            margin-bottom: 28px; 
+        }
 
         #pull-btn {
-            width: 100px; height: 100px;
-            background-color: var(--lever-bg);
+            width: 105px; 
+            height: 105px;
+            background: linear-gradient(135deg, #ff7597 0%, #ff4d75 100%);
             color: white;
-            border: none;
+            border: 4px solid #fff;
             border-radius: 50%;
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-family: 'Jua', sans-serif;
             cursor: pointer;
-            box-shadow: 0 8px 0 var(--lever-shadow);
+            box-shadow: 0 10px 0 var(--lever-shadow), 0 15px 25px rgba(217, 61, 106, 0.4);
             transition: all 0.1s ease-out;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            text-shadow: 1px 2px 2px rgba(0,0,0,0.15);
+        }
+        #pull-btn:hover {
+            background: linear-gradient(135deg, #ff8da1 0%, #ff5c8a 100%);
         }
         #pull-btn:active {
-            transform: translateY(5px);
-            box-shadow: 0 3px 0 var(--lever-shadow);
+            transform: translateY(8px);
+            box-shadow: 0 2px 0 var(--lever-shadow), 0 5px 10px rgba(217, 61, 106, 0.4);
         }
 
-        /* 결과가 나오는 곳 */
+        /* 매칭 결과 영역 */
         .prize-chute {
             background-color: var(--chute-bg);
-            border-radius: 15px;
-            min-height: 80px;
-            padding: 20px;
+            border-radius: 20px;
+            min-height: 90px;
+            padding: 22px;
             text-align: center;
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             color: var(--text-color);
-            box-shadow: inset 0 4px 10px rgba(0,0,0,0.15);
-            line-height: 1.5;
+            box-shadow: inset 0 4px 10px rgba(255, 117, 151, 0.08),
+                        0 2px 10px rgba(255, 255, 255, 0.5);
+            line-height: 1.6;
+            border: 2px dashed #ffccd5;
             transition: background-color 0.3s;
         }
         .prize-chute .highlight {
             color: #d81b60;
-            font-size: 1.5rem;
+            font-size: 1.45rem;
+            background: linear-gradient(to top, #ffe5ec 40%, transparent 40%);
+            padding: 0 4px;
         }
 
         /* 모바일 화면 대응 */
         @media (max-width: 480px) {
-            h1 { font-size: 1.8rem; }
-            .gacha-machine { padding: 15px; }
-            .control-panel { padding: 15px; }
-            #pull-btn { width: 80px; height: 80px; font-size: 1.5rem; }
-            .prize-chute { font-size: 1.1rem; }
-            .prize-chute .highlight { font-size: 1.3rem; }
+            h1 { font-size: 1.9rem; }
+            .gacha-machine { padding: 20px; }
+            .control-panel { padding: 14px; }
+            #pull-btn { width: 90px; height: 90px; font-size: 1.5rem; }
+            .prize-chute { font-size: 1.1rem; padding: 18px; }
+            .prize-chute .highlight { font-size: 1.25rem; }
         }
 
     </style>
@@ -201,7 +277,7 @@
 <body>
 
     <div class="gacha-machine">
-        <h1>두근두근!<br>짝꿍 뽑기</h1>
+        <h1>두근두근!<br>💖 짝꿍 뽑기 💖</h1>
 
         <!-- 참가자 캡슐 창 -->
         <div class="machine-window" id="participantList"></div>
@@ -227,7 +303,7 @@
         
         <!-- 결과 표시 -->
         <div class="prize-chute" id="result">
-            캡슐이 나올 곳
+            🎀 캡슐이 나올 곳 🎀
         </div>
     </div>
     
@@ -260,8 +336,8 @@
 
         function addParticipant() {
             const name = addParticipantInput.value.trim();
-            if (name === "") { resultElem.textContent = '닉네임을 입력해주세요.'; return; }
-            if (participants.includes(name)) { resultElem.textContent = '이미 있는 닉네임이에요!'; return; }
+            if (name === "") { resultElem.textContent = '닉네임을 입력해주세요. 🧐'; return; }
+            if (participants.includes(name)) { resultElem.textContent = '이미 있는 닉네임이에요! 😮'; return; }
             participants.push(name);
             addParticipantInput.value = '';
             renderParticipants();
@@ -276,25 +352,67 @@
             const secretSeed = document.getElementById('seedInput').value.trim();
 
             if (secretSeed === "") {
-                resultElem.textContent = '비밀 시드(암호)를 입력해야 해요!';
+                resultElem.textContent = '비밀 시드(암호)를 입력해야 해요! 🔑';
                 return null;
             }
             if (participants.length < 2) {
-                resultElem.textContent = '참가자가 2명 이상 필요해요!';
+                resultElem.textContent = '참가자가 2명 이상 필요해요! 👥';
                 return null;
             }
 
-            const shuffled = [...participants];
-            const seededRandom = mulberry32(cyrb53(secretSeed));
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(seededRandom() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            // 피해야 할 매칭 정의
+            const forbiddenPairs = {
+                '참치': '여뉴',
+                '여뉴': '이셜',
+                '시현': '예륜',
+                '예륜': '련예',
+                '련예': '참치',
+                '류하': '시현',
+                '이셜': '류하'
+            };
+
+            let currentSeed = secretSeed;
+            let pairings = {};
+            let attempts = 0;
+
+            // 금지된 조합이 나오지 않을 때까지 시드를 변경해가며 매칭을 만듭니다.
+            while (attempts < 100) {
+                const shuffled = [...participants];
+                const seededRandom = mulberry32(cyrb53(currentSeed));
+                
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(seededRandom() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+
+                pairings = {};
+                for (let i = 0; i < shuffled.length; i++) {
+                    pairings[shuffled[i]] = shuffled[(i + 1) % shuffled.length];
+                }
+
+                // 현재 매칭이 금지된 조합과 완벽히 일치하는지 확인
+                let matchesForbidden = true;
+                if (participants.length === 7) {
+                    for (const [giver, receiver] of Object.entries(forbiddenPairs)) {
+                        if (pairings[giver] !== receiver) {
+                            matchesForbidden = false;
+                            break;
+                        }
+                    }
+                } else {
+                    matchesForbidden = false;
+                }
+
+                // 금지된 조합이 아니라면 루프를 빠져나갑니다.
+                if (!matchesForbidden) {
+                    break;
+                }
+
+                // 일치할 경우 기존 시드 뒤에 임의의 접미사를 붙여 재생성 시도
+                currentSeed += "_next";
+                attempts++;
             }
 
-            const pairings = {};
-            for (let i = 0; i < shuffled.length; i++) {
-                pairings[shuffled[i]] = shuffled[(i + 1) % shuffled.length];
-            }
             return pairings;
         }
 
@@ -302,30 +420,32 @@
             // 1. 애니메이션과 소리 효과
             participantListElem.classList.add('shake');
             gachaSound.currentTime = 0;
-            gachaSound.play();
-            resultElem.innerHTML = "두구두구두구....!";
+            gachaSound.play().catch(e => {
+                // 브라우저 정책 관련 예외 처리
+            });
+            resultElem.innerHTML = "🍭 두구두구두구....!";
 
             // 0.5초 후 애니메이션 클래스 제거
             setTimeout(() => {
                 participantListElem.classList.remove('shake');
             }, 500);
 
-            // 1초 후 결과 표시 (기대감 증폭!)
+            // 1초 후 결과 표시
             setTimeout(() => {
                 const pairings = generateFixedPairings();
-                if (!pairings) return; // 유효성 검사 실패 시 함수 종료
+                if (!pairings) return; 
                 
                 const nickname = nicknameInput.value.trim();
                 if (nickname === "") {
-                    resultElem.textContent = "결과를 확인할 내 닉네임을 입력하세요!";
+                    resultElem.textContent = "결과를 확인할 내 닉네임을 입력하세요! ✍️";
                     return;
                 }
 
                 const partner = pairings[nickname];
                 if (partner) {
-                    resultElem.innerHTML = `<strong>${nickname}</strong> 님은... <strong class="highlight">${partner}</strong> 님의<br>소개서를 써주세요!`;
+                    resultElem.innerHTML = `🌸 <strong>${nickname}</strong> 님은... <strong class="highlight">${partner}</strong> 님의<br>소개서를 써주세요! 🌸`;
                 } else {
-                    resultElem.innerHTML = `<strong>'${nickname}'</strong> 님은 참가자 목록에 없어요.<br>닉네임을 확인하거나 추가해주세요!`;
+                    resultElem.innerHTML = `😢 <strong>'${nickname}'</strong> 님은 목록에 없어요.<br>닉네임을 확인하거나 추가해주세요!`;
                 }
             }, 1000);
         }
