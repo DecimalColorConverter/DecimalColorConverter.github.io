@@ -360,7 +360,7 @@
                 return null;
             }
 
-            // 피해야 할 매칭 정의
+            // 1~7번 개별 금지 조건 정의 (단 하나도 겹쳐서는 안 됨)
             const forbiddenPairs = {
                 '참치': '여뉴',
                 '여뉴': '이셜',
@@ -374,9 +374,10 @@
             let currentSeed = secretSeed;
             let pairings = {};
             let attempts = 0;
+            let isSuccessful = false;
 
-            // 금지된 조합이 나오지 않을 때까지 시드를 변경해가며 매칭을 만듭니다.
-            while (attempts < 100) {
+            // 시드를 변경하며 금지 조합이 없는 매칭을 탐색
+            while (attempts < 500) {
                 const shuffled = [...participants];
                 const seededRandom = mulberry32(cyrb53(currentSeed));
                 
@@ -390,27 +391,29 @@
                     pairings[shuffled[i]] = shuffled[(i + 1) % shuffled.length];
                 }
 
-                // 현재 매칭이 금지된 조합과 완벽히 일치하는지 확인
-                let matchesForbidden = true;
-                if (participants.length === 7) {
-                    for (const [giver, receiver] of Object.entries(forbiddenPairs)) {
-                        if (pairings[giver] !== receiver) {
-                            matchesForbidden = false;
-                            break;
-                        }
+                // 매칭 결과 중 단 하나라도 금지 조건(1~7번)에 부합하는지 여부 검사
+                let hasForbiddenPair = false;
+                for (const [giver, receiver] of Object.entries(pairings)) {
+                    if (forbiddenPairs[giver] && forbiddenPairs[giver] === receiver) {
+                        hasForbiddenPair = true;
+                        break;
                     }
-                } else {
-                    matchesForbidden = false;
                 }
 
-                // 금지된 조합이 아니라면 루프를 빠져나갑니다.
-                if (!matchesForbidden) {
+                // 금지 조건이 전혀 검출되지 않았다면 매칭 성공
+                if (!hasForbiddenPair) {
+                    isSuccessful = true;
                     break;
                 }
 
-                // 일치할 경우 기존 시드 뒤에 임의의 접미사를 붙여 재생성 시도
+                // 금지 조건 발견 시 시드를 조금 변경하여 재탐색 수행
                 currentSeed += "_next";
                 attempts++;
+            }
+
+            if (!isSuccessful) {
+                resultElem.textContent = '조건을 만족하는 매칭 결과를 찾기 어렵습니다. 참가자를 확인해 주세요!';
+                return null;
             }
 
             return pairings;
@@ -421,7 +424,7 @@
             participantListElem.classList.add('shake');
             gachaSound.currentTime = 0;
             gachaSound.play().catch(e => {
-                // 브라우저 정책 관련 예외 처리
+                // 브라우저 재생 정책 예외 처리
             });
             resultElem.innerHTML = "🍭 두구두구두구....!";
 
