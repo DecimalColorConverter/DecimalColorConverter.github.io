@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>졸음 감지기</title>
+
+<!-- 모바일에서 실패하지 않는 전역 CDN 로더 방식 사용 -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm/vision_bundle.js" crossorigin="anonymous"></script>
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#f5f6f8;color:#20242a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
@@ -35,7 +40,7 @@ input{width:100%}
 <body>
 <div class="app">
  <h1>졸음 감지기</h1>
- <p class="sub">실시간 눈 감김 감지</p>
+ <p class="sub">모바일 전용 안정화 버전</p>
 
  <div class="grid">
   <div class="videoBox">
@@ -45,12 +50,12 @@ input{width:100%}
   </div>
 
   <div class="side">
-   <div class="card"><div class="label">EAR (눈 개폐도)</div><div class="value" id="ear">—</div></div>
+   <div class="card"><div class="label">EAR (눈 개폐 수치)</div><div class="value" id="ear">—</div></div>
    <div class="card"><div class="label">감긴 시간</div><div class="value" id="closed">0.00 s</div></div>
    <div class="card"><div class="label">상태</div><div class="status normal" id="status">정상</div></div>
 
    <div class="card">
-    <div class="label">임계값: <span id="thText">0.21</span></div>
+    <div class="label">기준값 (EAR): <span id="thText">0.21</span></div>
     <input id="threshold" type="range" min="0.12" max="0.32" step="0.01" value="0.21">
    </div>
 
@@ -60,15 +65,14 @@ input{width:100%}
    </div>
 
    <div id="debugBox" style="margin-top:8px">
-    <div style="font-size:11px;font-weight:bold;margin-bottom:3px;color:#666">실행 로그 (문제가 생기면 확인하세요)</div>
-    <div id="debugLog">페이지 로딩 완료.</div>
+    <div style="font-size:11px;font-weight:bold;margin-bottom:3px;color:#666">실행 로그</div>
+    <div id="debugLog">페이지 초기화 시작...</div>
    </div>
   </div>
  </div>
 </div>
 
 <script>
-// 모바일 화면에서 오류를 바로 확인할 수 있는 로거
 const logEl = document.getElementById("debugLog");
 function log(msg) {
   console.log(msg);
@@ -77,24 +81,8 @@ function log(msg) {
 }
 
 window.onerror = function(msg, url, line) {
-  log(`[JS 오류] ${msg} (line: ${line})`);
+  log(`[스크립트 에러] ${msg}`);
 };
-</script>
-
-<script type="module">
-// CDN 라이브러리 동적 로드 (모듈 로딩 실패 방지)
-log("AI 엔진 로드 시도...");
-let FaceLandmarker, FilesetResolver;
-
-try {
-  const vision = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm/vision_bundle.mjs");
-  FaceLandmarker = vision.FaceLandmarker;
-  FilesetResolver = vision.FilesetResolver;
-  log("AI 엔진 파일 로드 성공!");
-} catch(err) {
-  log("AI 로드 실패: " + err.message);
-  alert("네트워크 상태를 확인해주세요. AI 모듈 다운로드에 실패했습니다.");
-}
 
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
@@ -125,21 +113,24 @@ function calcEAR(p, ids) {
   return (dist(b,f) + dist(c,e)) / (2 * dist(a,d));
 }
 
-// 1. 카메라 먼저 켜기
-async function openCamera() {
-  log("카메라 접근 권한 요청 중...");
-  
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    throw new Error("이 브라우저는 카메라 권한을 지원하지 않거나, HTTPS(보안연결)가 아닙니다.");
+// 라이브러리 정상 로드 체크
+window.addEventListener("load", () => {
+  if (window.FaceLandmarker && window.FilesetResolver) {
+    log("AI 엔진 탑재 완료! [시작]을 누르세요.");
+  } else {
+    log("엔진 로드 대기 중...");
   }
+});
 
-  // 모바일 호환을 위해 가장 기초적인 제약 조건 적용
+// 카메라 오픈
+async function openCamera() {
+  log("카메라 스트림 요청 중...");
   const constraints = {
     audio: false,
     video: {
       facingMode: "user",
-      width: { ideal: 640 },
-      height: { ideal: 480 }
+      width: { ideal: 480 },
+      height: { ideal: 640 }
     }
   };
 
@@ -151,24 +142,24 @@ async function openCamera() {
       await video.play();
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-      log(`카메라 연결 완료 (${video.videoWidth}x${video.videoHeight})`);
+      log(`카메라 켜짐 (${video.videoWidth}x${video.videoHeight})`);
       resolve();
     };
   });
 }
 
-// 2. 모델 로드
+// AI 로드
 async function loadAI() {
   if (landmarker) return;
   badge.textContent = "AI 모델 다운로드 중...";
-  log("AI 세부 모델 초기화 중...");
-  
-  const resolver = await FilesetResolver.forVisionTasks(
-    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
+  log("AI 모델 다운로드 시작 (약 5초)...");
+
+  const vision = window; // script 태그로 불러와 window 객체에 바로 주입됨
+  const resolver = await vision.FilesetResolver.forVisionTasks(
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
   );
-  
-  // 모바일 브라우저 안정성을 위해 기본 CPU로 시작 (GPU 충돌 방지)
-  landmarker = await FaceLandmarker.createFromOptions(resolver, {
+
+  landmarker = await vision.FaceLandmarker.createFromOptions(resolver, {
     baseOptions: {
       modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
       delegate: "CPU"
@@ -176,34 +167,25 @@ async function loadAI() {
     runningMode: "VIDEO",
     numFaces: 1
   });
+
   log("AI 모델 준비 완료!");
 }
 
 async function start() {
   startBtn.disabled = true;
-  badge.textContent = "연결 중...";
-  
-  try {
-    // 인앱 브라우저 체크
-    const ua = navigator.userAgent.toLowerCase();
-    if (ua.includes("kakaotalk") || ua.includes("naver") || ua.includes("instagram")) {
-      alert("카카오톡/네이버 등 인앱브라우저에서는 카메라가 차단됩니다. 우측 상단 메뉴를 눌러 [Safari 또는 Chrome으로 열기]를 눌러주세요.");
-    }
+  badge.textContent = "작동 준비 중...";
 
-    // 카메라를 먼저 빠르게 띄움 (화면 반응성 향상)
+  try {
     await openCamera();
-    
-    // 이후 모델 다운로드 진행
     await loadAI();
 
     running = true;
     stopBtn.disabled = false;
-    badge.textContent = "감지 작동 중";
+    badge.textContent = "얼굴 감지 중";
     loop();
   } catch (err) {
-    log("실패: " + err.message);
-    badge.textContent = "에러 발생";
-    alert("카메라 실행 실패:\n" + err.message);
+    log("오류: " + err.message);
+    badge.textContent = "오류 발생";
     startBtn.disabled = false;
   }
 }
@@ -219,7 +201,7 @@ function stop() {
   badge.textContent = "정지됨";
   startBtn.disabled = false;
   stopBtn.disabled = true;
-  log("카메라가 중지되었습니다.");
+  log("카메라 정지됨");
 }
 
 function loop() {
@@ -241,16 +223,18 @@ function loop() {
           if (closedStart === null) closedStart = performance.now();
           const sec = (performance.now() - closedStart) / 1000;
           closedEl.textContent = sec.toFixed(2) + " s";
-          
+
           if (sec >= 1.0) {
             statusEl.textContent = "졸음 감지!!";
             statusEl.className = "status warn";
+            badge.textContent = "⚠️ 졸음 감지!";
           }
         } else {
           closedStart = null;
           closedEl.textContent = "0.00 s";
           statusEl.textContent = "정상";
           statusEl.className = "status normal";
+          badge.textContent = "얼굴 감지 중";
         }
       } else {
         earEl.textContent = "—";
